@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block title %}List a Hostel - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header hostels-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-home"></i> List a Hostel</h1>
+            <p>Help students find accommodation near campus</p>
+        </div>
+        <a href="{{ url_for('hostels') }}" class="btn-outline-white">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="form-page">
+        <div class="form-container">
+            <form method="POST" class="styled-form">
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-building"></i> Hostel Name
+                    </label>
+                    <input type="text" name="name"
+                           placeholder="e.g. Al-Rehman Boys Hostel"
+                           required>
+                </div>
+<form method="POST" id="postHostelForm"
+      class="styled-form"
+      enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-map-marker-alt"></i> Location
+                    </label>
+                    <input type="text" name="location"
+                           id="hostelLocation"
+                           placeholder="e.g. Koral Town, Islamabad"
+                           required>
+                    <div id="locationSuggestions" class="suggestions-box"></div>
+                </div>
+
+                <!-- Map Preview -->
+                <div class="form-group">
+                    <label><i class="fas fa-map"></i> Location Preview</label>
+                    <div id="hostelMap" class="map-container"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-money-bill"></i>
+                            Monthly Rent (Rs.)
+                        </label>
+                        <input type="number" name="price"
+                               placeholder="e.g. 8000"
+                               min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-users"></i> Gender
+                        </label>
+                        <select name="gender" required>
+                            <option value="">Select gender</option>
+                            <option value="Male">Male Only</option>
+                            <option value="Female">Female Only</option>
+                            <option value="Any">Mixed/Any</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-list"></i> Facilities
+                    </label>
+                    <div class="checkbox-group">
+                        {% for facility in ['WiFi', 'AC', 'Laundry',
+                          'Gym', 'Cafeteria', 'Security', 'Parking',
+                          'Generator', 'Water Cooler', 'Study Room'] %}
+                        <label class="checkbox-label">
+                            <input type="checkbox"
+                                   name="facilities_check"
+                                   value="{{ facility }}">
+                            <span>{{ facility }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="facilities" id="facilitiesInput">
+                </div>
+
+                <div class="form-group">
+    <label>
+        <i class="fas fa-image"></i> Hostel Photo
+    </label>
+    <div class="image-upload-box" onclick="document.getElementById('hostelImage').click()">
+        <img id="imagePreview" src="" alt="" style="display:none;
+             width:100%; height:200px; object-fit:cover; border-radius:8px">
+        <div id="uploadPlaceholder">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Click to upload hostel photo</p>
+            <small>JPG, PNG, WEBP up to 5MB</small>
+        </div>
+    </div>
+    <input type="file" name="image" id="hostelImage"
+           accept="image/*" style="display:none"
+           onchange="previewImage(this)">
+</div>
+
+                <button type="submit" class="btn-primary btn-full btn-large"
+                        onclick="collectFacilities()">
+                    <i class="fas fa-home"></i> List Hostel
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const map = L.map('hostelMap').setView([33.6844, 73.0479], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+let marker = null;
+
+let locTimeout;
+document.getElementById('hostelLocation').addEventListener('input', function() {
+    clearTimeout(locTimeout);
+    locTimeout = setTimeout(() => {
+        const query = this.value;
+        if(query.length < 3) return;
+        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ', Islamabad, Pakistan')}&format=json&limit=5`)
+        .then(r => r.json())
+        .then(data => {
+            const box = document.getElementById('locationSuggestions');
+            box.innerHTML = '';
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${item.display_name}`;
+                div.onclick = () => {
+                    document.getElementById('hostelLocation').value = item.display_name;
+                    box.innerHTML = '';
+                    const lat = parseFloat(item.lat);
+                    const lng = parseFloat(item.lon);
+                    if(marker) map.removeLayer(marker);
+                    marker = L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            html: '<div class="map-marker orange-marker"><i class="fas fa-home"></i></div>',
+                            className: '', iconSize: [30, 30]
+                        })
+                    }).addTo(map).bindPopup('Hostel Location').openPopup();
+                    map.setView([lat, lng], 15);
+                };
+                box.appendChild(div);
+            });
+        });
+    }, 500);
+});
+
+function collectFacilities() {
+    const checked = document.querySelectorAll('input[name="facilities_check"]:checked');
+    const facilities = Array.from(checked).map(c => c.value);
+    document.getElementById('facilitiesInput').value = facilities.join(', ');
+}
+</script>
+{% endblock %}

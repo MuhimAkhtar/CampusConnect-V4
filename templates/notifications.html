@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Notifications - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header messages-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-bell"></i> Notifications</h1>
+            <p>Stay updated with your campus activity</p>
+        </div>
+    </div>
+
+    <div style="padding:0 25px; max-width:800px; margin:0 auto;">
+        {% if notifs %}
+        <div style="display:flex; flex-direction:column;
+                    gap:12px; margin-top:20px">
+            {% for notif in notifs %}
+
+            <!-- Ride Request Notification -->
+            {% if notif[3] == 'ride_request' %}
+            <div class="notif-card notif-ride
+                        {% if notif[4] == 0 %}notif-unread{% endif %}">
+                <div class="notif-icon notif-icon-ride">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="notif-content">
+                    <h4>{{ notif[1] }}</h4>
+                    <p>{{ notif[2] }}</p>
+                    <small>
+                        <i class="fas fa-clock"></i>
+                        {{ notif[5].strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
+                    </small>
+                </div>
+                {% if notif[4] == 0 %}
+                <span class="notif-new-badge">New</span>
+                {% endif %}
+            </div>
+
+            <!-- Message Notification -->
+            {% elif notif[3] == 'message' %}
+            <div class="notif-card notif-message
+                        {% if notif[4] == 0 %}notif-unread{% endif %}">
+                <div class="notif-icon notif-icon-message">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="notif-content">
+                    <h4>{{ notif[1] }}</h4>
+                    <p>{{ notif[2] }}</p>
+                    <small>
+                        <i class="fas fa-clock"></i>
+                        {{ notif[5].strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
+                    </small>
+                </div>
+                {% if notif[4] == 0 %}
+                <span class="notif-new-badge">New</span>
+                {% endif %}
+            </div>
+
+            <!-- Marketplace Notification -->
+            {% elif notif[3] == 'marketplace' %}
+            <div class="notif-card notif-market
+                        {% if notif[4] == 0 %}notif-unread{% endif %}">
+                <div class="notif-icon notif-icon-market">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="notif-content">
+                    <h4>{{ notif[1] }}</h4>
+                    <p>{{ notif[2] }}</p>
+                    <small>
+                        <i class="fas fa-clock"></i>
+                        {{ notif[5].strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
+                    </small>
+                </div>
+                {% if notif[4] == 0 %}
+                <span class="notif-new-badge">New</span>
+                {% endif %}
+            </div>
+
+            <!-- General Notification -->
+            {% else %}
+            <div class="notif-card notif-general
+                        {% if notif[4] == 0 %}notif-unread{% endif %}">
+                <div class="notif-icon notif-icon-general">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="notif-content">
+                    <h4>{{ notif[1] }}</h4>
+                    <p>{{ notif[2] }}</p>
+                    <small>
+                        <i class="fas fa-clock"></i>
+                        {{ notif[5].strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
+                    </small>
+                </div>
+                {% if notif[4] == 0 %}
+                <span class="notif-new-badge">New</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state large" style="margin-top:20px">
+            <i class="fas fa-bell"></i>
+            <h3>No notifications yet</h3>
+            <p>You will see ride requests, messages and updates here</p>
+            <a href="{{ url_for('dashboard') }}" class="btn-primary">
+                <i class="fas fa-home"></i> Go to Dashboard
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header profile-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-user-edit"></i> Edit Profile</h1>
+            <p>Update your CampusConnect profile</p>
+        </div>
+        <a href="{{ url_for('profile') }}" class="btn-outline-white">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="form-page">
+        <div class="form-container">
+            <form method="POST" class="styled-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-graduation-cap"></i>
+                            Department
+                        </label>
+                        <select name="department">
+                            <option value="">Select department</option>
+                            {% for dept in ['Software Engineering',
+                               'Computer Science',
+                               'Electrical Engineering',
+                               'Civil Engineering',
+                               'Business Administration',
+                               'Bioinformatics',
+                               'Mathematics'] %}
+                            <option value="{{ dept }}"
+                                {% if prof and prof[0]==dept %}
+                                selected{% endif %}>
+                                {{ dept }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-calendar"></i>
+                            Semester
+                        </label>
+                        <select name="semester">
+                            <option value="">Select semester</option>
+                            {% for sem in ['FA24','SP24','FA23',
+                                           'SP23','FA22','SP22'] %}
+                            <option value="{{ sem }}"
+                                {% if prof and prof[1]==sem %}
+                                selected{% endif %}>
+                                {{ sem }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-id-card"></i>
+                            Roll Number
+                        </label>
+                        <input type="text" name="roll_no"
+                               placeholder="e.g. FA24-BSE-080"
+                               value="{{ prof[2] if prof and prof[2] else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-phone"></i>
+                            Phone Number
+                        </label>
+                        <input type="text" name="phone"
+                               placeholder="e.g. 0300-1234567"
+                               value="{{ prof[4] if prof and prof[4] else '' }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-city"></i> City
+                    </label>
+                    <input type="text" name="city"
+                           placeholder="e.g. Islamabad"
+                           value="{{ prof[5] if prof and prof[5] else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-quote-left"></i> Bio
+                    </label>
+                    <textarea name="bio" rows="3"
+                              placeholder="Tell others about yourself..."
+                              maxlength="300">{{ prof[3] if prof and prof[3] else '' }}</textarea>
+                    <small class="hint">Max 300 characters</small>
+                </div>
+
+                <button type="submit"
+                        class="btn-primary btn-full btn-large">
+                    <i class="fas fa-save"></i> Save Profile
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

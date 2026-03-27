@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% block title %}Item Details - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header market-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-store"></i> Item Details</h1>
+        </div>
+        <a href="{{ url_for('marketplace') }}" class="btn-outline-white">
+            <i class="fas fa-arrow-left"></i> Back to Marketplace
+        </a>
+    </div>
+
+    {% if item %}
+    <div class="detail-page">
+        <div class="detail-main">
+
+            <!-- Item Image & Info -->
+            <div class="detail-card">
+                <div class="item-detail-image">
+                    <i class="fas fa-{% if item[4]=='Books' %}book
+                        {% elif item[4]=='Gadgets' %}laptop
+                        {% elif item[4]=='Notes' %}sticky-note
+                        {% elif item[4]=='Furniture' %}couch
+                        {% elif item[4]=='Clothing' %}tshirt
+                        {% else %}box{% endif %} item-icon-large"></i>
+                </div>
+                <div class="item-detail-info">
+                    <div class="item-badges">
+                        <span class="category-badge">{{ item[4] }}</span>
+                        <span class="condition-badge {{ item[5].lower().replace(' ','-') }}">
+                            {{ item[5] }}
+                        </span>
+                        <span class="status-pill {{ item[6] }}">
+                            {{ item[6].title() }}
+                        </span>
+                    </div>
+                    <h2 style="font-size:24px; font-weight:800;
+                               color:var(--dark); margin:12px 0">
+                        {{ item[1] }}
+                    </h2>
+                    <p class="item-price-large">Rs. {{ item[3] }}</p>
+                    {% if item[2] %}
+                    <div class="item-description">
+                        <h3>Description</h3>
+                        <p>{{ item[2] }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Safety Tips -->
+            <div class="detail-card safety-tips">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-shield-alt"></i> Safety Tips
+                </h2>
+                <ul>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        Meet in a public place on campus
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        Inspect the item carefully before paying
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        Never share personal bank details
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        Pay only after receiving the item
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        Report suspicious listings immediately
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="detail-sidebar">
+
+            <!-- Seller Info -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-user"></i> Seller
+                </h2>
+                <div class="poster-profile">
+                    <div class="poster-avatar-large">
+                        {{ item[7][0].upper() }}
+                    </div>
+                    <h3>{{ item[7] }}</h3>
+                    <p>{{ item[8] }}</p>
+                </div>
+
+                {% if item[9] != session.user_id %}
+                <a href="{{ url_for('chat', other_id=item[9]) }}"
+                   class="btn-primary btn-full"
+                   style="margin-bottom:10px">
+                    <i class="fas fa-comments"></i> Message Seller
+                </a>
+                {% else %}
+                <div class="owner-actions">
+                    <p class="owner-badge">
+                        <i class="fas fa-crown"></i> Your Listing
+                    </p>
+                    <a href="{{ url_for('delete_item', item_id=item[0]) }}"
+                       class="btn-danger btn-full"
+                       onclick="return confirm('Mark as sold?')">
+                        <i class="fas fa-check"></i> Mark as Sold
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Price Card -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-tag"></i> Price Details
+                </h2>
+                <div style="text-align:center; padding:15px 0">
+                    <p style="font-size:36px; font-weight:800;
+                               color:var(--success)">
+                        Rs. {{ item[3] }}
+                    </p>
+                    <p style="color:var(--gray); font-size:13px">
+                        Negotiable — Contact seller
+                    </p>
+                </div>
+                <div style="background:#f8f9fa; padding:12px;
+                            border-radius:8px; margin-top:10px">
+                    <div style="display:flex; justify-content:space-between;
+                                margin-bottom:8px">
+                        <span style="color:var(--gray); font-size:13px">
+                            Category
+                        </span>
+                        <strong style="font-size:13px">{{ item[4] }}</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;
+                                margin-bottom:8px">
+                        <span style="color:var(--gray); font-size:13px">
+                            Condition
+                        </span>
+                        <strong style="font-size:13px">{{ item[5] }}</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between">
+                        <span style="color:var(--gray); font-size:13px">
+                            Status
+                        </span>
+                        <span class="status-pill {{ item[6] }}"
+                              style="font-size:11px">
+                            {{ item[6].title() }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Item -->
+            {% if item[9] != session.user_id %}
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-flag"></i> Report Item
+                </h2>
+                <p style="font-size:13px; color:var(--gray);
+                           margin-bottom:12px">
+                    If this listing seems suspicious or inappropriate,
+                    please report it.
+                </p>
+                <form method="POST"
+                      action="{{ url_for('report_item', item_id=item[0]) }}">
+                    <div class="form-group" style="margin-bottom:10px">
+                        <select name="reason" class="filter-select"
+                                style="width:100%">
+                            <option value="Suspicious listing">
+                                Suspicious listing
+                            </option>
+                            <option value="Wrong price">
+                                Wrong price
+                            </option>
+                            <option value="Item already sold">
+                                Item already sold
+                            </option>
+                            <option value="Spam">Spam</option>
+                            <option value="Fake item">Fake item</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit"
+                            class="btn-danger btn-full"
+                            onclick="return confirm('Report this item?')">
+                        <i class="fas fa-flag"></i> Report Item
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Similar Items -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-th-large"></i> More {{ item[4] }}
+                </h2>
+                <a href="{{ url_for('marketplace', category=item[4]) }}"
+                   class="btn-outline btn-full">
+                    <i class="fas fa-search"></i>
+                    Browse More {{ item[4] }}
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    {% else %}
+    <div class="empty-state large" style="margin:30px">
+        <i class="fas fa-store"></i>
+        <h3>Item not found</h3>
+        <p>This item may have been sold or removed.</p>
+        <a href="{{ url_for('marketplace') }}" class="btn-primary">
+            Browse Marketplace
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

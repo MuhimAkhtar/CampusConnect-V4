@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% block title %}Post a Ride - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header rides-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-car"></i> Post a Ride</h1>
+            <p>Share your ride with fellow COMSATS students</p>
+        </div>
+        <a href="{{ url_for('rides') }}" class="btn-outline-white">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="form-page">
+        <div class="form-container">
+            <form method="POST" id="postRideForm" class="styled-form">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-map-marker-alt" style="color:var(--success)"></i>
+                            Pickup Location
+                        </label>
+                        <input type="text" name="from_location"
+                               id="fromLocation"
+                               placeholder="e.g. COMSATS University, Islamabad"
+                               required autocomplete="off">
+                        <input type="hidden" name="pickup_lat" id="pickupLat">
+                        <input type="hidden" name="pickup_lng" id="pickupLng">
+                        <div id="fromSuggestions" class="suggestions-box"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-map-marker-alt" style="color:var(--danger)"></i>
+                            Drop-off Location
+                        </label>
+                        <input type="text" name="to_location"
+                               id="toLocation"
+                               placeholder="e.g. Blue Area, Islamabad"
+                               required autocomplete="off">
+                        <input type="hidden" name="dropoff_lat" id="dropoffLat">
+                        <input type="hidden" name="dropoff_lng" id="dropoffLng">
+                        <div id="toSuggestions" class="suggestions-box"></div>
+                    </div>
+                </div>
+
+                <!-- Route Map -->
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-map"></i> Route Preview
+                    </label>
+                    <div id="postRideMap" class="map-container"></div>
+                    <div id="routeInfo" class="route-info-box" style="display:none">
+                        <span id="distanceInfo">
+                            <i class="fas fa-road"></i> Distance: --
+                        </span>
+                        <span id="durationInfo">
+                            <i class="fas fa-clock"></i> Est. Time: --
+                        </span>
+                    </div>
+                    <input type="hidden" name="distance_km"   id="distanceKm">
+                    <input type="hidden" name="duration_mins" id="durationMins">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-calendar"></i> Date
+                        </label>
+                        <input type="date" name="ride_date"
+                               id="rideDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-clock"></i> Time
+                        </label>
+                        <input type="time" name="ride_time" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-chair"></i> Available Seats
+                        </label>
+                        <select name="seats" required>
+                            <option value="">Select seats</option>
+                            <option value="1">1 Seat</option>
+                            <option value="2">2 Seats</option>
+                            <option value="3">3 Seats</option>
+                            <option value="4">4 Seats</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-money-bill"></i>
+                            Price per Seat (Rs.)
+                        </label>
+                        <input type="number" name="price"
+                               placeholder="0 for free"
+                               min="0" value="0" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-full btn-large">
+                    <i class="fas fa-car"></i> Post Ride
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Set minimum date to today
+document.getElementById('rideDate').min = new Date().toISOString().split('T')[0];
+
+// Initialize map centered on COMSATS Islamabad
+const map = L.map('postRideMap').setView([33.6844, 73.0479], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+let fromMarker = null;
+let toMarker   = null;
+let routeLayer = null;
+
+// Custom icons
+const greenIcon = L.divIcon({
+    html: '<div class="map-marker green-marker"><i class="fas fa-map-marker-alt"></i></div>',
+    className: '',
+    iconSize: [30, 30]
+});
+
+const redIcon = L.divIcon({
+    html: '<div class="map-marker red-marker"><i class="fas fa-map-marker-alt"></i></div>',
+    className: '',
+    iconSize: [30, 30]
+});
+
+// COMSATS default marker
+L.marker([33.6844, 73.0479], {
+    icon: L.divIcon({
+        html: '<div class="map-marker blue-marker"><i class="fas fa-university"></i></div>',
+        className: '',
+        iconSize: [35, 35]
+    })
+}).addTo(map).bindPopup('<b>COMSATS University Islamabad</b>');
+
+// ================================
+// LOCATION SEARCH WITH NOMINATIM
+// ================================
+function searchLocation(query, suggestionsId, onSelect) {
+    if(query.length < 3) return;
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ', Pakistan')}&format=json&limit=5&countrycodes=pk`)
+    .then(r => r.json())
+    .then(data => {
+        const box = document.getElementById(suggestionsId);
+        box.innerHTML = '';
+        if(data.length === 0) {
+            box.innerHTML = '<div class="suggestion-item" style="color:#999"><i class="fas fa-info-circle"></i> No results found</div>';
+            return;
+        }
+        data.forEach(item => {
+            const div       = document.createElement('div');
+            div.className   = 'suggestion-item';
+            div.innerHTML   = `<i class="fas fa-map-marker-alt"></i> ${item.display_name}`;
+            div.onclick     = () => {
+                onSelect(item);
+                box.innerHTML = '';
+            };
+            box.appendChild(div);
+        });
+    })
+    .catch(err => console.log('Search error:', err));
+}
+
+// Close suggestions when clicking outside
+document.addEventListener('click', function(e) {
+    if(!e.target.closest('#fromLocation') && !e.target.closest('#fromSuggestions')) {
+        document.getElementById('fromSuggestions').innerHTML = '';
+    }
+    if(!e.target.closest('#toLocation') && !e.target.closest('#toSuggestions')) {
+        document.getElementById('toSuggestions').innerHTML = '';
+    }
+});
+
+// ================================
+// FROM LOCATION
+// ================================
+let fromTimeout;
+document.getElementById('fromLocation').addEventListener('input', function() {
+    clearTimeout(fromTimeout);
+    const val = this.value;
+    fromTimeout = setTimeout(() => {
+        searchLocation(val, 'fromSuggestions', (item) => {
+            document.getElementById('fromLocation').value = item.display_name;
+            document.getElementById('pickupLat').value    = item.lat;
+            document.getElementById('pickupLng').value    = item.lon;
+
+            const lat = parseFloat(item.lat);
+            const lng = parseFloat(item.lon);
+
+            if(fromMarker) map.removeLayer(fromMarker);
+            fromMarker = L.marker([lat, lng], {icon: greenIcon})
+                .addTo(map)
+                .bindPopup(`
+                    <b style="color:#27ae60">
+                        <i class="fas fa-map-marker-alt"></i> Pickup
+                    </b><br>
+                    ${item.display_name}
+                `).openPopup();
+
+            drawRoute();
+        });
+    }, 600);
+});
+
+// ================================
+// TO LOCATION
+// ================================
+let toTimeout;
+document.getElementById('toLocation').addEventListener('input', function() {
+    clearTimeout(toTimeout);
+    const val = this.value;
+    toTimeout = setTimeout(() => {
+        searchLocation(val, 'toSuggestions', (item) => {
+            document.getElementById('toLocation').value   = item.display_name;
+            document.getElementById('dropoffLat').value   = item.lat;
+            document.getElementById('dropoffLng').value   = item.lon;
+
+            const lat = parseFloat(item.lat);
+            const lng = parseFloat(item.lon);
+
+            if(toMarker) map.removeLayer(toMarker);
+            toMarker = L.marker([lat, lng], {icon: redIcon})
+                .addTo(map)
+                .bindPopup(`
+                    <b style="color:#e74c3c">
+                        <i class="fas fa-map-marker-alt"></i> Drop-off
+                    </b><br>
+                    ${item.display_name}
+                `).openPopup();
+
+            drawRoute();
+        });
+    }, 600);
+});
+
+// ================================
+// DRAW ROUTE BETWEEN POINTS
+// ================================
+function drawRoute() {
+    const lat1 = document.getElementById('pickupLat').value;
+    const lng1 = document.getElementById('pickupLng').value;
+    const lat2 = document.getElementById('dropoffLat').value;
+    const lng2 = document.getElementById('dropoffLng').value;
+
+    if(!lat1 || !lat2) return;
+
+    // Remove old route
+    if(routeLayer) map.removeLayer(routeLayer);
+
+    // Show loading state
+    document.getElementById('routeInfo').style.display = 'flex';
+    document.getElementById('distanceInfo').innerHTML =
+        '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+    document.getElementById('durationInfo').innerHTML =
+        '<i class="fas fa-spinner fa-spin"></i> Please wait...';
+
+    // Fetch route from OSRM
+    fetch(`https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson`)
+    .then(r => r.json())
+    .then(data => {
+        if(data.routes && data.routes[0]) {
+            const route    = data.routes[0];
+            const distance = (route.distance / 1000).toFixed(1);
+            const duration = Math.round(route.duration / 60);
+
+            // Draw route on map
+            routeLayer = L.geoJSON(route.geometry, {
+                style: {
+                    color:   '#1877f2',
+                    weight:  5,
+                    opacity: 0.8,
+                    dashArray: null
+                }
+            }).addTo(map);
+
+            // Fit map to show full route
+            const bounds = L.latLngBounds(
+                [parseFloat(lat1), parseFloat(lng1)],
+                [parseFloat(lat2), parseFloat(lng2)]
+            );
+            map.fitBounds(bounds, {padding: [50, 50]});
+
+            // Update route info display
+            document.getElementById('routeInfo').style.display = 'flex';
+            document.getElementById('distanceInfo').innerHTML =
+                `<i class="fas fa-road"></i> Distance: <strong>${distance} km</strong>`;
+            document.getElementById('durationInfo').innerHTML =
+                `<i class="fas fa-clock"></i> Est. Time: <strong>${duration} mins</strong>`;
+
+            // Save to hidden fields
+            document.getElementById('distanceKm').value   = distance;
+            document.getElementById('durationMins').value = duration;
+        }
+    })
+    .catch(err => {
+        console.log('Route error:', err);
+        document.getElementById('distanceInfo').innerHTML =
+            '<i class="fas fa-exclamation-circle"></i> Could not calculate route';
+        document.getElementById('durationInfo').innerHTML = '';
+    });
+}
+
+// ================================
+// FORM VALIDATION BEFORE SUBMIT
+// ================================
+document.getElementById('postRideForm').addEventListener('submit', function(e) {
+    const from = document.getElementById('fromLocation').value;
+    const to   = document.getElementById('toLocation').value;
+
+    if(!from || !to) {
+        e.preventDefault();
+        alert('Please enter both pickup and drop-off locations!');
+        return;
+    }
+
+    if(from === to) {
+        e.preventDefault();
+        alert('Pickup and drop-off locations cannot be the same!');
+        return;
+    }
+
+    const date = document.getElementById('rideDate').value;
+    if(!date) {
+        e.preventDefault();
+        alert('Please select a ride date!');
+        return;
+    }
+});
+</script>
+{% endblock %}

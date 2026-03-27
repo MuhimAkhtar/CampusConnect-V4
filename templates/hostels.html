@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% block title %}Hostels - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header hostels-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-home"></i> Hostel Listings</h1>
+            <p>Find verified accommodation near COMSATS University</p>
+        </div>
+        <a href="{{ url_for('post_hostel') }}" class="btn-primary">
+            <i class="fas fa-plus"></i> List a Hostel
+        </a>
+    </div>
+
+    <div class="search-section">
+        <form method="GET" class="search-form">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search"
+                       value="{{ search }}"
+                       placeholder="Search by name or location...">
+            </div>
+            <select name="gender" class="filter-select">
+                <option value="">All Genders</option>
+                <option value="Male"
+                    {% if gender=='Male' %}selected{% endif %}>
+                    Male Only
+                </option>
+                <option value="Female"
+                    {% if gender=='Female' %}selected{% endif %}>
+                    Female Only
+                </option>
+                <option value="Any"
+                    {% if gender=='Any' %}selected{% endif %}>
+                    Mixed
+                </option>
+            </select>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-search"></i> Search
+            </button>
+            {% if search or gender %}
+            <a href="{{ url_for('hostels') }}" class="btn-outline">
+                <i class="fas fa-times"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="map-section">
+        <div id="hostelsMap" class="map-container"></div>
+    </div>
+
+    <div id="hostel-data" style="display:none">
+[{% for h in hostels %}{"name":"{{ h[1]|replace('"','') }}","location":"{{ h[2]|replace('"','') }}","price":"{{ h[3] }}","id":{{ h[0] }}}{% if not loop.last %},{% endif %}{% endfor %}]
+    </div>
+
+    <div class="results-section">
+        {% if search or gender %}
+        <p class="results-count">
+            <i class="fas fa-filter"></i>
+            {{ hostels|length }} hostel(s) found
+        </p>
+        {% endif %}
+
+        {% if hostels %}
+        <div class="cards-grid three-col">
+            {% for h in hostels %}
+            <div class="card hostel-card-full">
+                <div class="hostel-card-header">
+                    <div class="hostel-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="hostel-gender-badge {{ h[4].lower() }}">
+                        <i class="fas fa-{% if h[4]=='Male' %}mars{% elif h[4]=='Female' %}venus{% else %}transgender{% endif %}"></i>
+                        {{ h[4] }} Only
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h3>{{ h[1] }}</h3>
+                    <p class="location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ h[2] }}
+                    </p>
+                    <p class="price-large">
+                        Rs. {{ h[3] }}
+                        <span>/month</span>
+                    </p>
+                    {% if h[5] %}
+                    <div class="facilities-tags">
+                        {% for f in h[5].split(',') %}
+                        <span class="facility-tag">
+                            <i class="fas fa-check"></i>
+                            {{ f.strip() }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <p class="posted-by">
+                        <i class="fas fa-user"></i>
+                        Listed by {{ h[7] }}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('hostel_detail', hostel_id=h[0]) }}"
+                       class="btn-primary btn-full">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state large">
+            <i class="fas fa-home"></i>
+            <h3>No hostels found</h3>
+            <p>Be the first to list a hostel!</p>
+            <a href="{{ url_for('post_hostel') }}" class="btn-primary">
+                <i class="fas fa-plus"></i> List a Hostel
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const map = L.map('hostelsMap').setView([33.6844, 73.0479], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+L.marker([33.6844, 73.0479], {
+    icon: L.divIcon({
+        html: '<div class="map-marker blue-marker"><i class="fas fa-university"></i></div>',
+        className: '', iconSize: [35, 35]
+    })
+}).addTo(map)
+  .bindPopup('<b>COMSATS University Islamabad</b>')
+  .openPopup();
+
+let hostels = [];
+try {
+    const raw = document.getElementById('hostel-data').textContent.trim();
+    if(raw && raw !== '[]') {
+        hostels = JSON.parse(raw);
+    }
+} catch(e) {
+    console.log('No hostel data:', e);
+}
+
+hostels.forEach((hostel, index) => {
+    setTimeout(() => {
+        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(hostel.location + ', Islamabad, Pakistan')}&format=json&limit=1`)
+        .then(r => r.json())
+        .then(data => {
+            if(data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        html: '<div class="map-marker orange-marker"><i class="fas fa-home"></i></div>',
+                        className: '', iconSize: [30, 30]
+                    })
+                }).addTo(map)
+                  .bindPopup(`
+                    <div style="min-width:180px">
+                        <b>${hostel.name}</b><br>
+                        <span style="color:#666">
+                            ${hostel.location}
+                        </span><br>
+                        <span style="color:#27ae60;font-weight:700">
+                            Rs. ${hostel.price}/month
+                        </span><br><br>
+                        <a href="/hostels/${hostel.id}"
+                           style="background:#1877f2;color:white;
+                                  padding:5px 12px;border-radius:6px;
+                                  text-decoration:none;font-size:12px">
+                            View Details
+                        </a>
+                    </div>
+                  `);
+            }
+        })
+        .catch(err => console.log('Error:', err));
+    }, index * 1000);
+});
+</script>
+{% endblock %}

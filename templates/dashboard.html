@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - CampusConnect{% endblock %}
+{% block content %}
+<div class="dashboard-page">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+        <div class="welcome-text">
+            <h1>Welcome back, {{ session.full_name.split()[0] }}! 👋</h1>
+            <p>{{ session.university }} • CampusConnect</p>
+        </div>
+        <div class="welcome-stats">
+            <div class="stat-card">
+                <i class="fas fa-car"></i>
+                <span>{{ total_rides }}</span>
+                <p>Active Rides</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-home"></i>
+                <span>{{ total_hostels }}</span>
+                <p>Hostels</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-store"></i>
+                <span>{{ total_items }}</span>
+                <p>Items</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <span>{{ total_users }}</span>
+                <p>Students</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="quick-actions">
+            <a href="{{ url_for('post_ride') }}" class="action-card rides">
+                <i class="fas fa-plus-circle"></i>
+                <span>Post a Ride</span>
+            </a>
+            <a href="{{ url_for('post_hostel') }}" class="action-card hostels">
+                <i class="fas fa-plus-circle"></i>
+                <span>List Hostel</span>
+            </a>
+            <a href="{{ url_for('post_item') }}" class="action-card market">
+                <i class="fas fa-plus-circle"></i>
+                <span>Sell Item</span>
+            </a>
+            <a href="{{ url_for('messages') }}" class="action-card msgs">
+                <i class="fas fa-envelope"></i>
+                <span>Messages
+                {% if unread > 0 %}
+                <span class="badge">{{ unread }}</span>
+                {% endif %}
+                </span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Rides -->
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-car"></i> Recent Rides
+            </h2>
+            <a href="{{ url_for('rides') }}" class="view-all">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        {% if rides %}
+        <div class="cards-grid">
+            {% for ride in rides %}
+            <div class="card ride-card">
+                <div class="card-header rides-header">
+                    <i class="fas fa-car"></i>
+                    <span>{{ ride[7] }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="route">
+                        <span class="from">
+                            <i class="fas fa-map-marker-alt green"></i>
+                            {{ ride[1] }}
+                        </span>
+                        <i class="fas fa-arrow-right route-arrow"></i>
+                        <span class="to">
+                            <i class="fas fa-map-marker-alt red"></i>
+                            {{ ride[2] }}
+                        </span>
+                    </div>
+                    <div class="card-details">
+                        <span><i class="fas fa-calendar"></i>
+                            {{ ride[3].strftime('%d %b') if ride[3] else 'N/A' }}
+                        </span>
+                        <span><i class="fas fa-clock"></i> {{ ride[4] }}</span>
+                        <span><i class="fas fa-chair"></i>
+                            {{ ride[5] }} seats
+                        </span>
+                        <span><i class="fas fa-money-bill"></i>
+                            Rs.{{ ride[6] }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('ride_detail', ride_id=ride[0]) }}"
+                       class="btn-sm btn-primary">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-car"></i>
+            <p>No rides available yet</p>
+            <a href="{{ url_for('post_ride') }}" class="btn-primary">
+                Post First Ride
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Hostels -->
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-home"></i> Recent Hostels
+            </h2>
+            <a href="{{ url_for('hostels') }}" class="view-all">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        {% if hostels %}
+        <div class="cards-grid">
+            {% for hostel in hostels %}
+            <div class="card hostel-card">
+                <div class="card-header hostels-header">
+                    <i class="fas fa-home"></i>
+                    <span>{{ hostel[4] }} Only</span>
+                </div>
+                <div class="card-body">
+                    <h3>{{ hostel[1] }}</h3>
+                    <p class="location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ hostel[2] }}
+                    </p>
+                    <p class="price">
+                        <i class="fas fa-money-bill"></i>
+                        Rs.{{ hostel[3] }}/month
+                    </p>
+                    {% if hostel[5] %}
+                    <div class="facilities">
+                        {% for f in hostel[5].split(',')[:3] %}
+                        <span class="tag">{{ f.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('hostel_detail', hostel_id=hostel[0]) }}"
+                       class="btn-sm btn-primary">View Details</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-home"></i>
+            <p>No hostels listed yet</p>
+            <a href="{{ url_for('post_hostel') }}" class="btn-primary">
+                List First Hostel
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Marketplace -->
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-store"></i> Marketplace
+            </h2>
+            <a href="{{ url_for('marketplace') }}" class="view-all">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        {% if items %}
+        <div class="cards-grid four-col">
+            {% for item in items %}
+            <div class="card item-card">
+                <div class="card-header market-header">
+                    <span class="category-tag">{{ item[3] }}</span>
+                    <span class="condition-tag {{ item[4].lower().replace(' ','-') }}">
+                        {{ item[4] }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <h3>{{ item[1] }}</h3>
+                    <p class="seller">
+                        <i class="fas fa-user"></i> {{ item[5] }}
+                    </p>
+                    <p class="price">Rs.{{ item[2] }}</p>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('item_detail', item_id=item[0]) }}"
+                       class="btn-sm btn-primary">View Item</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-store"></i>
+            <p>No items listed yet</p>
+            <a href="{{ url_for('post_item') }}" class="btn-primary">
+                List First Item
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

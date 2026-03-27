@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}Search - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header profile-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-search"></i> Search Results</h1>
+            <p>Results for "{{ keyword }}"</p>
+        </div>
+    </div>
+
+    <div style="padding:0 25px; margin-top:20px">
+
+        <!-- Search Form -->
+        <form method="GET" class="search-form" style="margin-bottom:25px">
+            <div class="search-input-wrapper" style="flex:1">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q"
+                       value="{{ keyword }}"
+                       placeholder="Search rides, hostels, items...">
+            </div>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </form>
+
+        {% if keyword %}
+
+        <!-- Rides Results -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-car"></i>
+                Rides ({{ results.rides|length }})
+            </h2>
+            {% if results.rides %}
+            <div class="cards-grid">
+                {% for ride in results.rides %}
+                <div class="card">
+                    <div class="card-header rides-header">
+                        <i class="fas fa-car"></i>
+                        <span>{{ ride[7] }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="route">
+                            <span><i class="fas fa-map-marker-alt green"></i>
+                                {{ ride[1] }}</span>
+                            <i class="fas fa-arrow-right route-arrow"></i>
+                            <span><i class="fas fa-map-marker-alt red"></i>
+                                {{ ride[2] }}</span>
+                        </div>
+                        <div class="card-details">
+                            <span><i class="fas fa-calendar"></i>
+                                {{ ride[3].strftime('%d %b') if ride[3] else '' }}
+                            </span>
+                            <span><i class="fas fa-chair"></i>
+                                {{ ride[5] }} seats
+                            </span>
+                            <span><i class="fas fa-money-bill"></i>
+                                Rs.{{ ride[6] }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('ride_detail', ride_id=ride[0]) }}"
+                           class="btn-sm btn-primary">View</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color:var(--gray); padding:15px">
+                No rides found for "{{ keyword }}"
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- Hostels Results -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-home"></i>
+                Hostels ({{ results.hostels|length }})
+            </h2>
+            {% if results.hostels %}
+            <div class="cards-grid">
+                {% for h in results.hostels %}
+                <div class="card">
+                    <div class="card-header hostels-header">
+                        <i class="fas fa-home"></i>
+                        <span>{{ h[4] }} Only</span>
+                    </div>
+                    <div class="card-body">
+                        <h3>{{ h[1] }}</h3>
+                        <p class="location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ h[2] }}
+                        </p>
+                        <p class="price">Rs. {{ h[3] }}/month</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('hostel_detail', hostel_id=h[0]) }}"
+                           class="btn-sm btn-primary">View</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color:var(--gray); padding:15px">
+                No hostels found for "{{ keyword }}"
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- Marketplace Results -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-store"></i>
+                Marketplace ({{ results.items|length }})
+            </h2>
+            {% if results.items %}
+            <div class="cards-grid four-col">
+                {% for item in results.items %}
+                <div class="card">
+                    <div class="card-header market-header">
+                        <span>{{ item[3] }}</span>
+                        <span>{{ item[4] }}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3>{{ item[1] }}</h3>
+                        <p class="price">Rs. {{ item[2] }}</p>
+                        <p style="font-size:12px; color:var(--gray)">
+                            <i class="fas fa-user"></i> {{ item[5] }}
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('item_detail', item_id=item[0]) }}"
+                           class="btn-sm btn-primary">View</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color:var(--gray); padding:15px">
+                No items found for "{{ keyword }}"
+            </p>
+            {% endif %}
+        </div>
+
+        {% else %}
+        <div class="empty-state large">
+            <i class="fas fa-search"></i>
+            <h3>Search CampusConnect</h3>
+            <p>Search for rides, hostels and marketplace items</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

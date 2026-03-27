@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CampusConnect{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+    <style>* { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; }</style>
+</head>
+<body>
+    {% if session.user_id %}
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{{ url_for('dashboard') }}">
+                <i class="fas fa-graduation-cap"></i>
+                CampusConnect
+            </a>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="{{ url_for('rides') }}"
+               class="nav-link {% if request.endpoint=='rides' %}active{% endif %}">
+                <i class="fas fa-car"></i> Rides
+            </a>
+            <a href="{{ url_for('hostels') }}"
+               class="nav-link {% if request.endpoint=='hostels' %}active{% endif %}">
+                <i class="fas fa-home"></i> Hostels
+            </a>
+            <a href="{{ url_for('marketplace') }}"
+               class="nav-link {% if request.endpoint=='marketplace' %}active{% endif %}">
+                <i class="fas fa-store"></i> Marketplace
+            </a>
+            <a href="{{ url_for('messages') }}"
+               class="nav-link {% if request.endpoint=='messages' %}active{% endif %}">
+                <i class="fas fa-envelope"></i> Messages
+                {% if unread is defined and unread > 0 %}
+                <span class="badge">{{ unread }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('notifications') }}"
+               class="nav-link {% if request.endpoint=='notifications' %}active{% endif %}">
+                <i class="fas fa-bell"></i> Alerts
+            </a>
+            <a href="{{ url_for('global_search') }}"
+               class="nav-link {% if request.endpoint=='global_search' %}active{% endif %}">
+                <i class="fas fa-search"></i> Search
+            </a>
+        </div>
+        <div class="nav-right" id="navRight">
+            <a href="{{ url_for('profile') }}" class="nav-profile">
+                <div class="nav-avatar">
+                    {{ session.full_name[0].upper() }}
+                </div>
+                {{ session.full_name.split()[0] }}
+            </a>
+            <a href="{{ url_for('logout') }}" class="nav-logout" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+        <div class="nav-toggle" onclick="toggleNav()" id="navToggle">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} animate__animated animate__slideInRight">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                    <span class="alert-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        function toggleNav() {
+            document.getElementById('navLinks').classList.toggle('active');
+            document.getElementById('navRight').classList.toggle('active');
+            document.getElementById('navToggle').classList.toggle('active');
+        }
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(a => {
+                a.classList.add('animate__slideOutRight');
+                setTimeout(() => a.remove(), 500);
+            });
+        }, 4000);
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if(link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

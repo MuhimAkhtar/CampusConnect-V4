@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}Chat - CampusConnect{% endblock %}
+{% block content %}
+<div class="chat-page">
+    <!-- Chat Header -->
+    <div class="chat-header">
+        <a href="{{ url_for('messages') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div class="chat-user-info">
+            <div class="chat-avatar">
+                {{ other_user[0][0].upper() if other_user else '?' }}
+            </div>
+            <div>
+                <h3>{{ other_user[0] if other_user else 'Unknown' }}</h3>
+                <p>{{ other_user[1] if other_user else '' }}</p>
+            </div>
+        </div>
+        <div class="chat-actions">
+            <a href="{{ url_for('profile') }}" class="btn-icon">
+                <i class="fas fa-user"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+        {% if chats %}
+            {% set current_date = namespace(value=None) %}
+            {% for chat in chats %}
+                {% set msg_date = chat[2].strftime('%Y-%m-%d') if chat[2] else '' %}
+                {% if msg_date != current_date.value %}
+                    {% set current_date.value = msg_date %}
+                    <div class="date-divider">
+                        <span>
+                            {{ chat[2].strftime('%A, %d %B %Y') if chat[2] else '' }}
+                        </span>
+                    </div>
+                {% endif %}
+
+                <div class="message-wrapper {% if chat[1] == session.user_id %}sent{% else %}received{% endif %}">
+                    {% if chat[1] != session.user_id %}
+                    <div class="msg-avatar">
+                        {{ chat[3][0].upper() }}
+                    </div>
+                    {% endif %}
+                    <div class="message-bubble">
+                        <p>{{ chat[0] }}</p>
+                        <span class="msg-time">
+                            {{ chat[2].strftime('%I:%M %p') if chat[2] else '' }}
+                            {% if chat[1] == session.user_id %}
+                            <i class="fas fa-check-double"></i>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+        <div class="no-messages">
+            <i class="fas fa-comments"></i>
+            <p>No messages yet</p>
+            <small>Say hello to {{ other_user[0] if other_user else 'this user' }}!</small>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Message Input -->
+    <div class="chat-input-area">
+        <form method="POST" class="chat-form" id="chatForm">
+            <div class="chat-input-wrapper">
+                <textarea name="message"
+                          id="messageInput"
+                          placeholder="Type a message..."
+                          rows="1"
+                          required
+                          onkeydown="handleEnter(event)"></textarea>
+                <div class="chat-input-actions">
+                    <button type="submit" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+// Auto scroll to bottom
+const chatMessages = document.getElementById('chatMessages');
+chatMessages.scrollTop = chatMessages.scrollHeight;
+
+// Auto resize textarea
+const messageInput = document.getElementById('messageInput');
+messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+// Send on Enter (Shift+Enter for new line)
+function handleEnter(e) {
+    if(e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if(messageInput.value.trim()) {
+            document.getElementById('chatForm').submit();
+        }
+    }
+}
+
+// Auto refresh messages every 5 seconds
+setInterval(() => {
+    const current = chatMessages.scrollHeight;
+    fetch(window.location.href)
+    .then(r => r.text())
+    .then(html => {
+        const parser  = new DOMParser();
+        const doc     = parser.parseFromString(html, 'text/html');
+        const newMsgs = doc.getElementById('chatMessages');
+        if(newMsgs && newMsgs.innerHTML !== chatMessages.innerHTML) {
+            chatMessages.innerHTML = newMsgs.innerHTML;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    });
+}, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Marketplace - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+
+    <!-- Page Header -->
+    <div class="page-header market-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-store"></i> Student Marketplace</h1>
+            <p>Buy and sell academic resources within COMSATS community</p>
+        </div>
+        <a href="{{ url_for('post_item') }}" class="btn-primary">
+            <i class="fas fa-plus"></i> Sell an Item
+        </a>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="search-section">
+        <form method="GET" class="search-form">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search"
+                       value="{{ search }}"
+                       placeholder="Search items...">
+            </div>
+            <select name="category" class="filter-select">
+                <option value="">All Categories</option>
+                {% for cat in ['Books','Gadgets','Notes',
+                               'Furniture','Clothing','Other'] %}
+                <option value="{{ cat }}"
+                    {% if category==cat %}selected{% endif %}>
+                    {{ cat }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-search"></i> Search
+            </button>
+            {% if search or category %}
+            <a href="{{ url_for('marketplace') }}" class="btn-outline">
+                <i class="fas fa-times"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Category Pills -->
+    <div class="category-pills">
+        <a href="{{ url_for('marketplace') }}"
+           class="pill {% if not category %}active{% endif %}">
+            All Items
+        </a>
+        {% for cat, icon in [('Books','book'),('Gadgets','laptop'),
+                              ('Notes','sticky-note'),('Furniture','couch'),
+                              ('Clothing','tshirt'),('Other','box')] %}
+        <a href="{{ url_for('marketplace', category=cat) }}"
+           class="pill {% if category==cat %}active{% endif %}">
+            <i class="fas fa-{{ icon }}"></i> {{ cat }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Results -->
+    <div class="results-section">
+        {% if search or category %}
+        <p class="results-count">
+            <i class="fas fa-filter"></i>
+            {{ items|length }} item(s) found
+        </p>
+        {% endif %}
+
+        {% if items %}
+        <div class="market-grid">
+            {% for item in items %}
+            <div class="market-card">
+                <div class="market-card-image">
+                    <div class="market-placeholder">
+                        <i class="fas fa-{% if item[4]=='Books' %}book
+                            {% elif item[4]=='Gadgets' %}laptop
+                            {% elif item[4]=='Notes' %}sticky-note
+                            {% elif item[4]=='Furniture' %}couch
+                            {% elif item[4]=='Clothing' %}tshirt
+                            {% else %}box{% endif %}"></i>
+                    </div>
+                    <span class="condition-badge {{ item[5].lower().replace(' ','-') }}">
+                        {{ item[5] }}
+                    </span>
+                </div>
+                <div class="market-card-body">
+                    <span class="category-pill">{{ item[4] }}</span>
+                    <h3>{{ item[1] }}</h3>
+                    {% if item[2] %}
+                    <p class="item-desc">
+                        {{ item[2][:80] }}{% if item[2]|length > 80 %}...{% endif %}
+                    </p>
+                    {% endif %}
+                    <div class="market-card-footer">
+                        <span class="item-price">Rs. {{ item[3] }}</span>
+                        <span class="item-seller">
+                            <i class="fas fa-user"></i>
+                            {{ item[6] }}
+                        </span>
+                    </div>
+                </div>
+                <a href="{{ url_for('item_detail', item_id=item[0]) }}"
+                   class="market-card-link">
+                    View Item
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state large">
+            <i class="fas fa-store"></i>
+            <h3>No items found</h3>
+            <p>Be the first to list an item!</p>
+            <a href="{{ url_for('post_item') }}" class="btn-primary">
+                <i class="fas fa-plus"></i> Sell an Item
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Messages - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+
+    <!-- Page Header -->
+    <div class="page-header messages-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-envelope"></i> Messages</h1>
+            <p>Chat with fellow COMSATS students</p>
+        </div>
+    </div>
+
+    <div class="messages-page">
+
+        <!-- Conversations Panel -->
+        <div class="conversations-panel">
+            <div class="conversations-header">
+                <h2><i class="fas fa-comments"></i> Conversations</h2>
+                <div class="search-input-wrapper small">
+                    <i class="fas fa-search"></i>
+                    <input type="text"
+                           id="searchConvo"
+                           placeholder="Search conversations..."
+                           oninput="filterConversations()">
+                </div>
+            </div>
+
+            {% if conversations %}
+            <div class="conversations-list" id="convoList">
+                {% for convo in conversations %}
+                <a href="{{ url_for('chat', other_id=convo[0]) }}"
+                   class="conversation-item">
+                    <div class="convo-avatar">
+                        {{ convo[1][0].upper() }}
+                    </div>
+                    <div class="convo-info">
+                        <h4>{{ convo[1] }}</h4>
+                        <p>
+                            <i class="fas fa-clock"></i>
+                            {{ convo[2].strftime('%d %b, %I:%M %p') if convo[2] else 'No messages yet' }}
+                        </p>
+                    </div>
+                    <div class="convo-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-conversations">
+                <i class="fas fa-comments"></i>
+                <h3>No conversations yet</h3>
+                <p>Start a conversation by messaging a ride poster, hostel owner, or item seller!</p>
+                <div class="start-chat-suggestions">
+                    <a href="{{ url_for('rides') }}" class="suggestion-link">
+                        <i class="fas fa-car"></i> Browse Rides
+                    </a>
+                    <a href="{{ url_for('hostels') }}" class="suggestion-link">
+                        <i class="fas fa-home"></i> Browse Hostels
+                    </a>
+                    <a href="{{ url_for('marketplace') }}" class="suggestion-link">
+                        <i class="fas fa-store"></i> Browse Market
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Empty State Right Panel -->
+        <div class="messages-empty-state">
+            <div class="select-chat">
+                <div class="select-chat-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>Select a Conversation</h3>
+                <p>Choose from your conversations on the left to start chatting</p>
+                <div class="messages-tips">
+                    <div class="tip-item">
+                        <i class="fas fa-car"></i>
+                        <span>Message ride drivers directly from ride listings</span>
+                    </div>
+                    <div class="tip-item">
+                        <i class="fas fa-home"></i>
+                        <span>Contact hostel owners for availability</span>
+                    </div>
+                    <div class="tip-item">
+                        <i class="fas fa-store"></i>
+                        <span>Negotiate prices with marketplace sellers</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterConversations() {
+    const search = document.getElementById('searchConvo')
+                           .value.toLowerCase();
+    document.querySelectorAll('.conversation-item')
+    .forEach(item => {
+        const name = item.querySelector('h4')
+                        .textContent.toLowerCase();
+        item.style.display = name.includes(search) ? 'flex' : 'none';
+    });
+}
+</script>
+{% endblock %}

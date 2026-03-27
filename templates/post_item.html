@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Sell an Item - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header market-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-store"></i> Sell an Item</h1>
+            <p>List your item for fellow COMSATS students</p>
+        </div>
+        <a href="{{ url_for('marketplace') }}" class="btn-outline-white">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="form-page">
+        <div class="form-container">
+            <form method="POST" class="styled-form">
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-tag"></i> Item Title
+                    </label>
+                    <input type="text" name="title"
+                           placeholder="e.g. Calculus Book 3rd Edition"
+                           required maxlength="100">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-list"></i> Category
+                        </label>
+                        <select name="category" required>
+                            <option value="">Select category</option>
+                            {% for cat in ['Books', 'Gadgets', 'Notes',
+                                           'Furniture', 'Clothing', 'Other'] %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-star"></i> Condition
+                        </label>
+                        <select name="condition" required>
+                            <option value="">Select condition</option>
+                            <option value="Like New">Like New</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Poor">Poor</option>
+                        </select>
+                    </div>
+                </div>
+
+              <div class="form-group">
+    <label>
+        <i class="fas fa-image"></i> Item Photo
+    </label>
+    <div class="image-upload-box"
+         onclick="document.getElementById('itemImage').click()">
+        <img id="imagePreview" src="" alt=""
+             style="display:none; width:100%;
+                    height:200px; object-fit:cover;
+                    border-radius:8px">
+        <div id="uploadPlaceholder">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Click to upload item photo</p>
+            <small>JPG, PNG, WEBP up to 5MB</small>
+        </div>
+    </div>
+    <input type="file" name="image" id="itemImage"
+           accept="image/*" style="display:none"
+           onchange="previewImage(this)">
+</div>
+<form method="POST" class="styled-form"
+      enctype="multipart/form-data">
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-money-bill"></i>
+                        Price (Rs.)
+                    </label>
+                    <input type="number" name="price"
+                           placeholder="Enter price in PKR"
+                           min="0" required>
+                    <small class="hint">Enter 0 for free items</small>
+                </div>
+
+                <!-- Price Suggestion -->
+                <div class="price-suggestions">
+                    <p><i class="fas fa-lightbulb"></i>
+                        Suggested prices for common items:</p>
+                    <div class="price-tags">
+                        <span onclick="setPrice(500)">Books: Rs.500</span>
+                        <span onclick="setPrice(2000)">Notes: Rs.2000</span>
+                        <span onclick="setPrice(15000)">Calculator: Rs.15000</span>
+                        <span onclick="setPrice(50000)">Laptop: Rs.50000</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-full btn-large">
+                    <i class="fas fa-store"></i> List Item
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function setPrice(price) {
+    document.querySelector('input[name="price"]').value = price;
+}
+</script>
+{% endblock %}

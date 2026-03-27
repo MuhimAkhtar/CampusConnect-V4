@@ -1,0 +1,429 @@
+{% extends 'base.html' %}
+{% block title %}Ride Details - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header rides-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-car"></i> Ride Details</h1>
+        </div>
+        <a href="{{ url_for('rides') }}" class="btn-outline-white">
+            <i class="fas fa-arrow-left"></i> Back to Rides
+        </a>
+    </div>
+
+    {% if ride %}
+
+    <!-- Hidden data for map -->
+    <div id="ride-map-data" style="display:none"
+         data-lat1="{{ ride[7] if ride[7] else 33.6844 }}"
+         data-lng1="{{ ride[8] if ride[8] else 73.0479 }}"
+         data-lat2="{{ ride[9] if ride[9] else 33.7215 }}"
+         data-lng2="{{ ride[10] if ride[10] else 73.0433 }}"
+         data-from="{{ ride[1]|replace('"','') }}"
+         data-to="{{ ride[2]|replace('"','') }}">
+    </div>
+
+    <div class="detail-page">
+        <div class="detail-main">
+
+            <!-- Route Card -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-route"></i> Route
+                </h2>
+                <div class="route-display">
+                    <div class="route-point-large">
+                        <div class="route-icon green">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="route-text">
+                            <small>PICKUP</small>
+                            <strong>{{ ride[1] }}</strong>
+                        </div>
+                    </div>
+                    {% if ride[11] or ride[12] %}
+                    <div class="route-stats">
+                        <span>
+                            <i class="fas fa-road"></i>
+                            {{ ride[11] }} km
+                        </span>
+                        <span>
+                            <i class="fas fa-clock"></i>
+                            {{ ride[12] }} mins
+                        </span>
+                    </div>
+                    {% endif %}
+                    <div class="route-point-large">
+                        <div class="route-icon red">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="route-text">
+                            <small>DROP-OFF</small>
+                            <strong>{{ ride[2] }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-map"></i> Route Map
+                </h2>
+                <div id="detailMap" class="map-container"></div>
+            </div>
+
+            <!-- Ride Info -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-info-circle"></i> Ride Information
+                </h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <i class="fas fa-calendar"></i>
+                        <div>
+                            <small>Date</small>
+                            <strong>
+                                {{ ride[3].strftime('%A, %d %B %Y') if ride[3] else 'N/A' }}
+                            </strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <small>Time</small>
+                            <strong>{{ ride[4] }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-chair"></i>
+                        <div>
+                            <small>Seats Available</small>
+                            <strong>{{ ride[5] }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <div>
+                            <small>Price per Seat</small>
+                            <strong>
+                                {% if ride[6] == 0 %}
+                                    Free
+                                {% else %}
+                                    Rs. {{ ride[6] }}
+                                {% endif %}
+                            </strong>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-circle" id="statusIcon"></i>
+                        <div>
+                            <small>Status</small>
+                            <strong id="statusText">
+                                {{ ride[13].title() if ride[13] else 'N/A' }}
+                            </strong>
+                        </div>
+                    </div>
+                    {% if ride[11] %}
+                    <div class="info-item">
+                        <i class="fas fa-road"></i>
+                        <div>
+                            <small>Distance</small>
+                            <strong>{{ ride[11] }} km</strong>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Ride Requests -->
+            {% if requests %}
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-users"></i>
+                    Ride Requests ({{ requests|length }})
+                </h2>
+                <div class="requests-list">
+                    {% for req in requests %}
+                    <div class="request-item">
+                        <div class="request-avatar">
+                            {{ req[0][0].upper() }}
+                        </div>
+                        <div class="request-info" style="flex:1">
+                            <strong>{{ req[0] }}</strong>
+                            <span class="status-badge {{ req[1] }}">
+                                {{ req[1].title() }}
+                            </span>
+                        </div>
+                        <small style="color:var(--gray); margin-left:auto">
+                            {{ req[2].strftime('%d %b') if req[2] else '' }}
+                        </small>
+                        {% if ride[16] == session.user_id and req[1] == 'pending' %}
+                        <div style="display:flex; gap:8px; margin-left:10px">
+                            <a href="{{ url_for('accept_ride', ride_id=ride[0], user_id=req[3]) }}"
+                               class="btn-sm btn-primary"
+                               onclick="return confirm('Accept this request?')">
+                                <i class="fas fa-check"></i> Accept
+                            </a>
+                            <a href="{{ url_for('reject_ride', ride_id=ride[0], user_id=req[3]) }}"
+                               class="btn-sm btn-danger"
+                               onclick="return confirm('Reject this request?')">
+                                <i class="fas fa-times"></i> Reject
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reviews -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-star"></i> Reviews
+                </h2>
+                {% if reviews %}
+                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px">
+                    {% for rev in reviews %}
+                    <div style="background:#f8f9fa; padding:14px;
+                                border-radius:10px; border:1px solid #eee">
+                        <div style="display:flex; justify-content:space-between;
+                                    margin-bottom:6px; align-items:center">
+                            <strong style="font-size:14px">{{ rev[0] }}</strong>
+                            <div>
+                               <div class="star-rating" data-rating="{{ rev[1] }}">
+    <i class="fas fa-star star"></i>
+    <i class="fas fa-star star"></i>
+    <i class="fas fa-star star"></i>
+    <i class="fas fa-star star"></i>
+    <i class="fas fa-star star"></i>
+</div>
+                            </div>
+                        </div>
+                        {% if rev[2] %}
+                        <p style="font-size:13px; color:#666; margin:0">
+                            {{ rev[2] }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="color:#aaa; font-size:14px; margin-bottom:15px">
+                    No reviews yet. Be the first to review!
+                </p>
+                {% endif %}
+
+                {% if ride[16] != session.user_id %}
+                <form method="POST" action="{{ url_for('add_review') }}"
+                      style="border-top:2px solid #f0f0f0; padding-top:15px">
+                    <input type="hidden" name="target_type" value="RIDE">
+                    <input type="hidden" name="target_id" value="{{ ride[0] }}">
+                    <div class="form-group" style="margin-bottom:12px">
+                        <label style="font-size:13px; font-weight:700;
+                                      margin-bottom:6px; display:block">
+                            Your Rating
+                        </label>
+                        <select name="rating" class="filter-select"
+                                style="width:100%">
+                            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                            <option value="4">⭐⭐⭐⭐ Good</option>
+                            <option value="3">⭐⭐⭐ Average</option>
+                            <option value="2">⭐⭐ Poor</option>
+                            <option value="1">⭐ Terrible</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:12px">
+                        <textarea name="comment" rows="2"
+                                  placeholder="Write your review..."
+                                  style="width:100%; padding:10px;
+                                         border:2px solid #eee;
+                                         border-radius:8px;
+                                         font-family:inherit;
+                                         font-size:14px; resize:none">
+                        </textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">
+                        <i class="fas fa-star"></i> Submit Review
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="detail-sidebar">
+
+            <!-- Posted By -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-user"></i> Posted By
+                </h2>
+                <div class="poster-profile">
+                    <div class="poster-avatar-large">
+                        {{ ride[14][0].upper() if ride[14] else '?' }}
+                    </div>
+                    <h3>{{ ride[14] }}</h3>
+                    <p>{{ ride[15] }}</p>
+                </div>
+                {% if ride[16] != session.user_id %}
+                <a href="{{ url_for('chat', other_id=ride[16]) }}"
+                   class="btn-outline btn-full">
+                    <i class="fas fa-comments"></i> Message Driver
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div class="detail-card">
+                {% if ride[16] == session.user_id %}
+                <div class="owner-actions">
+                    <p class="owner-badge">
+                        <i class="fas fa-crown"></i> Your Ride
+                    </p>
+                    <p style="text-align:center; color:var(--gray);
+                               font-size:13px; margin-bottom:12px">
+                        {{ requests|length if requests else 0 }}
+                        student(s) have requested this ride
+                    </p>
+                    <a href="{{ url_for('delete_ride', ride_id=ride[0]) }}"
+                       class="btn-danger btn-full"
+                       onclick="return confirm('Cancel this ride?')">
+                        <i class="fas fa-times-circle"></i> Cancel Ride
+                    </a>
+                </div>
+
+                {% elif already_requested %}
+                <div class="already-requested">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Request Sent!</p>
+                    <small>Wait for the driver to respond.</small>
+                </div>
+
+                {% else %}
+                <div style="text-align:center; margin-bottom:15px">
+                    <p style="color:var(--gray); font-size:13px;
+                               margin-bottom:8px">
+                        <i class="fas fa-chair"></i>
+                        {{ ride[5] }} seat(s) available
+                    </p>
+                    <p style="color:var(--success); font-weight:700;
+                               font-size:18px">
+                        {% if ride[6] == 0 %}
+                            Free
+                        {% else %}
+                            Rs. {{ ride[6] }}/seat
+                        {% endif %}
+                    </p>
+                </div>
+                <a href="{{ url_for('request_ride', ride_id=ride[0]) }}"
+                   class="btn-primary btn-full btn-large">
+                    <i class="fas fa-hand-paper"></i> Request Seat
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Share -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-share-alt"></i> Share Ride
+                </h2>
+                <button class="btn-outline btn-full"
+                        onclick="copyRideLink()">
+                    <i class="fas fa-copy"></i> Copy Link
+                </button>
+                <div id="copyMsg"
+                     style="display:none; text-align:center;
+                            color:var(--success); font-size:13px;
+                            margin-top:8px">
+                    <i class="fas fa-check"></i> Link copied!
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {% else %}
+    <div class="empty-state large" style="margin:30px">
+        <i class="fas fa-car"></i>
+        <h3>Ride not found</h3>
+        <p>This ride may have been cancelled or removed.</p>
+        <a href="{{ url_for('rides') }}" class="btn-primary">
+            Browse Rides
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const map = L.map('detailMap').setView([33.6844, 73.0479], 12);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+const mapData = document.getElementById('ride-map-data');
+const lat1    = mapData ? parseFloat(mapData.dataset.lat1) : 33.6844;
+const lng1    = mapData ? parseFloat(mapData.dataset.lng1) : 73.0479;
+const lat2    = mapData ? parseFloat(mapData.dataset.lat2) : 33.7215;
+const lng2    = mapData ? parseFloat(mapData.dataset.lng2) : 73.0433;
+const from    = mapData ? mapData.dataset.from : 'Pickup';
+const to      = mapData ? mapData.dataset.to   : 'Drop-off';
+
+const greenIcon = L.divIcon({
+    html: '<div class="map-marker green-marker"><i class="fas fa-map-marker-alt"></i></div>',
+    className: '', iconSize: [30, 30]
+});
+const redIcon = L.divIcon({
+    html: '<div class="map-marker red-marker"><i class="fas fa-map-marker-alt"></i></div>',
+    className: '', iconSize: [30, 30]
+});
+
+L.marker([lat1, lng1], {icon: greenIcon})
+ .addTo(map)
+ .bindPopup(`<b style="color:#27ae60">Pickup</b><br><span style="font-size:12px">${from}</span>`)
+ .openPopup();
+
+L.marker([lat2, lng2], {icon: redIcon})
+ .addTo(map)
+ .bindPopup(`<b style="color:#e74c3c">Drop-off</b><br><span style="font-size:12px">${to}</span>`);
+
+if(lat1 && lng1 && lat2 && lng2) {
+    fetch(`https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson`)
+    .then(r => r.json())
+    .then(data => {
+        if(data.routes && data.routes[0]) {
+            const routeLayer = L.geoJSON(data.routes[0].geometry, {
+                style: { color: '#1877f2', weight: 5, opacity: 0.8 }
+            }).addTo(map);
+            map.fitBounds(routeLayer.getBounds(), {padding: [40, 40]});
+        }
+    })
+    .catch(err => {
+        const bounds = L.latLngBounds([lat1, lng1], [lat2, lng2]);
+        map.fitBounds(bounds, {padding: [50, 50]});
+    });
+}
+
+// Status icon color
+const statusVal = document.getElementById('statusText');
+const statusIcon = document.getElementById('statusIcon');
+if(statusVal && statusIcon) {
+    const val = statusVal.textContent.trim().toLowerCase();
+    statusIcon.style.color = val === 'active' ? 'var(--success)' : 'var(--danger)';
+}
+
+// Copy link
+function copyRideLink() {
+    navigator.clipboard.writeText(window.location.href)
+    .then(() => {
+        const msg = document.getElementById('copyMsg');
+        msg.style.display = 'block';
+        setTimeout(() => msg.style.display = 'none', 3000);
+    });
+}
+</script>
+{% endblock %}

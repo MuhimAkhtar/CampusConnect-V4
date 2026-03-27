@@ -1,0 +1,12 @@
+campusdb_high = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-dubai-1.oraclecloud.com))(connect_data=(service_name=g784cac147adea3_campusdb_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+campusdb_medium = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-dubai-1.oraclecloud.com))(connect_data=(service_name=g784cac147adea3_campusdb_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+campusdb_low = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-dubai-1.oraclecloud.com))(connect_data=(service_name=g784cac147adea3_campusdb_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+campusdb_tp = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-dubai-1.oraclecloud.com))(connect_data=(service_name=g784cac147adea3_campusdb_tp.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+campusdb_tpurgent = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.me-dubai-1.oraclecloud.com))(connect_data=(service_name=g784cac147adea3_campusdb_tpurgent.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+
+

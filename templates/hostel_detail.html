@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% block title %}Hostel Details - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header hostels-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-home"></i> Hostel Details</h1>
+        </div>
+        <a href="{{ url_for('hostels') }}" class="btn-outline-white">
+            <i class="fas fa-arrow-left"></i> Back to Hostels
+        </a>
+    </div>
+
+    {% if hostel %}
+    <div class="detail-page">
+        <div class="detail-main">
+
+            <!-- Hostel Info Card -->
+            <div class="detail-card">
+                <div class="hostel-detail-header">
+                    <div class="hostel-detail-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div style="flex:1">
+                        <h2>{{ hostel[1] }}</h2>
+                        <p class="location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ hostel[2] }}
+                        </p>
+                        <span class="gender-badge {{ hostel[4].lower() }}">
+                            <i class="fas fa-{% if hostel[4]=='Male' %}mars
+                                {% elif hostel[4]=='Female' %}venus
+                                {% else %}transgender{% endif %}"></i>
+                            {{ hostel[4] }} Only
+                        </span>
+                    </div>
+                    <div class="hostel-price-badge">
+                        <span>Rs. {{ hostel[3] }}</span>
+                        <small>/month</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-map"></i> Location Map
+                </h2>
+                <div id="hostelDetailMap" class="map-container"></div>
+                <div id="hostel-location-data" style="display:none"
+                     data-location="{{ hostel[2]|replace('"','') }}"
+                     data-name="{{ hostel[1]|replace('"','') }}">
+                </div>
+            </div>
+
+            <!-- Facilities -->
+            {% if hostel[5] %}
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-list-check"></i> Facilities
+                </h2>
+                <div class="facilities-grid">
+                    {% for f in hostel[5].split(',') %}
+                    <div class="facility-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>{{ f.strip() }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reviews -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-star"></i> Reviews
+                </h2>
+
+                {% if reviews %}
+                <div style="display:flex; flex-direction:column;
+                            gap:12px; margin-bottom:20px">
+                    {% for rev in reviews %}
+                    <div style="background:#f8f9fa; padding:15px;
+                                border-radius:10px; border:1px solid #eee">
+                        <div style="display:flex; justify-content:space-between;
+                                    align-items:center; margin-bottom:8px">
+                            <div style="display:flex; align-items:center; gap:10px">
+                                <div style="width:36px; height:36px;
+                                            background:var(--primary);
+                                            color:white; border-radius:50%;
+                                            display:flex; align-items:center;
+                                            justify-content:center;
+                                            font-weight:700; font-size:14px">
+                                    {{ rev[0][0].upper() }}
+                                </div>
+                                <strong style="font-size:14px">{{ rev[0] }}</strong>
+                            </div>
+                            <div class="star-rating" data-rating="{{ rev[1] }}">
+    <i class="fas fa-star star"></i>
+    <i class="fas fa-star star"></i>
+    <i class="fas fa-star star"></i>
+    <i class="fas fa-star star"></i>
+    <i class="fas fa-star star"></i>
+</div>
+                        </div>
+                        {% if rev[2] %}
+                        <p style="font-size:13px; color:#666;
+                                  margin:0; line-height:1.5">
+                            {{ rev[2] }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="color:#aaa; font-size:14px; margin-bottom:15px">
+                    No reviews yet. Be the first to review!
+                </p>
+                {% endif %}
+
+                {% if hostel[9] != session.user_id %}
+                <form method="POST" action="{{ url_for('add_review') }}"
+                      style="border-top:2px solid #f0f0f0; padding-top:15px">
+                    <input type="hidden" name="target_type" value="HOSTEL">
+                    <input type="hidden" name="target_id" value="{{ hostel[0] }}">
+                    <p style="font-size:14px; font-weight:700;
+                               margin-bottom:12px; color:var(--dark)">
+                        Write a Review
+                    </p>
+                    <div class="form-group" style="margin-bottom:12px">
+                        <label style="font-size:13px; font-weight:600;
+                                      margin-bottom:6px; display:block">
+                            Rating
+                        </label>
+                        <select name="rating" class="filter-select"
+                                style="width:100%">
+                            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                            <option value="4">⭐⭐⭐⭐ Good</option>
+                            <option value="3">⭐⭐⭐ Average</option>
+                            <option value="2">⭐⭐ Poor</option>
+                            <option value="1">⭐ Terrible</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:12px">
+                        <label style="font-size:13px; font-weight:600;
+                                      margin-bottom:6px; display:block">
+                            Comment
+                        </label>
+                        <textarea name="comment" rows="3"
+                                  placeholder="Share your experience..."
+                                  style="width:100%; padding:10px;
+                                         border:2px solid #eee;
+                                         border-radius:8px;
+                                         font-family:inherit;
+                                         font-size:14px; resize:none">
+                        </textarea>
+                    </div>
+                    <button type="submit" class="btn-primary btn-full">
+                        <i class="fas fa-star"></i> Submit Review
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="detail-sidebar">
+
+            <!-- Contact & Owner -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-user"></i> Listed By
+                </h2>
+                <div class="poster-profile">
+                    <div class="poster-avatar-large">
+                        {{ hostel[7][0].upper() }}
+                    </div>
+                    <h3>{{ hostel[7] }}</h3>
+                    <p>{{ hostel[8] }}</p>
+                </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-phone"></i> Contact
+                </h2>
+                <div class="contact-number">
+                    <i class="fas fa-phone-alt"></i>
+                    {{ hostel[6] }}
+                </div>
+
+                {% if hostel[9] != session.user_id %}
+                <a href="{{ url_for('chat', other_id=hostel[9]) }}"
+                   class="btn-primary btn-full"
+                   style="margin-bottom:10px">
+                    <i class="fas fa-comments"></i> Message Owner
+                </a>
+                <a href="{{ url_for('bookmark_hostel', hostel_id=hostel[0]) }}"
+                   class="btn-outline btn-full">
+                    {% if is_bookmarked %}
+                    <i class="fas fa-bookmark" style="color:var(--primary)"></i>
+                    Remove Bookmark
+                    {% else %}
+                    <i class="far fa-bookmark"></i> Bookmark Hostel
+                    {% endif %}
+                </a>
+                {% else %}
+                <div class="owner-actions">
+                    <p class="owner-badge">
+                        <i class="fas fa-crown"></i> Your Listing
+                    </p>
+                    <a href="{{ url_for('delete_hostel', hostel_id=hostel[0]) }}"
+                       class="btn-danger btn-full"
+                       onclick="return confirm('Remove this listing?')">
+                        <i class="fas fa-trash"></i> Remove Listing
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Price Summary -->
+            <div class="detail-card">
+                <h2 class="detail-card-title">
+                    <i class="fas fa-money-bill"></i> Price Summary
+                </h2>
+                <div style="display:flex; flex-direction:column; gap:10px">
+                    <div style="display:flex; justify-content:space-between;
+                                padding:10px; background:#f8f9fa;
+                                border-radius:8px">
+                        <span style="color:var(--gray); font-size:14px">
+                            Monthly Rent
+                        </span>
+                        <strong style="color:var(--success)">
+                            Rs. {{ hostel[3] }}
+                        </strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;
+                                padding:10px; background:#f8f9fa;
+                                border-radius:8px">
+                        <span style="color:var(--gray); font-size:14px">
+                            Yearly Rent
+                        </span>
+                        <strong style="color:var(--success)">
+                            Rs. {{ hostel[3] * 12 }}
+                        </strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;
+                                padding:10px; background:#f8f9fa;
+                                border-radius:8px">
+                        <span style="color:var(--gray); font-size:14px">
+                            Gender
+                        </span>
+                        <strong>{{ hostel[4] }} Only</strong>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state large" style="margin:30px">
+        <i class="fas fa-home"></i>
+        <h3>Hostel not found</h3>
+        <p>This listing may have been removed.</p>
+        <a href="{{ url_for('hostels') }}" class="btn-primary">
+            Browse Hostels
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const map = L.map('hostelDetailMap').setView([33.6844, 73.0479], 14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+const locData    = document.getElementById('hostel-location-data');
+const locStr     = locData ? locData.dataset.location : '';
+const nameStr    = locData ? locData.dataset.name     : '';
+
+// COMSATS marker
+L.marker([33.6844, 73.0479], {
+    icon: L.divIcon({
+        html: '<div class="map-marker blue-marker"><i class="fas fa-university"></i></div>',
+        className: '', iconSize: [35, 35]
+    })
+}).addTo(map).bindPopup('<b>COMSATS University Islamabad</b>');
+
+if(locStr) {
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locStr + ', Islamabad, Pakistan')}&format=json&limit=1`)
+    .then(r => r.json())
+    .then(data => {
+        if(data && data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lng = parseFloat(data[0].lon);
+            L.marker([lat, lng], {
+                icon: L.divIcon({
+                    html: '<div class="map-marker orange-marker"><i class="fas fa-home"></i></div>',
+                    className: '', iconSize: [30, 30]
+                })
+            }).addTo(map)
+              .bindPopup(`
+                <div style="min-width:150px">
+                    <b>${nameStr}</b><br>
+                    <span style="font-size:12px; color:#666">${locStr}</span>
+                </div>
+              `)
+              .openPopup();
+            map.setView([lat, lng], 15);
+
+            // Draw circle around hostel
+            L.circle([lat, lng], {
+                color: '#f39c12',
+                fillColor: '#f39c12',
+                fillOpacity: 0.1,
+                radius: 300
+            }).addTo(map);
+
+            // Draw line to COMSATS
+            L.polyline(
+                [[lat, lng], [33.6844, 73.0479]],
+                {color: '#1877f2', weight: 2,
+                 opacity: 0.5, dashArray: '5,10'}
+            ).addTo(map);
+        }
+    })
+    .catch(err => console.log('Map error:', err));
+}
+</script>
+{% endblock %}

@@ -1,0 +1,425 @@
+{% extends 'base.html' %}
+{% block title %}Profile - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header profile-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-user"></i> My Profile</h1>
+            <p>Manage your CampusConnect account</p>
+        </div>
+        <a href="{{ url_for('edit_profile') }}" class="btn-outline-white">
+            <i class="fas fa-user-edit"></i> Edit Profile
+        </a>
+    </div>
+
+    <div class="profile-page">
+
+        <!-- Profile Sidebar -->
+        <div class="profile-sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar-large">
+                    {{ session.full_name[0].upper() }}
+                </div>
+                <h2>{{ session.full_name }}</h2>
+                <p class="profile-email">
+                    <i class="fas fa-envelope"></i>
+                    {{ session.email }}
+                </p>
+                <p class="profile-uni">
+                    <i class="fas fa-university"></i>
+                    {{ session.university }}
+                </p>
+                {% if user %}
+                <p class="profile-joined">
+                    <i class="fas fa-calendar-plus"></i>
+                    Joined {{ user[4].strftime('%B %Y') if user[4] else 'N/A' }}
+                </p>
+                {% endif %}
+
+                {% if user_profile %}
+                <div style="margin:15px 0; padding:12px;
+                            background:#f8f9fa; border-radius:10px;
+                            text-align:left">
+                    {% if user_profile[0] %}
+                    <p style="font-size:12px; color:var(--gray);
+                               margin-bottom:5px">
+                        <i class="fas fa-graduation-cap" style="width:16px"></i>
+                        {{ user_profile[0] }}
+                    </p>
+                    {% endif %}
+                    {% if user_profile[1] %}
+                    <p style="font-size:12px; color:var(--gray);
+                               margin-bottom:5px">
+                        <i class="fas fa-calendar" style="width:16px"></i>
+                        {{ user_profile[1] }}
+                    </p>
+                    {% endif %}
+                    {% if user_profile[2] %}
+                    <p style="font-size:12px; color:var(--gray);
+                               margin-bottom:5px">
+                        <i class="fas fa-id-card" style="width:16px"></i>
+                        {{ user_profile[2] }}
+                    </p>
+                    {% endif %}
+                    {% if user_profile[5] %}
+                    <p style="font-size:12px; color:var(--gray);
+                               margin-bottom:5px">
+                        <i class="fas fa-city" style="width:16px"></i>
+                        {{ user_profile[5] }}
+                    </p>
+                    {% endif %}
+                    {% if user_profile[4] %}
+                    <p style="font-size:12px; color:var(--gray);
+                               margin-bottom:0">
+                        <i class="fas fa-phone" style="width:16px"></i>
+                        {{ user_profile[4] }}
+                    </p>
+                    {% endif %}
+                </div>
+                {% if user_profile[3] %}
+                <div style="padding:12px; background:#eff6ff;
+                            border-radius:10px; margin-bottom:15px;
+                            border-left:3px solid var(--primary)">
+                    <p style="font-size:13px; color:#555;
+                               font-style:italic; margin:0">
+                        "{{ user_profile[3] }}"
+                    </p>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <span>{{ my_rides|length }}</span>
+                        <small>Rides</small>
+                    </div>
+                    <div class="profile-stat">
+                        <span>{{ my_items|length }}</span>
+                        <small>Items</small>
+                    </div>
+                    <div class="profile-stat">
+                        <span>{{ my_hostels|length }}</span>
+                        <small>Hostels</small>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('edit_profile') }}"
+                   class="btn-outline btn-full"
+                   style="margin-bottom:10px">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </a>
+                <a href="{{ url_for('logout') }}"
+                   class="btn-danger btn-full">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="profile-content">
+
+            <!-- Profile Details Card -->
+            {% if not user_profile %}
+            <div class="profile-section" style="border:2px dashed var(--border);
+                background:var(--light-gray)">
+                <div class="empty-profile-section">
+                    <i class="fas fa-id-card"></i>
+                    <p>Complete your profile to help others know you better!</p>
+                    <a href="{{ url_for('edit_profile') }}"
+                       class="btn-primary">
+                        <i class="fas fa-user-edit"></i>
+                        Complete Profile
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- My Rides -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-car"></i> My Rides
+                    </h2>
+                    <a href="{{ url_for('post_ride') }}"
+                       class="btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Post Ride
+                    </a>
+                </div>
+                {% if my_rides %}
+                <div class="profile-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ride in my_rides %}
+                            <tr>
+                                <td>
+                                    <span style="font-size:13px">
+                                        {{ ride[1][:25] }}
+                                        {% if ride[1]|length > 25 %}...{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="font-size:13px">
+                                        {{ ride[2][:25] }}
+                                        {% if ride[2]|length > 25 %}...{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="font-size:13px">
+                                        {{ ride[3].strftime('%d %b %Y') if ride[3] else 'N/A' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-pill {{ ride[4] }}">
+                                        {{ ride[4].title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display:flex; gap:5px">
+                                        <a href="{{ url_for('ride_detail', ride_id=ride[0]) }}"
+                                           class="btn-xs btn-outline">
+                                            View
+                                        </a>
+                                        {% if ride[4] == 'active' %}
+                                        <a href="{{ url_for('delete_ride', ride_id=ride[0]) }}"
+                                           class="btn-xs btn-danger"
+                                           onclick="return confirm('Cancel ride?')">
+                                            Cancel
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-profile-section">
+                    <i class="fas fa-car"></i>
+                    <p>No rides posted yet</p>
+                    <a href="{{ url_for('post_ride') }}"
+                       class="btn-sm btn-primary">
+                        Post a Ride
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- My Marketplace Items -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-store"></i> My Listings
+                    </h2>
+                    <a href="{{ url_for('post_item') }}"
+                       class="btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Sell Item
+                    </a>
+                </div>
+                {% if my_items %}
+                <div class="profile-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in my_items %}
+                            <tr>
+                                <td>
+                                    <span style="font-size:13px;
+                                                 font-weight:600">
+                                        {{ item[1][:30] }}
+                                        {% if item[1]|length > 30 %}...{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="color:var(--success);
+                                                 font-weight:700;
+                                                 font-size:13px">
+                                        Rs. {{ item[2] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="category-pill"
+                                          style="font-size:11px">
+                                        {{ item[3] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="status-pill {{ item[4] }}">
+                                        {{ item[4].title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display:flex; gap:5px">
+                                        <a href="{{ url_for('item_detail', item_id=item[0]) }}"
+                                           class="btn-xs btn-outline">
+                                            View
+                                        </a>
+                                        {% if item[4] == 'available' %}
+                                        <a href="{{ url_for('delete_item', item_id=item[0]) }}"
+                                           class="btn-xs btn-danger"
+                                           onclick="return confirm('Mark as sold?')">
+                                            Sold
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-profile-section">
+                    <i class="fas fa-store"></i>
+                    <p>No items listed yet</p>
+                    <a href="{{ url_for('post_item') }}"
+                       class="btn-sm btn-primary">
+                        Sell an Item
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- My Hostels -->
+            <div class="profile-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-home"></i> My Hostel Listings
+                    </h2>
+                    <a href="{{ url_for('post_hostel') }}"
+                       class="btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> List Hostel
+                    </a>
+                </div>
+                {% if my_hostels %}
+                <div class="profile-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Price/Month</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hostel in my_hostels %}
+                            <tr>
+                                <td>
+                                    <span style="font-size:13px;
+                                                 font-weight:600">
+                                        {{ hostel[1] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="font-size:13px;
+                                                 color:var(--gray)">
+                                        {{ hostel[2][:30] }}
+                                        {% if hostel[2]|length > 30 %}...{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="color:var(--success);
+                                                 font-weight:700;
+                                                 font-size:13px">
+                                        Rs. {{ hostel[3] }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display:flex; gap:5px">
+                                        <a href="{{ url_for('hostel_detail', hostel_id=hostel[0]) }}"
+                                           class="btn-xs btn-outline">
+                                            View
+                                        </a>
+                                        <a href="{{ url_for('delete_hostel', hostel_id=hostel[0]) }}"
+                                           class="btn-xs btn-danger"
+                                           onclick="return confirm('Remove listing?')">
+                                            Remove
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-profile-section">
+                    <i class="fas fa-home"></i>
+                    <p>No hostels listed yet</p>
+                    <a href="{{ url_for('post_hostel') }}"
+                       class="btn-sm btn-primary">
+                        List a Hostel
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="profile-section">
+                <h2 class="section-title">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h2>
+                <div style="display:grid;
+                            grid-template-columns: repeat(3,1fr);
+                            gap:12px; margin-top:15px">
+                    <a href="{{ url_for('messages') }}"
+                       style="background:linear-gradient(135deg,#9b59b6,#7d3c98);
+                              color:white; padding:18px;
+                              border-radius:12px; text-align:center;
+                              text-decoration:none; transition:all 0.3s">
+                        <i class="fas fa-envelope"
+                           style="font-size:22px; display:block;
+                                  margin-bottom:6px"></i>
+                        <span style="font-size:13px; font-weight:600">
+                            Messages
+                        </span>
+                    </a>
+                    <a href="{{ url_for('notifications') }}"
+                       style="background:linear-gradient(135deg,#e67e22,#d35400);
+                              color:white; padding:18px;
+                              border-radius:12px; text-align:center;
+                              text-decoration:none; transition:all 0.3s">
+                        <i class="fas fa-bell"
+                           style="font-size:22px; display:block;
+                                  margin-bottom:6px"></i>
+                        <span style="font-size:13px; font-weight:600">
+                            Notifications
+                        </span>
+                    </a>
+                    <a href="{{ url_for('global_search') }}"
+                       style="background:linear-gradient(135deg,#2c3e50,#1a252f);
+                              color:white; padding:18px;
+                              border-radius:12px; text-align:center;
+                              text-decoration:none; transition:all 0.3s">
+                        <i class="fas fa-search"
+                           style="font-size:22px; display:block;
+                                  margin-bottom:6px"></i>
+                        <span style="font-size:13px; font-weight:600">
+                            Search
+                        </span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

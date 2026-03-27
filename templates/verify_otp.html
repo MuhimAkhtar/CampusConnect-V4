@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Verify Email - CampusConnect{% endblock %}
+{% block content %}
+<div class="auth-page centered">
+    <div class="auth-container otp-container">
+        <div class="auth-header">
+            <div class="auth-logo otp-icon">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+            <h1>Check Your Email!</h1>
+            <p>We sent a 6-digit OTP to</p>
+            <p class="otp-email"><strong>{{ email }}</strong></p>
+        </div>
+        <div class="auth-body">
+            <form method="POST" class="auth-form" id="otpForm">
+                <input type="hidden" name="action" value="verify" id="formAction">
+                <div class="otp-inputs">
+                    <input type="text" maxlength="1" class="otp-digit" id="d1" autofocus>
+                    <input type="text" maxlength="1" class="otp-digit" id="d2">
+                    <input type="text" maxlength="1" class="otp-digit" id="d3">
+                    <input type="text" maxlength="1" class="otp-digit" id="d4">
+                    <input type="text" maxlength="1" class="otp-digit" id="d5">
+                    <input type="text" maxlength="1" class="otp-digit" id="d6">
+                </div>
+                <input type="hidden" name="otp" id="otpValue">
+                <div class="otp-timer">
+                    <i class="fas fa-clock"></i>
+                    OTP expires in <span id="timer">10:00</span>
+                </div>
+                <button type="submit" class="btn-primary btn-full" id="verifyBtn">
+                    <i class="fas fa-check-circle"></i> Verify Email
+                </button>
+            </form>
+            <div class="resend-section">
+                <p>Didn't receive the OTP?</p>
+                <form method="POST">
+                    <input type="hidden" name="action" value="resend">
+                    <button type="submit" class="btn-outline btn-full" id="resendBtn">
+                        <i class="fas fa-redo"></i> Resend OTP
+                    </button>
+                </form>
+            </div>
+            <div class="otp-tips">
+                <p><i class="fas fa-info-circle"></i>
+                    Check your spam/junk folder if not found</p>
+                <p><i class="fas fa-shield-alt"></i>
+                    Never share your OTP with anyone</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const digits = document.querySelectorAll('.otp-digit');
+digits.forEach((digit, index) => {
+    digit.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if(this.value && index < digits.length - 1) {
+            digits[index + 1].focus();
+        }
+        updateOTPValue();
+    });
+    digit.addEventListener('keydown', function(e) {
+        if(e.key === 'Backspace' && !this.value && index > 0) {
+            digits[index - 1].focus();
+        }
+    });
+    digit.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = e.clipboardData.getData('text').replace(/[^0-9]/g,'');
+        [...paste].forEach((char, i) => {
+            if(digits[index + i]) digits[index + i].value = char;
+        });
+        updateOTPValue();
+    });
+});
+function updateOTPValue() {
+    let otp = '';
+    digits.forEach(d => otp += d.value);
+    document.getElementById('otpValue').value = otp;
+}
+// Timer
+let timeLeft = 600;
+const timerEl = document.getElementById('timer');
+const resendBtn = document.getElementById('resendBtn');
+const interval = setInterval(() => {
+    timeLeft--;
+    const mins = Math.floor(timeLeft / 60).toString().padStart(2,'0');
+    const secs = (timeLeft % 60).toString().padStart(2,'0');
+    timerEl.textContent = `${mins}:${secs}`;
+    if(timeLeft <= 0) {
+        clearInterval(interval);
+        timerEl.textContent = 'Expired!';
+        timerEl.style.color = '#e74c3c';
+        document.getElementById('verifyBtn').disabled = true;
+    }
+}, 1000);
+</script>
+{% endblock %}
