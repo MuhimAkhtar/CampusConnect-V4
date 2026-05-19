@@ -9,7 +9,7 @@
             <h1><i class="fas fa-store"></i> Student Marketplace</h1>
             <p>Buy and sell academic resources within COMSATS community</p>
         </div>
-        <a href="{{ url_for('post_item') }}" class="btn-primary">
+        <a href="{{ url_for('marketplace.post_item') }}" class="btn-primary">
             <i class="fas fa-plus"></i> Sell an Item
         </a>
     </div>
@@ -37,7 +37,7 @@
                 <i class="fas fa-search"></i> Search
             </button>
             {% if search or category %}
-            <a href="{{ url_for('marketplace') }}" class="btn-outline">
+            <a href="{{ url_for('marketplace.marketplace') }}" class="btn-outline">
                 <i class="fas fa-times"></i> Clear
             </a>
             {% endif %}
@@ -46,14 +46,14 @@
 
     <!-- Category Pills -->
     <div class="category-pills">
-        <a href="{{ url_for('marketplace') }}"
+        <a href="{{ url_for('marketplace.marketplace') }}"
            class="pill {% if not category %}active{% endif %}">
             All Items
         </a>
         {% for cat, icon in [('Books','book'),('Gadgets','laptop'),
                               ('Notes','sticky-note'),('Furniture','couch'),
                               ('Clothing','tshirt'),('Other','box')] %}
-        <a href="{{ url_for('marketplace', category=cat) }}"
+        <a href="{{ url_for('marketplace.marketplace', category=cat) }}"
            class="pill {% if category==cat %}active{% endif %}">
             <i class="fas fa-{{ icon }}"></i> {{ cat }}
         </a>
@@ -71,21 +71,28 @@
 
         {% if items %}
         <div class="market-grid">
-            {% for item in items %}
-            <div class="market-card">
-                <div class="market-card-image">
-                    <div class="market-placeholder">
-                        <i class="fas fa-{% if item[4]=='Books' %}book
-                            {% elif item[4]=='Gadgets' %}laptop
-                            {% elif item[4]=='Notes' %}sticky-note
-                            {% elif item[4]=='Furniture' %}couch
-                            {% elif item[4]=='Clothing' %}tshirt
-                            {% else %}box{% endif %}"></i>
-                    </div>
-                    <span class="condition-badge {{ item[5].lower().replace(' ','-') }}">
-                        {{ item[5] }}
-                    </span>
+    {% for item in items %}
+    <div class="market-card">
+        <div class="market-card-image" style="height: 200px; overflow: hidden; position: relative; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+            
+            {% if item[8] %} <img src="{{ item[8] }}" 
+                     alt="{{ item[1] }}" 
+                     style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+                <div class="market-placeholder">
+                    <i class="fas fa-{% if item[4]=='Books' %}book
+                        {% elif item[4]=='Gadgets' %}laptop
+                        {% elif item[4]=='Notes' %}sticky-note
+                        {% elif item[4]=='Furniture' %}couch
+                        {% elif item[4]=='Clothing' %}tshirt
+                        {% else %}box{% endif %} fa-3x" style="color: #ccc;"></i>
                 </div>
+            {% endif %}
+
+            <span class="condition-badge {{ item[5].lower().replace(' ','-') }}" style="position: absolute; top: 10px; right: 10px; z-index: 2;">
+                {{ item[5] }}
+            </span>
+        </div>
                 <div class="market-card-body">
                     <span class="category-pill">{{ item[4] }}</span>
                     <h3>{{ item[1] }}</h3>
@@ -102,7 +109,7 @@
                         </span>
                     </div>
                 </div>
-                <a href="{{ url_for('item_detail', item_id=item[0]) }}"
+                <a href="{{ url_for('marketplace.item_detail', item_id=item[0]) }}"
                    class="market-card-link">
                     View Item
                 </a>
@@ -114,7 +121,7 @@
             <i class="fas fa-store"></i>
             <h3>No items found</h3>
             <p>Be the first to list an item!</p>
-            <a href="{{ url_for('post_item') }}" class="btn-primary">
+            <a href="{{ url_for('marketplace.post_item') }}" class="btn-primary">
                 <i class="fas fa-plus"></i> Sell an Item
             </a>
         </div>

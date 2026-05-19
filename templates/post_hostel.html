@@ -7,14 +7,14 @@
             <h1><i class="fas fa-home"></i> List a Hostel</h1>
             <p>Help students find accommodation near campus</p>
         </div>
-        <a href="{{ url_for('hostels') }}" class="btn-outline-white">
+        <a href="{{ url_for('hostels.hostels') }}" class="btn-outline-white">
             <i class="fas fa-arrow-left"></i> Back
         </a>
     </div>
 
     <div class="form-page">
         <div class="form-container">
-            <form method="POST" class="styled-form">
+            <form method="POST" id="postHostelForm" class="styled-form" enctype="multipart/form-data">
 
                 <div class="form-group">
                     <label>
@@ -24,9 +24,7 @@
                            placeholder="e.g. Al-Rehman Boys Hostel"
                            required>
                 </div>
-<form method="POST" id="postHostelForm"
-      class="styled-form"
-      enctype="multipart/form-data">
+
                 <div class="form-group">
                     <label>
                         <i class="fas fa-map-marker-alt"></i> Location
@@ -38,10 +36,14 @@
                     <div id="locationSuggestions" class="suggestions-box"></div>
                 </div>
 
-                <!-- Map Preview -->
                 <div class="form-group">
                     <label><i class="fas fa-map"></i> Location Preview</label>
                     <div id="hostelMap" class="map-container"></div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Contact Number</label>
+                    <input type="text" name="contact" placeholder="e.g. 0300-1234567" required>
                 </div>
 
                 <div class="form-row">
@@ -87,22 +89,22 @@
                 </div>
 
                 <div class="form-group">
-    <label>
-        <i class="fas fa-image"></i> Hostel Photo
-    </label>
-    <div class="image-upload-box" onclick="document.getElementById('hostelImage').click()">
-        <img id="imagePreview" src="" alt="" style="display:none;
-             width:100%; height:200px; object-fit:cover; border-radius:8px">
-        <div id="uploadPlaceholder">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <p>Click to upload hostel photo</p>
-            <small>JPG, PNG, WEBP up to 5MB</small>
-        </div>
-    </div>
-    <input type="file" name="image" id="hostelImage"
-           accept="image/*" style="display:none"
-           onchange="previewImage(this)">
-</div>
+                    <label>
+                        <i class="fas fa-image"></i> Hostel Photo
+                    </label>
+                    <div class="image-upload-box" onclick="document.getElementById('hostelImage').click()">
+                        <img id="imagePreview" src="" alt="" style="display:none;
+                             width:100%; height:200px; object-fit:cover; border-radius:8px">
+                        <div id="uploadPlaceholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click to upload hostel photo</p>
+                            <small>JPG, PNG, WEBP up to 5MB</small>
+                        </div>
+                    </div>
+                    <input type="file" name="image" id="hostelImage"
+                           accept="image/*" style="display:none"
+                           onchange="previewImage(this)">
+                </div>
 
                 <button type="submit" class="btn-primary btn-full btn-large"
                         onclick="collectFacilities()">
@@ -113,16 +115,31 @@
     </div>
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script>
+// Image preview function (Add this to make the preview work)
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imagePreview').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+            document.getElementById('uploadPlaceholder').style.display = 'none';
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Map and Facilities logic
 const map = L.map('hostelMap').setView([33.6844, 73.0479], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
 let marker = null;
-
 let locTimeout;
+
 document.getElementById('hostelLocation').addEventListener('input', function() {
     clearTimeout(locTimeout);
     locTimeout = setTimeout(() => {
@@ -136,19 +153,14 @@ document.getElementById('hostelLocation').addEventListener('input', function() {
             data.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'suggestion-item';
-                div.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${item.display_name}`;
+                div.innerHTML = `<i class="fas fa-marker"></i> ${item.display_name}`;
                 div.onclick = () => {
                     document.getElementById('hostelLocation').value = item.display_name;
                     box.innerHTML = '';
                     const lat = parseFloat(item.lat);
                     const lng = parseFloat(item.lon);
                     if(marker) map.removeLayer(marker);
-                    marker = L.marker([lat, lng], {
-                        icon: L.divIcon({
-                            html: '<div class="map-marker orange-marker"><i class="fas fa-home"></i></div>',
-                            className: '', iconSize: [30, 30]
-                        })
-                    }).addTo(map).bindPopup('Hostel Location').openPopup();
+                    marker = L.marker([lat, lng]).addTo(map);
                     map.setView([lat, lng], 15);
                 };
                 box.appendChild(div);

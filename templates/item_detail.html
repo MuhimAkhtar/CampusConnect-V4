@@ -6,7 +6,7 @@
         <div class="page-header-content">
             <h1><i class="fas fa-store"></i> Item Details</h1>
         </div>
-        <a href="{{ url_for('marketplace') }}" class="btn-outline-white">
+        <a href="{{ url_for('marketplace.marketplace') }}" class="btn-outline-white">
             <i class="fas fa-arrow-left"></i> Back to Marketplace
         </a>
     </div>
@@ -15,15 +15,20 @@
     <div class="detail-page">
         <div class="detail-main">
 
-            <!-- Item Image & Info -->
             <div class="detail-card">
-                <div class="item-detail-image">
-                    <i class="fas fa-{% if item[4]=='Books' %}book
-                        {% elif item[4]=='Gadgets' %}laptop
-                        {% elif item[4]=='Notes' %}sticky-note
-                        {% elif item[4]=='Furniture' %}couch
-                        {% elif item[4]=='Clothing' %}tshirt
-                        {% else %}box{% endif %} item-icon-large"></i>
+                <div class="item-detail-image" style="background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 12px; height: 400px;">
+                    {% if item[10] %}
+                        <img src="{{  item[10]}}" 
+                             alt="{{ item[1] }}" 
+                             style="width: 100%; height: 100%; object-fit: contain;">
+                    {% else %}
+                        <i class="fas fa-{% if item[4]=='Books' %}book
+                            {% elif item[4]=='Gadgets' %}laptop
+                            {% elif item[4]=='Notes' %}sticky-note
+                            {% elif item[4]=='Furniture' %}couch
+                            {% elif item[4]=='Clothing' %}tshirt
+                            {% else %}box{% endif %} item-icon-large"></i>
+                    {% endif %}
                 </div>
                 <div class="item-detail-info">
                     <div class="item-badges">
@@ -49,7 +54,6 @@
                 </div>
             </div>
 
-            <!-- Safety Tips -->
             <div class="detail-card safety-tips">
                 <h2 class="detail-card-title">
                     <i class="fas fa-shield-alt"></i> Safety Tips
@@ -80,10 +84,8 @@
 
         </div>
 
-        <!-- Sidebar -->
         <div class="detail-sidebar">
 
-            <!-- Seller Info -->
             <div class="detail-card">
                 <h2 class="detail-card-title">
                     <i class="fas fa-user"></i> Seller
@@ -97,7 +99,7 @@
                 </div>
 
                 {% if item[9] != session.user_id %}
-                <a href="{{ url_for('chat', other_id=item[9]) }}"
+                <a href="{{ url_for('messages.chat', other_id=item[9]) }}"
                    class="btn-primary btn-full"
                    style="margin-bottom:10px">
                     <i class="fas fa-comments"></i> Message Seller
@@ -107,7 +109,7 @@
                     <p class="owner-badge">
                         <i class="fas fa-crown"></i> Your Listing
                     </p>
-                    <a href="{{ url_for('delete_item', item_id=item[0]) }}"
+                    <a href="{{ url_for('marketplace.delete_item', item_id=item[0]) }}"
                        class="btn-danger btn-full"
                        onclick="return confirm('Mark as sold?')">
                         <i class="fas fa-check"></i> Mark as Sold
@@ -116,7 +118,6 @@
                 {% endif %}
             </div>
 
-            <!-- Price Card -->
             <div class="detail-card">
                 <h2 class="detail-card-title">
                     <i class="fas fa-tag"></i> Price Details
@@ -158,7 +159,6 @@
                 </div>
             </div>
 
-            <!-- Report Item -->
             {% if item[9] != session.user_id %}
             <div class="detail-card">
                 <h2 class="detail-card-title">
@@ -170,7 +170,7 @@
                     please report it.
                 </p>
                 <form method="POST"
-                      action="{{ url_for('report_item', item_id=item[0]) }}">
+                      action="{{ url_for('marketplace.report_item', item_id=item[0]) }}">
                     <div class="form-group" style="margin-bottom:10px">
                         <select name="reason" class="filter-select"
                                 style="width:100%">
@@ -197,12 +197,11 @@
             </div>
             {% endif %}
 
-            <!-- Similar Items -->
             <div class="detail-card">
                 <h2 class="detail-card-title">
                     <i class="fas fa-th-large"></i> More {{ item[4] }}
                 </h2>
-                <a href="{{ url_for('marketplace', category=item[4]) }}"
+                <a href="{{ url_for('marketplace.marketplace', category=item[4]) }}"
                    class="btn-outline btn-full">
                     <i class="fas fa-search"></i>
                     Browse More {{ item[4] }}
@@ -217,7 +216,7 @@
         <i class="fas fa-store"></i>
         <h3>Item not found</h3>
         <p>This item may have been sold or removed.</p>
-        <a href="{{ url_for('marketplace') }}" class="btn-primary">
+        <a href="{{ url_for('marketplace.marketplace') }}" class="btn-primary">
             Browse Marketplace
         </a>
     </div>

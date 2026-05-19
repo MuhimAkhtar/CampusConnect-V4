@@ -36,19 +36,19 @@
     <div class="section">
         <h2 class="section-title">Quick Actions</h2>
         <div class="quick-actions">
-            <a href="{{ url_for('post_ride') }}" class="action-card rides">
+            <a href="{{ url_for('rides.post_ride') }}" class="action-card rides">
                 <i class="fas fa-plus-circle"></i>
                 <span>Post a Ride</span>
             </a>
-            <a href="{{ url_for('post_hostel') }}" class="action-card hostels">
+            <a href="{{ url_for('hostels.post_hostel') }}" class="action-card hostels">
                 <i class="fas fa-plus-circle"></i>
                 <span>List Hostel</span>
             </a>
-            <a href="{{ url_for('post_item') }}" class="action-card market">
+            <a href="{{ url_for('marketplace.post_item') }}" class="action-card market">
                 <i class="fas fa-plus-circle"></i>
                 <span>Sell Item</span>
             </a>
-            <a href="{{ url_for('messages') }}" class="action-card msgs">
+            <a href="{{ url_for('messages.messages') }}" class="action-card msgs">
                 <i class="fas fa-envelope"></i>
                 <span>Messages
                 {% if unread > 0 %}
@@ -65,7 +65,7 @@
             <h2 class="section-title">
                 <i class="fas fa-car"></i> Recent Rides
             </h2>
-            <a href="{{ url_for('rides') }}" class="view-all">
+            <a href="{{ url_for('rides.rides') }}" class="view-all">
                 View All <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -103,7 +103,7 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <a href="{{ url_for('ride_detail', ride_id=ride[0]) }}"
+                    <a href="{{ url_for('rides.ride_detail', ride_id=ride[0]) }}"
                        class="btn-sm btn-primary">View Details</a>
                 </div>
             </div>
@@ -113,7 +113,7 @@
         <div class="empty-state">
             <i class="fas fa-car"></i>
             <p>No rides available yet</p>
-            <a href="{{ url_for('post_ride') }}" class="btn-primary">
+            <a href="{{ url_for('rides.post_ride') }}" class="btn-primary">
                 Post First Ride
             </a>
         </div>
@@ -126,7 +126,7 @@
             <h2 class="section-title">
                 <i class="fas fa-home"></i> Recent Hostels
             </h2>
-            <a href="{{ url_for('hostels') }}" class="view-all">
+            <a href="{{ url_for('hostels.hostels') }}" class="view-all">
                 View All <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -157,7 +157,7 @@
                     {% endif %}
                 </div>
                 <div class="card-footer">
-                    <a href="{{ url_for('hostel_detail', hostel_id=hostel[0]) }}"
+                    <a href="{{ url_for('hostels.hostel_detail', hostel_id=hostel[0]) }}"
                        class="btn-sm btn-primary">View Details</a>
                 </div>
             </div>
@@ -167,7 +167,7 @@
         <div class="empty-state">
             <i class="fas fa-home"></i>
             <p>No hostels listed yet</p>
-            <a href="{{ url_for('post_hostel') }}" class="btn-primary">
+            <a href="{{ url_for('hostels.post_hostel') }}" class="btn-primary">
                 List First Hostel
             </a>
         </div>
@@ -180,7 +180,7 @@
             <h2 class="section-title">
                 <i class="fas fa-store"></i> Marketplace
             </h2>
-            <a href="{{ url_for('marketplace') }}" class="view-all">
+            <a href="{{ url_for('marketplace.marketplace') }}" class="view-all">
                 View All <i class="fas fa-arrow-right"></i>
             </a>
         </div>
@@ -202,7 +202,7 @@
                     <p class="price">Rs.{{ item[2] }}</p>
                 </div>
                 <div class="card-footer">
-                    <a href="{{ url_for('item_detail', item_id=item[0]) }}"
+                    <a href="{{ url_for('marketplace.item_detail', item_id=item[0]) }}"
                        class="btn-sm btn-primary">View Item</a>
                 </div>
             </div>
@@ -212,7 +212,7 @@
         <div class="empty-state">
             <i class="fas fa-store"></i>
             <p>No items listed yet</p>
-            <a href="{{ url_for('post_item') }}" class="btn-primary">
+            <a href="{{ url_for('marketplace.post_item') }}" class="btn-primary">
                 List First Item
             </a>
         </div>

@@ -6,7 +6,7 @@
         <div class="page-header-content">
             <h1><i class="fas fa-car"></i> Ride Details</h1>
         </div>
-        <a href="{{ url_for('rides') }}" class="btn-outline-white">
+        <a href="{{ url_for('rides.rides') }}" class="btn-outline-white">
             <i class="fas fa-arrow-left"></i> Back to Rides
         </a>
     </div>
@@ -120,7 +120,7 @@
                         <div>
                             <small>Status</small>
                             <strong id="statusText">
-                                {{ ride[13].title() if ride[13] else 'N/A' }}
+                                {{ ride[15].title() if ride[15] else 'N/A' }}
                             </strong>
                         </div>
                     </div>
@@ -156,16 +156,16 @@
                             </span>
                         </div>
                         <small style="color:var(--gray); margin-left:auto">
-                            {{ req[2].strftime('%d %b') if req[2] else '' }}
+                            {{ (req[2]|pkt).strftime('%d %b') if req[2] else '' }}
                         </small>
-                        {% if ride[16] == session.user_id and req[1] == 'pending' %}
+                        {% if ride[8] == session.user_id and req[1] == 'pending' %}
                         <div style="display:flex; gap:8px; margin-left:10px">
-                            <a href="{{ url_for('accept_ride', ride_id=ride[0], user_id=req[3]) }}"
+                            <a href="{{ url_for('rides.accept_ride', ride_id=ride[0], user_id=req[3]) }}"
                                class="btn-sm btn-primary"
                                onclick="return confirm('Accept this request?')">
                                 <i class="fas fa-check"></i> Accept
                             </a>
-                            <a href="{{ url_for('reject_ride', ride_id=ride[0], user_id=req[3]) }}"
+                            <a href="{{ url_for('rides.reject_ride', ride_id=ride[0], user_id=req[3]) }}"
                                class="btn-sm btn-danger"
                                onclick="return confirm('Reject this request?')">
                                 <i class="fas fa-times"></i> Reject
@@ -215,8 +215,8 @@
                 </p>
                 {% endif %}
 
-                {% if ride[16] != session.user_id %}
-                <form method="POST" action="{{ url_for('add_review') }}"
+                {% if ride[8] != session.user_id %}
+                <form method="POST" action="{{ url_for('marketplace.add_review') }}"
                       style="border-top:2px solid #f0f0f0; padding-top:15px">
                     <input type="hidden" name="target_type" value="RIDE">
                     <input type="hidden" name="target_id" value="{{ ride[0] }}">
@@ -263,13 +263,13 @@
                 </h2>
                 <div class="poster-profile">
                     <div class="poster-avatar-large">
-                        {{ ride[14][0].upper() if ride[14] else '?' }}
+                        {{ ride[7][0].upper() if ride[7] else '?' }}
                     </div>
-                    <h3>{{ ride[14] }}</h3>
+                    <h3>{{ ride[7] }}</h3>
                     <p>{{ ride[15] }}</p>
                 </div>
-                {% if ride[16] != session.user_id %}
-                <a href="{{ url_for('chat', other_id=ride[16]) }}"
+                {% if ride[8] != session.user_id %}
+                <a href="{{ url_for('messages.chat', other_id=ride[8]) }}"
                    class="btn-outline btn-full">
                     <i class="fas fa-comments"></i> Message Driver
                 </a>
@@ -278,7 +278,7 @@
 
             <!-- Actions -->
             <div class="detail-card">
-                {% if ride[16] == session.user_id %}
+                {% if ride[8] == session.user_id %}
                 <div class="owner-actions">
                     <p class="owner-badge">
                         <i class="fas fa-crown"></i> Your Ride
@@ -288,7 +288,7 @@
                         {{ requests|length if requests else 0 }}
                         student(s) have requested this ride
                     </p>
-                    <a href="{{ url_for('delete_ride', ride_id=ride[0]) }}"
+                    <a href="{{ url_for('rides.delete_ride', ride_id=ride[0]) }}"
                        class="btn-danger btn-full"
                        onclick="return confirm('Cancel this ride?')">
                         <i class="fas fa-times-circle"></i> Cancel Ride
@@ -318,7 +318,7 @@
                         {% endif %}
                     </p>
                 </div>
-                <a href="{{ url_for('request_ride', ride_id=ride[0]) }}"
+                <a href="{{ url_for('rides.request_ride', ride_id=ride[0]) }}"
                    class="btn-primary btn-full btn-large">
                     <i class="fas fa-hand-paper"></i> Request Seat
                 </a>
@@ -350,7 +350,7 @@
         <i class="fas fa-car"></i>
         <h3>Ride not found</h3>
         <p>This ride may have been cancelled or removed.</p>
-        <a href="{{ url_for('rides') }}" class="btn-primary">
+        <a href="{{ url_for('rides.rides') }}" class="btn-primary">
             Browse Rides
         </a>
     </div>

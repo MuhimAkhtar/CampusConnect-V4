@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Past Papers - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="page-hero" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);padding:40px 24px;border-radius:16px;color:#fff;margin-bottom:28px">
+    <h1 style="margin:0 0 8px"><i class="fas fa-file-alt"></i> Past Papers</h1>
+    <p style="margin:0;opacity:.85">Browse &amp; download exam papers shared by students</p>
+    <a href="{{ url_for('new_features.upload_paper') }}" class="btn-primary" style="margin-top:16px;display:inline-block;background:#fff;color:#4F46E5;font-weight:700">
+      <i class="fas fa-upload"></i> Upload Paper
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <form method="GET" class="filter-bar" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px">
+    <input name="subject" value="{{ subject }}" placeholder="Subject name..." class="form-input" style="flex:1;min-width:160px">
+    <input name="course_code" value="{{ course_code }}" placeholder="Course code e.g. CSC270" class="form-input" style="flex:1;min-width:140px">
+    <select name="exam_type" class="form-select" style="flex:1;min-width:120px">
+      <option value="">All Types</option>
+      <option value="Mid" {% if exam_type=='Mid' %}selected{% endif %}>Midterm</option>
+      <option value="Final" {% if exam_type=='Final' %}selected{% endif %}>Final</option>
+      <option value="Quiz" {% if exam_type=='Quiz' %}selected{% endif %}>Quiz</option>
+    </select>
+    <input name="exam_year" value="{{ exam_year }}" placeholder="Year e.g. 2025" class="form-input" style="width:120px">
+    <button type="submit" class="btn-primary"><i class="fas fa-search"></i> Filter</button>
+    <a href="{{ url_for('new_features.past_papers') }}" class="btn-secondary">Clear</a>
+  </form>
+
+  {% if papers %}
+  <div class="papers-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px">
+    {% for p in papers %}
+    <div class="card" style="border-radius:14px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)">
+      <div style="background:linear-gradient(135deg,#EEF2FF,#E0E7FF);padding:20px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:48px;height:48px;background:#4F46E5;border-radius:12px;display:flex;align-items:center;justify-content:center">
+            <i class="fas fa-file-pdf" style="color:#fff;font-size:22px"></i>
+          </div>
+          <div>
+            <h3 style="margin:0;font-size:16px;color:#1e1b4b">{{ p.subject }}</h3>
+            <code style="font-size:12px;color:#6366f1">{{ p.course_code }}</code>
+          </div>
+        </div>
+      </div>
+      <div style="padding:16px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <span class="tag" style="background:#EEF2FF;color:#4F46E5;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600">{{ p.exam_type }}</span>
+          <span class="tag" style="background:#F0FDF4;color:#16a34a;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600">{{ p.exam_year }}</span>
+          {% if p.semester %}<span class="tag" style="background:#FFF7ED;color:#ea580c;padding:4px 10px;border-radius:20px;font-size:12px">{{ p.semester }}</span>{% endif %}
+        </div>
+        <p style="font-size:13px;color:#6b7280;margin:0 0 14px">
+          <i class="fas fa-user" style="margin-right:4px"></i> {{ p.uploaded_by }}
+          &nbsp;·&nbsp; <i class="fas fa-clock"></i> {{ p.created_at.strftime('%d %b %Y') if p.created_at else '' }}
+        </p>
+        {% if p.file_url %}
+        <a href="{{ p.file_url }}" target="_blank" class="btn-primary" style="width:100%;text-align:center;display:block">
+          <i class="fas fa-download"></i> Download PDF
+        </a>
+        {% else %}
+        <span style="color:#9ca3af;font-size:13px">No file available</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state" style="text-align:center;padding:60px 20px">
+    <i class="fas fa-file-alt" style="font-size:64px;color:#c7d2fe;margin-bottom:16px"></i>
+    <h3 style="color:#4b5563">No papers found</h3>
+    <p style="color:#9ca3af">Be the first to share a past paper!</p>
+    <a href="{{ url_for('new_features.upload_paper') }}" class="btn-primary" style="margin-top:12px">Upload Now</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

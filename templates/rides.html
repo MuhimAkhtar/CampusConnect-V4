@@ -8,7 +8,7 @@
             <h1><i class="fas fa-car"></i> Ride Sharing</h1>
             <p>Find and share rides with verified COMSATS students</p>
         </div>
-        <a href="{{ url_for('post_ride') }}" class="btn-primary">
+        <a href="{{ url_for('rides.post_ride') }}" class="btn-primary">
             <i class="fas fa-plus"></i> Post a Ride
         </a>
     </div>
@@ -26,7 +26,7 @@
                 <i class="fas fa-search"></i> Search
             </button>
             {% if search %}
-            <a href="{{ url_for('rides') }}" class="btn-outline">
+            <a href="{{ url_for('rides.rides') }}" class="btn-outline">
                 <i class="fas fa-times"></i> Clear
             </a>
             {% endif %}
@@ -101,12 +101,12 @@
                         </div>
                         <span>{{ ride[7] }}</span>
                     </div>
-                    <a href="{{ url_for('ride_detail', ride_id=ride[0]) }}"
+                    <a href="{{ url_for('rides.ride_detail', ride_id=ride[0]) }}"
                        class="btn-primary btn-sm">
                         View Details
                     </a>
                     {% if ride[8] != session.user_id %}
-                    <a href="{{ url_for('request_ride', ride_id=ride[0]) }}"
+                    <a href="{{ url_for('rides.request_ride', ride_id=ride[0]) }}"
                        class="btn-outline btn-sm">
                         Request Seat
                     </a>
@@ -120,7 +120,7 @@
             <i class="fas fa-car"></i>
             <h3>No rides available</h3>
             <p>Be the first to post a ride!</p>
-            <a href="{{ url_for('post_ride') }}" class="btn-primary">
+            <a href="{{ url_for('rides.post_ride') }}" class="btn-primary">
                 <i class="fas fa-plus"></i> Post a Ride
             </a>
         </div>

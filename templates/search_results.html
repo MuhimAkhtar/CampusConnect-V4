@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a href="{{ url_for('ride_detail', ride_id=ride[0]) }}"
+                        <a href="{{ url_for('rides.ride_detail', ride_id=ride[0]) }}"
                            class="btn-sm btn-primary">View</a>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                         <p class="price">Rs. {{ h[3] }}/month</p>
                     </div>
                     <div class="card-footer">
-                        <a href="{{ url_for('hostel_detail', hostel_id=h[0]) }}"
+                        <a href="{{ url_for('hostels.hostel_detail', hostel_id=h[0]) }}"
                            class="btn-sm btn-primary">View</a>
                     </div>
                 </div>
@@ -114,11 +114,11 @@
         <div class="section">
             <h2 class="section-title">
                 <i class="fas fa-store"></i>
-                Marketplace ({{ results.items|length }})
+                Marketplace ({{ results['items']|length }})
             </h2>
-            {% if results.items %}
+            {% if results['items'] %}
             <div class="cards-grid four-col">
-                {% for item in results.items %}
+                {% for item in results['items'] %}
                 <div class="card">
                     <div class="card-header market-header">
                         <span>{{ item[3] }}</span>
@@ -132,7 +132,7 @@
                         </p>
                     </div>
                     <div class="card-footer">
-                        <a href="{{ url_for('item_detail', item_id=item[0]) }}"
+                        <a href="{{ url_for('marketplace.item_detail', item_id=item[0]) }}"
                            class="btn-sm btn-primary">View</a>
                     </div>
                 </div>

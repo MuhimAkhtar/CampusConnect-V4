@@ -27,7 +27,7 @@
                     <p>{{ notif[2] }}</p>
                     <small>
                         <i class="fas fa-clock"></i>
-                        {{ notif[5].strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
+                        {{ (notif[5]|pkt).strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
                     </small>
                 </div>
                 {% if notif[4] == 0 %}
@@ -47,7 +47,7 @@
                     <p>{{ notif[2] }}</p>
                     <small>
                         <i class="fas fa-clock"></i>
-                        {{ notif[5].strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
+                        {{ (notif[5]|pkt).strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
                     </small>
                 </div>
                 {% if notif[4] == 0 %}
@@ -67,7 +67,7 @@
                     <p>{{ notif[2] }}</p>
                     <small>
                         <i class="fas fa-clock"></i>
-                        {{ notif[5].strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
+                        {{ (notif[5]|pkt).strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
                     </small>
                 </div>
                 {% if notif[4] == 0 %}
@@ -87,7 +87,7 @@
                     <p>{{ notif[2] }}</p>
                     <small>
                         <i class="fas fa-clock"></i>
-                        {{ notif[5].strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
+                        {{ (notif[5]|pkt).strftime('%d %b %Y, %I:%M %p') if notif[5] else '' }}
                     </small>
                 </div>
                 {% if notif[4] == 0 %}
@@ -103,7 +103,7 @@
             <i class="fas fa-bell"></i>
             <h3>No notifications yet</h3>
             <p>You will see ride requests, messages and updates here</p>
-            <a href="{{ url_for('dashboard') }}" class="btn-primary">
+            <a href="{{ url_for('auth.dashboard') }}" class="btn-primary">
                 <i class="fas fa-home"></i> Go to Dashboard
             </a>
         </div>

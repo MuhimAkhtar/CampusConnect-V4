@@ -1,0 +1,381 @@
+{
+  "_metadata": {
+    "project": "CampusConnect",
+    "course": "CSC270: Database Systems - I | Spring 2026",
+    "team": ["Muhim Akhtar", "Izhan Shah", "Sohail Wazir"],
+    "database": "MongoDB (NoSQL)",
+    "database_name": "campusconnect",
+    "total_collections": 13,
+    "description": "MongoDB NoSQL schema for CampusConnect — a university student platform for rides, hostels, marketplace, messaging, and academic resources."
+  },
+
+  "collections": {
+
+    "users": {
+      "description": "Stores registered student accounts.",
+      "indexes": [
+        { "field": "email", "type": "unique" }
+      ],
+      "schema": {
+        "_id":        { "type": "ObjectId",  "description": "Auto-generated primary key" },
+        "full_name":  { "type": "string",    "required": true,  "maxLength": 100 },
+        "email":      { "type": "string",    "required": true,  "unique": true, "maxLength": 100 },
+        "password":   { "type": "string",    "required": true,  "description": "SHA-256 hashed password" },
+        "university": { "type": "string",    "default": "COMSATS University Islamabad" },
+        "created_at": { "type": "date",      "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":        "507f1f77bcf86cd799439011",
+        "full_name":  "Muhim Akhtar",
+        "email":      "fa24-bse-080@isbstudent.comsats.edu.pk",
+        "password":   "e3b0c44298fc1c149afbf4c8996fb924...",
+        "university": "COMSATS University Islamabad",
+        "created_at": "2026-05-15T06:00:00Z"
+      }
+    },
+
+    "user_profiles": {
+      "description": "Extended profile details for each user. One-to-one with users.",
+      "indexes": [
+        { "field": "user_id", "type": "unique" }
+      ],
+      "schema": {
+        "_id":        { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "user_id":    { "type": "string",   "required": true, "ref": "users._id", "description": "References users collection" },
+        "department": { "type": "string",   "example": "Software Engineering" },
+        "semester":   { "type": "string",   "example": "FA24" },
+        "roll_no":    { "type": "string",   "example": "FA24-BSE-080" },
+        "bio":        { "type": "string",   "maxLength": 300 },
+        "phone":      { "type": "string",   "example": "0311-1234567" },
+        "city":       { "type": "string",   "example": "Islamabad" },
+        "profile_pic":{ "type": "string",   "description": "URL of profile picture (Cloudflare R2 or local path)" },
+        "created_at": { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":        "507f1f77bcf86cd799439012",
+        "user_id":    "507f1f77bcf86cd799439011",
+        "department": "Software Engineering",
+        "semester":   "FA24",
+        "roll_no":    "FA24-BSE-080",
+        "bio":        "Software Engineering student at COMSATS Islamabad.",
+        "phone":      "0311-1234567",
+        "city":       "Rawalpindi",
+        "profile_pic": null,
+        "created_at": "2026-05-15T06:00:00Z"
+      }
+    },
+
+    "rides": {
+      "description": "Carpooling/ride sharing listings posted by students.",
+      "indexes": [
+        { "fields": ["status", "created_at"], "type": "compound" }
+      ],
+      "schema": {
+        "_id":            { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "user_id":        { "type": "string",   "required": true, "ref": "users._id" },
+        "from_location":  { "type": "string",   "required": true, "maxLength": 200 },
+        "to_location":    { "type": "string",   "required": true, "maxLength": 200 },
+        "ride_date":      { "type": "date",     "required": true },
+        "ride_time":      { "type": "string",   "example": "08:00 AM" },
+        "seats_available":{ "type": "integer",  "default": 1, "minimum": 1 },
+        "price_per_seat": { "type": "number",   "default": 0 },
+        "status":         { "type": "string",   "enum": ["active", "cancelled", "completed"], "default": "active" },
+        "pickup_lat":     { "type": "number",   "description": "GPS latitude of pickup point" },
+        "pickup_lng":     { "type": "number",   "description": "GPS longitude of pickup point" },
+        "dropoff_lat":    { "type": "number",   "description": "GPS latitude of dropoff point" },
+        "dropoff_lng":    { "type": "number",   "description": "GPS longitude of dropoff point" },
+        "distance_km":    { "type": "number",   "description": "Calculated route distance" },
+        "duration_mins":  { "type": "integer",  "description": "Estimated travel duration" },
+        "created_at":     { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":            "507f1f77bcf86cd799439020",
+        "user_id":        "507f1f77bcf86cd799439011",
+        "from_location":  "Rawalpindi Saddar",
+        "to_location":    "COMSATS University Islamabad",
+        "ride_date":      "2026-06-10T00:00:00Z",
+        "ride_time":      "08:00 AM",
+        "seats_available": 3,
+        "price_per_seat": 150,
+        "status":         "active",
+        "pickup_lat":     33.5651,
+        "pickup_lng":     73.0169,
+        "dropoff_lat":    33.6844,
+        "dropoff_lng":    73.0479,
+        "distance_km":    15.2,
+        "duration_mins":  35,
+        "created_at":     "2026-05-15T06:00:00Z"
+      }
+    },
+
+    "ride_requests": {
+      "description": "Requests from students to join a ride.",
+      "indexes": [
+        { "fields": ["ride_id", "user_id"], "type": "compound" }
+      ],
+      "schema": {
+        "_id":        { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "ride_id":    { "type": "string",   "required": true, "ref": "rides._id" },
+        "user_id":    { "type": "string",   "required": true, "ref": "users._id" },
+        "status":     { "type": "string",   "enum": ["pending", "approved", "rejected"], "default": "pending" },
+        "created_at": { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":        "507f1f77bcf86cd799439030",
+        "ride_id":    "507f1f77bcf86cd799439020",
+        "user_id":    "507f1f77bcf86cd799439012",
+        "status":     "pending",
+        "created_at": "2026-05-15T07:00:00Z"
+      }
+    },
+
+    "ride_passengers": {
+      "description": "Confirmed passengers for a ride after request approval.",
+      "indexes": [
+        { "fields": ["ride_id", "user_id"], "type": "compound" }
+      ],
+      "schema": {
+        "_id":        { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "ride_id":    { "type": "string",   "required": true, "ref": "rides._id" },
+        "user_id":    { "type": "string",   "required": true, "ref": "users._id" },
+        "status":     { "type": "string",   "default": "confirmed" },
+        "joined_at":  { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":        "507f1f77bcf86cd799439031",
+        "ride_id":    "507f1f77bcf86cd799439020",
+        "user_id":    "507f1f77bcf86cd799439012",
+        "status":     "confirmed",
+        "joined_at":  "2026-05-15T08:00:00Z"
+      }
+    },
+
+    "hostels": {
+      "description": "Student hostel listings posted by users.",
+      "indexes": [
+        { "field": "created_at", "type": "descending" }
+      ],
+      "schema": {
+        "_id":        { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "user_id":    { "type": "string",   "required": true, "ref": "users._id" },
+        "name":       { "type": "string",   "required": true, "maxLength": 200 },
+        "location":   { "type": "string",   "required": true, "maxLength": 300 },
+        "price":      { "type": "number",   "required": true, "description": "Monthly rent in PKR" },
+        "gender":     { "type": "string",   "enum": ["Male", "Female", "Mixed"] },
+        "facilities": { "type": "string",   "description": "Comma-separated facilities list" },
+        "contact":    { "type": "string",   "maxLength": 50 },
+        "image_url":  { "type": "string",   "description": "Cloudflare R2 URL or local path" },
+        "created_at": { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":        "507f1f77bcf86cd799439040",
+        "user_id":    "507f1f77bcf86cd799439011",
+        "name":       "Al-Rehman Boys Hostel",
+        "location":   "Koral Town, Islamabad",
+        "price":      8000,
+        "gender":     "Male",
+        "facilities": "WiFi, Laundry, Generator, Water Cooler",
+        "contact":    "0300-1234567",
+        "image_url":  "https://pub-xxxx.r2.dev/hostels/1715763600_hostel.jpg",
+        "created_at": "2026-05-15T06:00:00Z"
+      }
+    },
+
+    "hostel_bookmarks": {
+      "description": "Saved/bookmarked hostels per user.",
+      "indexes": [
+        { "fields": ["user_id", "hostel_id"], "type": "unique compound" }
+      ],
+      "schema": {
+        "_id":        { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "user_id":    { "type": "string",   "required": true, "ref": "users._id" },
+        "hostel_id":  { "type": "string",   "required": true, "ref": "hostels._id" },
+        "created_at": { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":        "507f1f77bcf86cd799439050",
+        "user_id":    "507f1f77bcf86cd799439012",
+        "hostel_id":  "507f1f77bcf86cd799439040",
+        "created_at": "2026-05-15T09:00:00Z"
+      }
+    },
+
+    "marketplace": {
+      "description": "Second-hand items listed for sale by students.",
+      "indexes": [
+        { "fields": ["status", "created_at"], "type": "compound" }
+      ],
+      "schema": {
+        "_id":         { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "user_id":     { "type": "string",   "required": true, "ref": "users._id" },
+        "title":       { "type": "string",   "required": true, "maxLength": 200 },
+        "description": { "type": "string",   "maxLength": 1000 },
+        "price":       { "type": "number",   "required": true },
+        "category":    { "type": "string",   "enum": ["Books", "Gadgets", "Clothing", "Furniture", "Other"], "default": "Books" },
+        "condition":   { "type": "string",   "enum": ["New", "Good", "Fair", "Poor"], "default": "Good" },
+        "status":      { "type": "string",   "enum": ["available", "sold", "flagged"], "default": "available" },
+        "image_url":   { "type": "string",   "description": "Cloudflare R2 URL or local path" },
+        "created_at":  { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":         "507f1f77bcf86cd799439060",
+        "user_id":     "507f1f77bcf86cd799439012",
+        "title":       "Calculus Textbook 10th Edition",
+        "description": "Good condition, no missing pages, minor highlights",
+        "price":       500,
+        "category":    "Books",
+        "condition":   "Good",
+        "status":      "available",
+        "image_url":   null,
+        "created_at":  "2026-05-15T06:00:00Z"
+      }
+    },
+
+    "item_reports": {
+      "description": "Reports submitted against suspicious marketplace listings.",
+      "schema": {
+        "_id":         { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "reporter_id": { "type": "string",   "required": true, "ref": "users._id" },
+        "item_id":     { "type": "string",   "required": true, "ref": "marketplace._id" },
+        "reason":      { "type": "string",   "required": true, "maxLength": 200 },
+        "status":      { "type": "string",   "enum": ["pending", "resolved"], "default": "pending" },
+        "created_at":  { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":         "507f1f77bcf86cd799439070",
+        "reporter_id": "507f1f77bcf86cd799439013",
+        "item_id":     "507f1f77bcf86cd799439060",
+        "reason":      "Price seems too high compared to market value.",
+        "status":      "pending",
+        "created_at":  "2026-05-15T10:00:00Z"
+      }
+    },
+
+    "messages": {
+      "description": "Direct messages sent between users (real-time AJAX chat).",
+      "indexes": [
+        { "fields": ["sender_id", "receiver_id"], "type": "compound" },
+        { "fields": ["receiver_id", "is_read"],   "type": "compound" },
+        { "field":  "created_at",                 "type": "ascending" }
+      ],
+      "schema": {
+        "_id":         { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "sender_id":   { "type": "string",   "required": true, "ref": "users._id" },
+        "receiver_id": { "type": "string",   "required": true, "ref": "users._id" },
+        "message":     { "type": "string",   "required": true, "maxLength": 1000 },
+        "is_read":     { "type": "boolean",  "default": false },
+        "created_at":  { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":         "507f1f77bcf86cd799439080",
+        "sender_id":   "507f1f77bcf86cd799439012",
+        "receiver_id": "507f1f77bcf86cd799439011",
+        "message":     "Assalamu Alaikum, is the hostel still available?",
+        "is_read":     false,
+        "created_at":  "2026-05-15T10:30:00Z"
+      }
+    },
+
+    "notifications": {
+      "description": "In-app notifications triggered by system events (ride requests, messages, etc.).",
+      "indexes": [
+        { "fields": ["user_id", "created_at"], "type": "compound descending" }
+      ],
+      "schema": {
+        "_id":        { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "user_id":    { "type": "string",   "required": true, "ref": "users._id" },
+        "title":      { "type": "string",   "required": true, "maxLength": 100 },
+        "message":    { "type": "string",   "required": true, "maxLength": 500 },
+        "notif_type": { "type": "string",   "enum": ["general", "ride_request", "message", "review"], "default": "general" },
+        "is_read":    { "type": "boolean",  "default": false },
+        "created_at": { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":        "507f1f77bcf86cd799439090",
+        "user_id":    "507f1f77bcf86cd799439011",
+        "title":      "New Ride Request!",
+        "message":    "Izhan Shah requested a seat on your ride.",
+        "notif_type": "ride_request",
+        "is_read":    false,
+        "created_at": "2026-05-15T07:05:00Z"
+      }
+    },
+
+    "reviews": {
+      "description": "Ratings and comments on rides and hostels.",
+      "indexes": [
+        { "fields": ["target_type", "target_id"], "type": "compound" }
+      ],
+      "schema": {
+        "_id":         { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "reviewer_id": { "type": "string",   "required": true, "ref": "users._id" },
+        "target_type": { "type": "string",   "required": true, "enum": ["RIDE", "HOSTEL"] },
+        "target_id":   { "type": "string",   "required": true, "description": "ID of the ride or hostel being reviewed" },
+        "rating":      { "type": "integer",  "required": true, "minimum": 1, "maximum": 5 },
+        "comments":    { "type": "string",   "maxLength": 500 },
+        "created_at":  { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":         "507f1f77bcf86cd799439100",
+        "reviewer_id": "507f1f77bcf86cd799439012",
+        "target_type": "HOSTEL",
+        "target_id":   "507f1f77bcf86cd799439040",
+        "rating":      5,
+        "comments":    "Excellent hostel, very clean and close to campus!",
+        "created_at":  "2026-05-15T11:00:00Z"
+      }
+    },
+
+    "past_papers": {
+      "description": "Academic past exam papers uploaded by students. NEW FEATURE.",
+      "indexes": [
+        { "fields": ["course_code", "exam_year"], "type": "compound descending" }
+      ],
+      "schema": {
+        "_id":         { "type": "ObjectId", "description": "Auto-generated primary key" },
+        "user_id":     { "type": "string",   "required": true, "ref": "users._id" },
+        "subject":     { "type": "string",   "required": true, "example": "Database Systems" },
+        "course_code": { "type": "string",   "required": true, "example": "CSC270" },
+        "exam_year":   { "type": "integer",  "required": true, "example": 2025 },
+        "exam_type":   { "type": "string",   "required": true, "enum": ["Mid", "Final", "Quiz"] },
+        "semester":    { "type": "string",   "example": "SP2025" },
+        "file_url":    { "type": "string",   "description": "Cloudflare R2 URL or local path to PDF" },
+        "created_at":  { "type": "date",     "default": "current datetime (UTC)" }
+      },
+      "sample_document": {
+        "_id":         "507f1f77bcf86cd799439110",
+        "user_id":     "507f1f77bcf86cd799439011",
+        "subject":     "Database Systems",
+        "course_code": "CSC270",
+        "exam_year":   2025,
+        "exam_type":   "Mid",
+        "semester":    "SP2025",
+        "file_url":    "https://pub-xxxx.r2.dev/papers/1715763600_csc270_mid.pdf",
+        "created_at":  "2026-05-15T06:00:00Z"
+      }
+    }
+  },
+
+  "relationships": {
+    "description": "MongoDB does not enforce foreign keys. Relationships are maintained at the application layer using string ObjectId references.",
+    "list": [
+      { "from": "user_profiles.user_id",    "to": "users._id",       "type": "One-to-One" },
+      { "from": "rides.user_id",            "to": "users._id",       "type": "Many-to-One" },
+      { "from": "ride_requests.ride_id",    "to": "rides._id",       "type": "Many-to-One" },
+      { "from": "ride_requests.user_id",    "to": "users._id",       "type": "Many-to-One" },
+      { "from": "ride_passengers.ride_id",  "to": "rides._id",       "type": "Many-to-One" },
+      { "from": "ride_passengers.user_id",  "to": "users._id",       "type": "Many-to-One" },
+      { "from": "hostels.user_id",          "to": "users._id",       "type": "Many-to-One" },
+      { "from": "hostel_bookmarks.user_id", "to": "users._id",       "type": "Many-to-One" },
+      { "from": "hostel_bookmarks.hostel_id","to": "hostels._id",    "type": "Many-to-One" },
+      { "from": "marketplace.user_id",      "to": "users._id",       "type": "Many-to-One" },
+      { "from": "item_reports.reporter_id", "to": "users._id",       "type": "Many-to-One" },
+      { "from": "item_reports.item_id",     "to": "marketplace._id", "type": "Many-to-One" },
+      { "from": "messages.sender_id",       "to": "users._id",       "type": "Many-to-One" },
+      { "from": "messages.receiver_id",     "to": "users._id",       "type": "Many-to-One" },
+      { "from": "notifications.user_id",    "to": "users._id",       "type": "Many-to-One" },
+      { "from": "reviews.reviewer_id",      "to": "users._id",       "type": "Many-to-One" },
+      { "from": "past_papers.user_id",      "to": "users._id",       "type": "Many-to-One" }
+    ]
+  }
+}

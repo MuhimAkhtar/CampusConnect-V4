@@ -1,0 +1,173 @@
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from database import get_db
+from helpers import hash_password, is_logged_in, is_valid_email
+from datetime import datetime, timedelta
+from bson import ObjectId
+import random, string, smtplib, ssl, threading, os
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+auth_bp = Blueprint('auth', __name__)
+
+MAIL_USER = os.environ.get('MAIL_USERNAME','campusconnect.noreplygmail@gmail.com')
+MAIL_PASS = os.environ.get('MAIL_PASSWORD','')
+MAIL_FROM = f'CampusConnect <{MAIL_USER}>'
+
+def gen_otp():
+    return ''.join(random.choices(string.digits, k=6))
+
+def _send_email(to, subject, html):
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = MAIL_FROM
+        msg['To'] = to
+        msg.attach(MIMEText(html,'html'))
+        ctx = ssl.create_default_context()
+        with smtplib.SMTP_SSL('smtp.gmail.com',465,context=ctx) as s:
+            s.login(MAIL_USER, MAIL_PASS)
+            s.sendmail(MAIL_USER, to, msg.as_string())
+    except Exception as e:
+        print(f"Email error: {e}")
+
+def send_async(to, subject, html):
+    threading.Thread(target=_send_email, args=(to,subject,html), daemon=True).start()
+
+def otp_html(name, otp):
+    return f"""<body style="font-family:Arial;background:#f4f4f4">
+<div style="max-width:600px;margin:30px auto;background:#fff;border-radius:12px;overflow:hidden">
+<div style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;padding:30px;text-align:center"><h1>CampusConnect</h1></div>
+<div style="padding:40px;text-align:center"><h2>Hello {name}!</h2>
+<p>Your OTP:</p>
+<div style="background:#EEF2FF;border:2px dashed #4F46E5;border-radius:12px;padding:25px;margin:20px auto;display:inline-block">
+<p style="font-size:44px;font-weight:900;color:#4F46E5;letter-spacing:12px;margin:0;font-family:monospace">{otp}</p></div>
+<p style="color:#EF4444;font-weight:bold">Expires in 10 minutes</p></div></div></body>"""
+
+@auth_bp.route('/')
+def home():
+    return redirect(url_for('auth.dashboard') if is_logged_in() else url_for('auth.login'))
+
+@auth_bp.route('/register', methods=['GET','POST'])
+def register():
+    if is_logged_in(): return redirect(url_for('auth.dashboard'))
+    if request.method == 'POST':
+        name  = request.form['full_name'].strip()
+        email = request.form['email'].strip().lower()
+        pw    = request.form['password']
+        cpw   = request.form['confirm_password']
+        if not name or not email or not pw:
+            flash('All fields required!','error'); return render_template('register.html')
+        if len(name) < 3:
+            flash('Name too short!','error'); return render_template('register.html')
+        if not is_valid_email(email):
+            flash('Only COMSATS email addresses allowed!','error'); return render_template('register.html')
+        if pw != cpw:
+            flash('Passwords do not match!','error'); return render_template('register.html')
+        if len(pw) < 6:
+            flash('Password min 6 characters!','error'); return render_template('register.html')
+        db = get_db()
+        if db.users.count_documents({'email':email}) > 0:
+            flash('Email already registered!','error'); return render_template('register.html')
+        otp = gen_otp()
+        session['pending_registration'] = {
+            'full_name': name, 'email': email, 'password': hash_password(pw),
+            'otp': otp, 'otp_expiry': (datetime.now()+timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S')
+        }
+        send_async(email, f'CampusConnect OTP: {otp}', otp_html(name, otp))
+        flash(f'OTP sent to {email}!','success')
+        return redirect(url_for('auth.verify_otp'))
+    return render_template('register.html')
+
+@auth_bp.route('/verify-otp', methods=['GET','POST'])
+def verify_otp():
+    if 'pending_registration' not in session:
+        flash('Register first!','error'); return redirect(url_for('auth.register'))
+    p = session['pending_registration']
+    if request.method == 'POST':
+        if request.form.get('action') == 'resend':
+            otp = gen_otp()
+            session['pending_registration']['otp'] = otp
+            session['pending_registration']['otp_expiry'] = (datetime.now()+timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S')
+            session.modified = True
+            send_async(p['email'], f'CampusConnect OTP: {otp}', otp_html(p['full_name'], otp))
+            flash('New OTP sent!','success')
+            return render_template('verify_otp.html', email=p['email'])
+        entered = request.form.get('otp','').strip()
+        if datetime.now() > datetime.strptime(p['otp_expiry'],'%Y-%m-%d %H:%M:%S'):
+            flash('OTP expired!','error'); return render_template('verify_otp.html',email=p['email'])
+        if entered != p['otp']:
+            flash('Invalid OTP!','error'); return render_template('verify_otp.html',email=p['email'])
+        db = get_db()
+        res = db.users.insert_one({'full_name':p['full_name'],'email':p['email'],'password':p['password'],
+                                   'university':'COMSATS University Islamabad','created_at':datetime.utcnow()})
+        db.notifications.insert_one({'user_id':str(res.inserted_id),'title':'Welcome to CampusConnect!',
+            'message':'Your account is verified. Start exploring!','notif_type':'general','is_read':False,'created_at':datetime.utcnow()})
+        session.pop('pending_registration',None)
+        flash('Email verified! Welcome to CampusConnect!','success')
+        return redirect(url_for('auth.login'))
+    return render_template('verify_otp.html',email=p['email'])
+
+@auth_bp.route('/login', methods=['GET','POST'])
+def login():
+    if is_logged_in(): return redirect(url_for('auth.dashboard'))
+    if request.method == 'POST':
+        email  = request.form['email'].strip().lower()
+        hashed = hash_password(request.form['password'])
+        db = get_db()
+        user = db.users.find_one({'email':email,'password':hashed})
+        if user:
+            session['user_id']    = str(user['_id'])
+            session['full_name']  = user['full_name']
+            session['email']      = user['email']
+            session['university'] = user.get('university','COMSATS University Islamabad')
+            flash(f"Welcome back, {user['full_name']}!",'success')
+            return redirect(url_for('auth.dashboard'))
+        flash('Invalid email or password!','error')
+    return render_template('login.html')
+
+@auth_bp.route('/logout')
+def logout():
+    name = session.get('full_name','')
+    session.clear()
+    flash(f'Goodbye, {name}! See you soon.','success')
+    return redirect(url_for('auth.login'))
+
+@auth_bp.route('/dashboard')
+def dashboard():
+    if not is_logged_in(): return redirect(url_for('auth.login'))
+    db = get_db()
+    from helpers import get_unread_count
+
+    def fmt_ride(r, u):
+        return (str(r['_id']), r['from_location'], r['to_location'], r.get('ride_date'),
+                r.get('ride_time'), r.get('seats_available',0), r.get('price_per_seat',0),
+                u['full_name'] if u else 'Unknown')
+
+    def fmt_hostel(h, u):
+        return (str(h['_id']), h['name'], h['location'], h['price'], h.get('gender',''),
+                h.get('facilities',''), h.get('contact',''), u['full_name'] if u else 'Unknown', h.get('image_url'))
+
+    def fmt_item(i, u):
+        return (str(i['_id']), i['title'], i['price'], i.get('category',''), i.get('condition',''),
+                u['full_name'] if u else 'Unknown')
+
+    ride_docs    = list(db.rides.find({'status':'active'}).sort('created_at',-1).limit(3))
+    hostel_docs  = list(db.hostels.find().sort('created_at',-1).limit(3))
+    item_docs    = list(db.marketplace.find({'status':'available'}).sort('created_at',-1).limit(4))
+
+    def get_user(uid):
+        try: return db.users.find_one({'_id':ObjectId(uid)})
+        except: return None
+
+    rides   = [fmt_ride(r, get_user(r['user_id']))   for r in ride_docs]
+    hostels = [fmt_hostel(h, get_user(h['user_id'])) for h in hostel_docs]
+    items   = [fmt_item(i, get_user(i['user_id']))   for i in item_docs]
+
+    return render_template('dashboard.html',
+        rides=rides, hostels=hostels, items=items,
+        unread=get_unread_count(),
+        total_rides   = db.rides.count_documents({'status':'active'}),
+        total_hostels = db.hostels.count_documents({}),
+        total_items   = db.marketplace.count_documents({'status':'available'}),
+        total_users   = db.users.count_documents({})
+    )

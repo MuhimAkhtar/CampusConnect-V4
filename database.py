@@ -1,25 +1,25 @@
-import oracledb
+from pymongo import MongoClient, ASCENDING, DESCENDING
+from dotenv import load_dotenv
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WALLET_PATH = os.path.join(BASE_DIR, 'wallet')
+load_dotenv()
 
-def get_connection():
-    try:
-        connection = oracledb.connect(
-            user="ADMIN",
-            password="AbujanAmijan@16",
-            dsn="campusdb_low",            # 'low' is more stable for slow connections
-            config_dir=WALLET_PATH,
-            wallet_location=WALLET_PATH,
-            wallet_password="AbujanAmijan@16"             # <--- Try empty first
-        )
-        print("Successfully connected to Oracle Cloud! 🚀")
-        return connection
-    except Exception as e:
-        print(f"Error connecting to database: {e}")
-        return None
+MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/campusconnect')
 
-if __name__ == "__main__":
-    print("Connecting to Oracle Cloud... please wait ⏳")
-    get_connection()
+_client = None
+
+def get_client():
+    global _client
+    if _client is None:
+        _client = MongoClient(MONGO_URI)
+    return _client
+
+def get_db():
+    """Return the campusconnect database."""
+    client = get_client()
+    return client.get_database('campusconnect')
+
+if __name__ == '__main__':
+    print("Connecting to MongoDB... ⏳")
+    db = get_db()
+    print(f"Connected! Collections: {db.list_collection_names()} 🚀")

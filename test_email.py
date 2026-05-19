@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 MAIL_SERVER   = 'smtp.gmail.com'
 MAIL_PORT     = 587
 MAIL_USERNAME = 'campusconnect.noreplygmail@gmail.com'
-MAIL_PASSWORD = 'fmgginvcvkjipcbk'
+MAIL_PASSWORD = 'cbcyfsidpylvjqmm'
 
 # ================================
 # TEST EMAIL

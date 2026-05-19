@@ -7,7 +7,7 @@
             <h1><i class="fas fa-home"></i> Hostel Listings</h1>
             <p>Find verified accommodation near COMSATS University</p>
         </div>
-        <a href="{{ url_for('post_hostel') }}" class="btn-primary">
+        <a href="{{ url_for('hostels.post_hostel') }}" class="btn-primary">
             <i class="fas fa-plus"></i> List a Hostel
         </a>
     </div>
@@ -22,24 +22,15 @@
             </div>
             <select name="gender" class="filter-select">
                 <option value="">All Genders</option>
-                <option value="Male"
-                    {% if gender=='Male' %}selected{% endif %}>
-                    Male Only
-                </option>
-                <option value="Female"
-                    {% if gender=='Female' %}selected{% endif %}>
-                    Female Only
-                </option>
-                <option value="Any"
-                    {% if gender=='Any' %}selected{% endif %}>
-                    Mixed
-                </option>
+                <option value="Male" {% if gender=='Male' %}selected{% endif %}>Male Only</option>
+                <option value="Female" {% if gender=='Female' %}selected{% endif %}>Female Only</option>
+                <option value="Any" {% if gender=='Any' %}selected{% endif %}>Mixed</option>
             </select>
             <button type="submit" class="btn-primary">
                 <i class="fas fa-search"></i> Search
             </button>
             {% if search or gender %}
-            <a href="{{ url_for('hostels') }}" class="btn-outline">
+            <a href="{{ url_for('hostels.hostels') }}" class="btn-outline">
                 <i class="fas fa-times"></i> Clear
             </a>
             {% endif %}
@@ -51,7 +42,7 @@
     </div>
 
     <div id="hostel-data" style="display:none">
-[{% for h in hostels %}{"name":"{{ h[1]|replace('"','') }}","location":"{{ h[2]|replace('"','') }}","price":"{{ h[3] }}","id":{{ h[0] }}}{% if not loop.last %},{% endif %}{% endfor %}]
+        [{% for h in hostels %}{"name":"{{ h[1]|replace('"','') }}","location":"{{ h[2]|replace('"','') }}","price":"{{ h[3] }}","id":{{ h[0] }}}{% if not loop.last %},{% endif %}{% endfor %}]
     </div>
 
     <div class="results-section">
@@ -66,15 +57,23 @@
         <div class="cards-grid three-col">
             {% for h in hostels %}
             <div class="card hostel-card-full">
-                <div class="hostel-card-header">
-                    <div class="hostel-icon">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <div class="hostel-gender-badge {{ h[4].lower() }}">
+                <div class="hostel-card-header" style="height: 180px; overflow: hidden; position: relative; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                    {% if h[8] %}
+                        <img src="{{h[8]}}" 
+                             alt="{{ h[1] }}" 
+                             style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <div class="hostel-icon">
+                            <i class="fas fa-home fa-2x"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="hostel-gender-badge {{ h[4].lower() }}" style="position: absolute; top: 10px; right: 10px; z-index: 2;">
                         <i class="fas fa-{% if h[4]=='Male' %}mars{% elif h[4]=='Female' %}venus{% else %}transgender{% endif %}"></i>
                         {{ h[4] }} Only
                     </div>
                 </div>
+
                 <div class="card-body">
                     <h3>{{ h[1] }}</h3>
                     <p class="location">
@@ -101,7 +100,7 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <a href="{{ url_for('hostel_detail', hostel_id=h[0]) }}"
+                    <a href="{{ url_for('hostels.hostel_detail', hostel_id=h[0]) }}"
                        class="btn-primary btn-full">
                         <i class="fas fa-eye"></i> View Details
                     </a>
@@ -114,7 +113,7 @@
             <i class="fas fa-home"></i>
             <h3>No hostels found</h3>
             <p>Be the first to list a hostel!</p>
-            <a href="{{ url_for('post_hostel') }}" class="btn-primary">
+            <a href="{{ url_for('hostels.post_hostel') }}" class="btn-primary">
                 <i class="fas fa-plus"></i> List a Hostel
             </a>
         </div>

@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}University LMS Portal - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#1e40af,#3b82f6);padding:28px 24px;border-radius:16px;color:#fff;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <div>
+      <h1 style="margin:0;font-size:22px"><i class="fas fa-university"></i> University LMS Portal</h1>
+      <p style="margin:6px 0 0;opacity:.85">COMSATS Student Information System — Quick Launcher</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a href="https://sis.comsats.edu.pk" target="_blank" rel="noopener"
+        style="background:#fff;color:#1e40af;font-weight:700;padding:10px 20px;border-radius:10px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-size:14px">
+        <i class="fas fa-external-link-alt"></i> Open SIS Portal
+      </a>
+    </div>
+  </div>
+
+  <!-- Notice Banner -->
+  <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:12px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:flex-start;gap:14px">
+    <i class="fas fa-shield-alt" style="color:#d97706;font-size:20px;margin-top:2px;flex-shrink:0"></i>
+    <p style="margin:0;color:#92400e;font-size:14px;line-height:1.6">
+      <strong>Why can't we embed SIS here?</strong> The COMSATS SIS sets
+      <code style="background:#fde68a;padding:1px 5px;border-radius:4px">X-Frame-Options: SAMEORIGIN</code>
+      — a browser security policy that blocks it from being displayed inside any external website.
+      This is intentional by COMSATS IT to prevent clickjacking attacks. All links below open SIS in a
+      <strong>new tab</strong> where your session works normally.
+    </p>
+  </div>
+
+  <!-- SIS Status Card -->
+  <div style="background:#fff;border-radius:14px;padding:18px 24px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div id="statusDot" style="width:16px;height:16px;border-radius:50%;background:#d1d5db;flex-shrink:0;transition:background .3s"></div>
+      <div>
+        <p style="margin:0;font-weight:700;color:#1f2937;font-size:15px">SIS Portal Live Status</p>
+        <p id="statusText" style="margin:3px 0 0;font-size:13px;color:#64748b">Checking reachability…</p>
+      </div>
+    </div>
+    <button id="refreshBtn" onclick="checkStatus()" style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:13px;color:#475569;display:flex;align-items:center;gap:6px;transition:.2s"
+      onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+      <i class="fas fa-sync-alt" id="refreshIcon"></i> Refresh
+    </button>
+  </div>
+
+  <!-- Quick Links Grid -->
+  <h2 style="font-size:16px;color:#374151;margin:0 0 14px;font-weight:700">
+    <i class="fas fa-th" style="color:#3b82f6"></i> Quick Access Links
+  </h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-bottom:28px">
+    {% set links = [
+      ('SIS Student Portal',  'https://sis.comsats.edu.pk',          'fa-graduation-cap', '#4F46E5'),
+      ('COMSATS Email',       'https://mail.google.com',              'fa-envelope',       '#dc2626'),
+      ('Library Portal',      'https://library.comsats.edu.pk',       'fa-book',           '#d97706'),
+      ('CUI Official Site',   'https://www.comsats.edu.pk',           'fa-globe',          '#0e7490')
+    ] %}
+    {% for name, href, icon, color in links %}
+    <a href="{{ href }}" target="_blank" rel="noopener" style="text-decoration:none">
+      <div class="lms-card"
+        style="background:#fff;border-radius:14px;padding:20px 16px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.07);transition:transform .2s,box-shadow .2s;cursor:pointer;height:100%;box-sizing:border-box"
+        onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 28px rgba(0,0,0,.13)'"
+        onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,.07)'">
+        <div style="width:50px;height:50px;background:{{ color + '1a' }};border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+          <i class="fas {{ icon }}" style="color:{{ color }};font-size:22px" aria-hidden="true"></i>
+        </div>
+        <p style="margin:0 0 5px;font-weight:700;color:#1f2937;font-size:14px">{{ name }}</p>
+        <p style="margin:0;font-size:11px;color:#94a3b8">
+          <i class="fas fa-external-link-alt" style="font-size:9px"></i> Opens in new tab
+        </p>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- Help Section -->
+  <h2 style="font-size:16px;color:#374151;margin:0 0 14px;font-weight:700">
+    <i class="fas fa-question-circle" style="color:#3b82f6"></i> Common SIS Issues
+  </h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:28px">
+    {% set tips = [
+      ('fa-key',         '#7c3aed', 'Forgot Password?',   'Use the &ldquo;Forgot Password&rdquo; link on the SIS login page, or contact your campus IT helpdesk.'),
+      ('fa-user-lock',   '#dc2626', 'Can\'t Login?',      'Your username is your student ID (e.g. FA21-BCS-001). Default password is sent to your COMSATS email.'),
+      ('fa-hourglass-half','#d97706','SIS is Slow?',      'SIS gets overloaded during result announcements. Try at off-peak hours or use the status checker above.'),
+      ('fa-wifi',        '#059669', 'Connection Issues?', 'If SIS won\'t load, check your internet connection or try a different browser / incognito mode.')
+    ] %}
+    {% for icon, color, title, body in tips %}
+    <div style="background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.06);display:flex;gap:14px;align-items:flex-start">
+      <div style="width:38px;height:38px;background:{{ color + '1a' }};border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="fas {{ icon }}" style="color:{{ color }};font-size:16px"></i>
+      </div>
+      <div>
+        <p style="margin:0 0 5px;font-weight:700;color:#1e293b;font-size:14px">{{ title }}</p>
+        <p style="margin:0;font-size:13px;color:#64748b;line-height:1.5">{{ body }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Contact Block -->
+  <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:14px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+    <div>
+      <p style="margin:0 0 4px;font-weight:700;color:#1e40af;font-size:15px"><i class="fas fa-headset"></i> COMSATS IT Helpdesk</p>
+      <p style="margin:0;font-size:13px;color:#3b82f6">For SIS account issues, contact your campus IT support or email <strong>itsupport@comsats.edu.pk</strong></p>
+    </div>
+    <a href="mailto:itsupport@comsats.edu.pk"
+      style="background:#1e40af;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:8px">
+      <i class="fas fa-envelope"></i> Email IT Support
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  async function checkStatus() {
+    const dot  = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    const icon = document.getElementById('refreshIcon');
+
+    // Spinning animation while checking
+    icon.style.transition = 'transform .3s';
+    icon.style.animation  = 'lmsSpin 0.8s linear infinite';
+    text.textContent      = 'Checking reachability…';
+    dot.style.background  = '#d1d5db';
+
+    try {
+      const res  = await fetch('/lms/status');
+      const data = await res.json();
+      if (data.online) {
+        dot.style.background = '#22c55e';
+        text.textContent     = '✅ Online — SIS is reachable right now';
+      } else {
+        dot.style.background = '#ef4444';
+        text.textContent     = '❌ Offline — SIS appears to be unreachable';
+      }
+    } catch (err) {
+      dot.style.background = '#f59e0b';
+      text.textContent     = '⚠️ Status check failed (network error)';
+    }
+    icon.style.animation = '';
+  }
+
+  // Auto-run on page load
+  checkStatus();
+</script>
+<style>
+  @keyframes lmsSpin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}

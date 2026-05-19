@@ -2,125 +2,194 @@
 {% block title %}Chat - CampusConnect{% endblock %}
 {% block content %}
 <div class="chat-page">
-    <!-- Chat Header -->
-    <div class="chat-header">
-        <a href="{{ url_for('messages') }}" class="back-btn">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <div class="chat-user-info">
-            <div class="chat-avatar">
-                {{ other_user[0][0].upper() if other_user else '?' }}
-            </div>
-            <div>
-                <h3>{{ other_user[0] if other_user else 'Unknown' }}</h3>
-                <p>{{ other_user[1] if other_user else '' }}</p>
-            </div>
-        </div>
-        <div class="chat-actions">
-            <a href="{{ url_for('profile') }}" class="btn-icon">
-                <i class="fas fa-user"></i>
-            </a>
-        </div>
+  <!-- Chat Header -->
+  <div class="chat-header">
+    <a href="{{ url_for('messages.messages') }}" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+    <div class="chat-user-info">
+      <div class="chat-avatar">{{ other_user[0][0].upper() if other_user else '?' }}</div>
+      <div>
+        <h3>{{ other_user[0] if other_user else 'Unknown' }}</h3>
+        <p id="statusText" style="font-size:12px;color:#6366f1">Online</p>
+      </div>
     </div>
+  </div>
 
-    <!-- Messages -->
-    <div class="chat-messages" id="chatMessages">
-        {% if chats %}
-            {% set current_date = namespace(value=None) %}
-            {% for chat in chats %}
-                {% set msg_date = chat[2].strftime('%Y-%m-%d') if chat[2] else '' %}
-                {% if msg_date != current_date.value %}
-                    {% set current_date.value = msg_date %}
-                    <div class="date-divider">
-                        <span>
-                            {{ chat[2].strftime('%A, %d %B %Y') if chat[2] else '' }}
-                        </span>
-                    </div>
-                {% endif %}
-
-                <div class="message-wrapper {% if chat[1] == session.user_id %}sent{% else %}received{% endif %}">
-                    {% if chat[1] != session.user_id %}
-                    <div class="msg-avatar">
-                        {{ chat[3][0].upper() }}
-                    </div>
-                    {% endif %}
-                    <div class="message-bubble">
-                        <p>{{ chat[0] }}</p>
-                        <span class="msg-time">
-                            {{ chat[2].strftime('%I:%M %p') if chat[2] else '' }}
-                            {% if chat[1] == session.user_id %}
-                            <i class="fas fa-check-double"></i>
-                            {% endif %}
-                        </span>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-        <div class="no-messages">
-            <i class="fas fa-comments"></i>
-            <p>No messages yet</p>
-            <small>Say hello to {{ other_user[0] if other_user else 'this user' }}!</small>
-        </div>
+  <!-- Messages Area -->
+  <div class="chat-messages" id="chatMessages">
+    {% if chats %}
+      {% set current_date = namespace(value=None) %}
+      {% for chat in chats %}
+        {% set msg_date = (chat[2]|pkt).strftime('%Y-%m-%d') if chat[2] else '' %}
+        {% if msg_date != current_date.value %}
+          {% set current_date.value = msg_date %}
+          <div class="date-divider"><span>{{ (chat[2]|pkt).strftime('%A, %d %B %Y') if chat[2] else '' }}</span></div>
         {% endif %}
-    </div>
+        <div class="message-wrapper {% if chat[1] == session.user_id %}sent{% else %}received{% endif %}" data-ts="{{ chat[2].isoformat() if chat[2] else '' }}" data-mid="{{ chat[3] }}">
+          {% if chat[1] != session.user_id %}
+          <div class="msg-avatar">{{ other_user[0][0].upper() if other_user else '?' }}</div>
+          {% endif %}
+          <div class="message-bubble">
+            <p>{{ chat[0] }}</p>
+            <span class="msg-time">
+              {{ (chat[2]|pkt).strftime('%I:%M %p') if chat[2] else '' }}
+              {% if chat[1] == session.user_id %}<i class="fas fa-check-double"></i>{% endif %}
+            </span>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="no-messages">
+        <i class="fas fa-comments"></i>
+        <p>No messages yet</p>
+        <small>Say hello to {{ other_user[0] if other_user else 'this user' }}!</small>
+      </div>
+    {% endif %}
+  </div>
 
-    <!-- Message Input -->
-    <div class="chat-input-area">
-        <form method="POST" class="chat-form" id="chatForm">
-            <div class="chat-input-wrapper">
-                <textarea name="message"
-                          id="messageInput"
-                          placeholder="Type a message..."
-                          rows="1"
-                          required
-                          onkeydown="handleEnter(event)"></textarea>
-                <div class="chat-input-actions">
-                    <button type="submit" class="send-btn">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </form>
+  <!-- Typing Indicator -->
+  <div id="typingIndicator" style="padding:6px 20px;font-size:12px;color:#9ca3af;display:none">
+    <i class="fas fa-ellipsis-h"></i> Sending...
+  </div>
+
+  <!-- Input Area -->
+  <div class="chat-input-area">
+    <div class="chat-input-wrapper">
+      <textarea id="messageInput" placeholder="Type a message..." rows="1" onkeydown="handleEnter(event)"></textarea>
+      <div class="chat-input-actions">
+        <button onclick="sendMessage()" class="send-btn" id="sendBtn">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script>
-// Auto scroll to bottom
 const chatMessages = document.getElementById('chatMessages');
-chatMessages.scrollTop = chatMessages.scrollHeight;
-
-// Auto resize textarea
 const messageInput = document.getElementById('messageInput');
-messageInput.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-});
+const OTHER_ID     = "{{ other_id }}";
+const POLL_URL     = "{{ url_for('messages.chat_poll', other_id=other_id) }}";
+const SEND_URL     = "{{ url_for('messages.send_message', other_id=other_id) }}";
 
-// Send on Enter (Shift+Enter for new line)
-function handleEnter(e) {
-    if(e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if(messageInput.value.trim()) {
-            document.getElementById('chatForm').submit();
-        }
-    }
+// Get timestamp of the last message
+function getLastTs() {
+  const wrappers = chatMessages.querySelectorAll('[data-ts]');
+  if (!wrappers.length) return null;
+  const last = wrappers[wrappers.length - 1].getAttribute('data-ts');
+  return last || null;
 }
 
-// Auto refresh messages every 5 seconds
-setInterval(() => {
-    const current = chatMessages.scrollHeight;
-    fetch(window.location.href)
-    .then(r => r.text())
-    .then(html => {
-        const parser  = new DOMParser();
-        const doc     = parser.parseFromString(html, 'text/html');
-        const newMsgs = doc.getElementById('chatMessages');
-        if(newMsgs && newMsgs.innerHTML !== chatMessages.innerHTML) {
-            chatMessages.innerHTML = newMsgs.innerHTML;
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+function scrollBottom(force=false) {
+  const atBottom = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 80;
+  if (atBottom || force) chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function utcToPkt(isoStr) {
+  // MongoDB stores UTC; Pakistan is UTC+5
+  if (!isoStr) return null;
+  const d = new Date(isoStr);
+  d.setHours(d.getHours() + 5);
+  return d;
+}
+
+function appendMessage(msg, isMine, ts) {
+  const d = document.createElement('div');
+  d.className = 'message-wrapper ' + (isMine ? 'sent' : 'received');
+  d.setAttribute('data-ts', ts || '');
+  const pktDate = utcToPkt(ts);
+  const timeStr = pktDate ? pktDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+  const avatarHtml = isMine ? '' : `<div class="msg-avatar">{{ other_user[0][0].upper() if other_user else '?' }}</div>`;
+  const tickHtml   = isMine ? '<i class="fas fa-check-double"></i>' : '';
+  d.innerHTML = `${avatarHtml}<div class="message-bubble"><p>${escHtml(msg)}</p><span class="msg-time">${timeStr} ${tickHtml}</span></div>`;
+  chatMessages.appendChild(d);
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Track messages we already rendered optimistically to avoid poll duplicates
+const sentMessages = new Set();
+
+// AJAX send — no optimistic UI, poll immediately after send
+async function sendMessage() {
+  const msg = messageInput.value.trim();
+  if (!msg) return;
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  messageInput.value = '';
+  messageInput.style.height = 'auto';
+
+  try {
+    await fetch(SEND_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: msg})
     });
-}, 5000);
+    // Immediately fetch the message we just sent from the real DB
+    await pollOnce();
+  } catch(e) {
+    console.error('Send failed:', e);
+    messageInput.value = msg; // restore on failure
+  }
+  btn.disabled = false;
+}
+
+// One-shot poll (used after sending to instantly show the sent message)
+let pollLocked = false;
+async function pollOnce() {
+  pollLocked = true;
+  try {
+    const since = getLastTs();
+    const url   = POLL_URL + (since ? '?since=' + encodeURIComponent(since) : '');
+    const resp  = await fetch(url);
+    const data  = await resp.json();
+    if (data.messages && data.messages.length > 0) {
+      data.messages.forEach(m => appendMessage(m.message, m.is_mine, m.created_at));
+      scrollBottom(true);
+    }
+  } catch(e) {}
+  pollLocked = false;
+}
+
+// Continuous background poll for incoming messages every 2 seconds
+let polling = true;
+async function pollMessages() {
+  if (!polling) return;
+  if (!pollLocked) {
+    try {
+      const since = getLastTs();
+      const url   = POLL_URL + (since ? '?since=' + encodeURIComponent(since) : '');
+      const resp  = await fetch(url);
+      const data  = await resp.json();
+      if (data.messages && data.messages.length > 0) {
+        data.messages.forEach(m => appendMessage(m.message, m.is_mine, m.created_at));
+        scrollBottom();
+      }
+    } catch(e) {}
+  }
+  setTimeout(pollMessages, 2000);
+}
+
+function handleEnter(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (messageInput.value.trim()) sendMessage();
+  }
+}
+
+// Auto resize textarea
+messageInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+// Init
+scrollBottom(true);
+setTimeout(pollMessages, 2000);
 </script>
 {% endblock %}

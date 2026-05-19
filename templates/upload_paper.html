@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Upload Past Paper - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-wrapper" style="max-width:640px;margin:0 auto">
+  <div class="card" style="border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(79,70,229,.12)">
+    <div style="background:linear-gradient(135deg,#4F46E5,#7C3AED);padding:32px;color:#fff;text-align:center">
+      <i class="fas fa-upload" style="font-size:36px;margin-bottom:12px;display:block"></i>
+      <h1 style="margin:0;font-size:24px">Upload Past Paper</h1>
+      <p style="margin:8px 0 0;opacity:.85">Share exam papers to help your fellow students</p>
+    </div>
+    <div style="padding:32px">
+      <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        <div class="form-group" style="margin-bottom:20px">
+          <label class="form-label">Subject Name *</label>
+          <input name="subject" class="form-input" required placeholder="e.g. Database Systems" style="width:100%">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div class="form-group">
+            <label class="form-label">Course Code *</label>
+            <input name="course_code" class="form-input" required placeholder="e.g. CSC270" style="width:100%;text-transform:uppercase">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Semester</label>
+            <input name="semester" class="form-input" placeholder="e.g. SP2025" style="width:100%">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div class="form-group">
+            <label class="form-label">Exam Type *</label>
+            <select name="exam_type" class="form-select" required style="width:100%">
+              <option value="Mid">Midterm</option>
+              <option value="Final">Final</option>
+              <option value="Quiz">Quiz</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Exam Year *</label>
+            <input name="exam_year" class="form-input" type="number" required
+                   placeholder="2025" min="2010" max="2030" style="width:100%">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:28px">
+          <label class="form-label">PDF File *</label>
+          <div id="dropZone" style="border:2px dashed #c7d2fe;border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:.2s;background:#fafafa">
+            <i class="fas fa-file-pdf" style="font-size:40px;color:#6366f1;margin-bottom:12px;display:block"></i>
+            <p style="margin:0;color:#4b5563;font-weight:600">Drag & drop PDF here</p>
+            <p style="margin:4px 0 12px;color:#9ca3af;font-size:13px">or click to browse</p>
+            <input type="file" name="pdf" id="pdfInput" accept=".pdf" required style="display:none">
+            <label for="pdfInput" class="btn-secondary" style="cursor:pointer">Choose File</label>
+            <p id="fileName" style="margin:12px 0 0;color:#6366f1;font-size:13px;font-weight:600"></p>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;padding:14px;font-size:16px" id="submitBtn">
+          <i class="fas fa-upload"></i> Upload Paper
+        </button>
+        <a href="{{ url_for('new_features.past_papers') }}" class="btn-secondary" style="width:100%;text-align:center;display:block;margin-top:12px">
+          Cancel
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const dropZone  = document.getElementById('dropZone');
+const pdfInput  = document.getElementById('pdfInput');
+const fileName  = document.getElementById('fileName');
+const submitBtn = document.getElementById('submitBtn');
+
+pdfInput.addEventListener('change', () => {
+  if (pdfInput.files[0]) fileName.textContent = '📄 ' + pdfInput.files[0].name;
+});
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor='#4F46E5'; dropZone.style.background='#EEF2FF'; });
+dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor='#c7d2fe'; dropZone.style.background='#fafafa'; });
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.style.borderColor='#c7d2fe'; dropZone.style.background='#fafafa';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    const dt = new DataTransfer(); dt.items.add(file); pdfInput.files = dt.files;
+    fileName.textContent = '📄 ' + file.name;
+  }
+});
+document.getElementById('uploadForm').addEventListener('submit', () => {
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+  submitBtn.disabled = true;
+});
+</script>
+{% endblock %}

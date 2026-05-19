@@ -6,7 +6,7 @@
         <div class="page-header-content">
             <h1><i class="fas fa-home"></i> Hostel Details</h1>
         </div>
-        <a href="{{ url_for('hostels') }}" class="btn-outline-white">
+        <a href="{{ url_for('hostels.hostels') }}" class="btn-outline-white">
             <i class="fas fa-arrow-left"></i> Back to Hostels
         </a>
     </div>
@@ -14,7 +14,18 @@
     {% if hostel %}
     <div class="detail-page">
         <div class="detail-main">
-
+            <div class="detail-card" style="padding: 0; overflow: hidden; border-radius: 15px; margin-bottom: 20px;">
+                {% if hostel[10] %}
+                <img src="{{  hostel[10] }}" alt="{{ hostel[1] }}"
+                    style="width: 100%; max-height: 450px; object-fit: cover; display: block;">
+                {% else %}
+                <div
+                    style="height: 300px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #adb5bd;">
+                    <i class="fas fa-image fa-4x"></i>
+                    <p style="margin-left: 10px;">No photo available</p>
+                </div>
+                {% endif %}
+            </div>
             <!-- Hostel Info Card -->
             <div class="detail-card">
                 <div class="hostel-detail-header">
@@ -47,8 +58,7 @@
                     <i class="fas fa-map"></i> Location Map
                 </h2>
                 <div id="hostelDetailMap" class="map-container"></div>
-                <div id="hostel-location-data" style="display:none"
-                     data-location="{{ hostel[2]|replace('"','') }}"
+                <div id="hostel-location-data" style="display:none" data-location="{{ hostel[2]|replace('"','') }}"
                      data-name="{{ hostel[1]|replace('"','') }}">
                 </div>
             </div>
@@ -96,12 +106,12 @@
                                 <strong style="font-size:14px">{{ rev[0] }}</strong>
                             </div>
                             <div class="star-rating" data-rating="{{ rev[1] }}">
-    <i class="fas fa-star star"></i>
-    <i class="fas fa-star star"></i>
-    <i class="fas fa-star star"></i>
-    <i class="fas fa-star star"></i>
-    <i class="fas fa-star star"></i>
-</div>
+                                <i class="fas fa-star star"></i>
+                                <i class="fas fa-star star"></i>
+                                <i class="fas fa-star star"></i>
+                                <i class="fas fa-star star"></i>
+                                <i class="fas fa-star star"></i>
+                            </div>
                         </div>
                         {% if rev[2] %}
                         <p style="font-size:13px; color:#666;
@@ -119,8 +129,8 @@
                 {% endif %}
 
                 {% if hostel[9] != session.user_id %}
-                <form method="POST" action="{{ url_for('add_review') }}"
-                      style="border-top:2px solid #f0f0f0; padding-top:15px">
+                <form method="POST" action="{{ url_for('marketplace.add_review') }}"
+                    style="border-top:2px solid #f0f0f0; padding-top:15px">
                     <input type="hidden" name="target_type" value="HOSTEL">
                     <input type="hidden" name="target_id" value="{{ hostel[0] }}">
                     <p style="font-size:14px; font-weight:700;
@@ -132,8 +142,7 @@
                                       margin-bottom:6px; display:block">
                             Rating
                         </label>
-                        <select name="rating" class="filter-select"
-                                style="width:100%">
+                        <select name="rating" class="filter-select" style="width:100%">
                             <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
                             <option value="4">⭐⭐⭐⭐ Good</option>
                             <option value="3">⭐⭐⭐ Average</option>
@@ -146,9 +155,7 @@
                                       margin-bottom:6px; display:block">
                             Comment
                         </label>
-                        <textarea name="comment" rows="3"
-                                  placeholder="Share your experience..."
-                                  style="width:100%; padding:10px;
+                        <textarea name="comment" rows="3" placeholder="Share your experience..." style="width:100%; padding:10px;
                                          border:2px solid #eee;
                                          border-radius:8px;
                                          font-family:inherit;
@@ -192,13 +199,11 @@
                 </div>
 
                 {% if hostel[9] != session.user_id %}
-                <a href="{{ url_for('chat', other_id=hostel[9]) }}"
-                   class="btn-primary btn-full"
-                   style="margin-bottom:10px">
+                <a href="{{ url_for('messages.chat', other_id=hostel[9]) }}" class="btn-primary btn-full"
+                    style="margin-bottom:10px">
                     <i class="fas fa-comments"></i> Message Owner
                 </a>
-                <a href="{{ url_for('bookmark_hostel', hostel_id=hostel[0]) }}"
-                   class="btn-outline btn-full">
+                <a href="{{ url_for('hostels.bookmark_hostel', hostel_id=hostel[0]) }}" class="btn-outline btn-full">
                     {% if is_bookmarked %}
                     <i class="fas fa-bookmark" style="color:var(--primary)"></i>
                     Remove Bookmark
@@ -211,9 +216,8 @@
                     <p class="owner-badge">
                         <i class="fas fa-crown"></i> Your Listing
                     </p>
-                    <a href="{{ url_for('delete_hostel', hostel_id=hostel[0]) }}"
-                       class="btn-danger btn-full"
-                       onclick="return confirm('Remove this listing?')">
+                    <a href="{{ url_for('hostels.delete_hostel', hostel_id=hostel[0]) }}" class="btn-danger btn-full"
+                        onclick="return confirm('Remove this listing?')">
                         <i class="fas fa-trash"></i> Remove Listing
                     </a>
                 </div>
@@ -264,7 +268,7 @@
         <i class="fas fa-home"></i>
         <h3>Hostel not found</h3>
         <p>This listing may have been removed.</p>
-        <a href="{{ url_for('hostels') }}" class="btn-primary">
+        <a href="{{ url_for('hostels.hostels') }}" class="btn-primary">
             Browse Hostels
         </a>
     </div>
@@ -274,62 +278,64 @@
 
 {% block extra_js %}
 <script>
-const map = L.map('hostelDetailMap').setView([33.6844, 73.0479], 14);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-}).addTo(map);
+    const map = L.map('hostelDetailMap').setView([33.6844, 73.0479], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-const locData    = document.getElementById('hostel-location-data');
-const locStr     = locData ? locData.dataset.location : '';
-const nameStr    = locData ? locData.dataset.name     : '';
+    const locData = document.getElementById('hostel-location-data');
+    const locStr = locData ? locData.dataset.location : '';
+    const nameStr = locData ? locData.dataset.name : '';
 
-// COMSATS marker
-L.marker([33.6844, 73.0479], {
-    icon: L.divIcon({
-        html: '<div class="map-marker blue-marker"><i class="fas fa-university"></i></div>',
-        className: '', iconSize: [35, 35]
-    })
-}).addTo(map).bindPopup('<b>COMSATS University Islamabad</b>');
+    // COMSATS marker
+    L.marker([33.6844, 73.0479], {
+        icon: L.divIcon({
+            html: '<div class="map-marker blue-marker"><i class="fas fa-university"></i></div>',
+            className: '', iconSize: [35, 35]
+        })
+    }).addTo(map).bindPopup('<b>COMSATS University Islamabad</b>');
 
-if(locStr) {
-    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locStr + ', Islamabad, Pakistan')}&format=json&limit=1`)
-    .then(r => r.json())
-    .then(data => {
-        if(data && data.length > 0) {
-            const lat = parseFloat(data[0].lat);
-            const lng = parseFloat(data[0].lon);
-            L.marker([lat, lng], {
-                icon: L.divIcon({
-                    html: '<div class="map-marker orange-marker"><i class="fas fa-home"></i></div>',
-                    className: '', iconSize: [30, 30]
-                })
-            }).addTo(map)
-              .bindPopup(`
+    if (locStr) {
+        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locStr + ', Islamabad, Pakistan')}&format=json&limit=1`)
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lng = parseFloat(data[0].lon);
+                    L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            html: '<div class="map-marker orange-marker"><i class="fas fa-home"></i></div>',
+                            className: '', iconSize: [30, 30]
+                        })
+                    }).addTo(map)
+                        .bindPopup(`
                 <div style="min-width:150px">
                     <b>${nameStr}</b><br>
                     <span style="font-size:12px; color:#666">${locStr}</span>
                 </div>
               `)
-              .openPopup();
-            map.setView([lat, lng], 15);
+                        .openPopup();
+                    map.setView([lat, lng], 15);
 
-            // Draw circle around hostel
-            L.circle([lat, lng], {
-                color: '#f39c12',
-                fillColor: '#f39c12',
-                fillOpacity: 0.1,
-                radius: 300
-            }).addTo(map);
+                    // Draw circle around hostel
+                    L.circle([lat, lng], {
+                        color: '#f39c12',
+                        fillColor: '#f39c12',
+                        fillOpacity: 0.1,
+                        radius: 300
+                    }).addTo(map);
 
-            // Draw line to COMSATS
-            L.polyline(
-                [[lat, lng], [33.6844, 73.0479]],
-                {color: '#1877f2', weight: 2,
-                 opacity: 0.5, dashArray: '5,10'}
-            ).addTo(map);
-        }
-    })
-    .catch(err => console.log('Map error:', err));
-}
+                    // Draw line to COMSATS
+                    L.polyline(
+                        [[lat, lng], [33.6844, 73.0479]],
+                        {
+                            color: '#1877f2', weight: 2,
+                            opacity: 0.5, dashArray: '5,10'
+                        }
+                    ).addTo(map);
+                }
+            })
+            .catch(err => console.log('Map error:', err));
+    }
 </script>
 {% endblock %}

@@ -7,7 +7,7 @@
             <h1><i class="fas fa-user"></i> My Profile</h1>
             <p>Manage your CampusConnect account</p>
         </div>
-        <a href="{{ url_for('edit_profile') }}" class="btn-outline-white">
+        <a href="{{ url_for('misc.edit_profile') }}" class="btn-outline-white">
             <i class="fas fa-user-edit"></i> Edit Profile
         </a>
     </div>
@@ -103,12 +103,12 @@
                     </div>
                 </div>
 
-                <a href="{{ url_for('edit_profile') }}"
+                <a href="{{ url_for('misc.edit_profile') }}"
                    class="btn-outline btn-full"
                    style="margin-bottom:10px">
                     <i class="fas fa-user-edit"></i> Edit Profile
                 </a>
-                <a href="{{ url_for('logout') }}"
+                <a href="{{ url_for('auth.logout') }}"
                    class="btn-danger btn-full">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
@@ -125,7 +125,7 @@
                 <div class="empty-profile-section">
                     <i class="fas fa-id-card"></i>
                     <p>Complete your profile to help others know you better!</p>
-                    <a href="{{ url_for('edit_profile') }}"
+                    <a href="{{ url_for('misc.edit_profile') }}"
                        class="btn-primary">
                         <i class="fas fa-user-edit"></i>
                         Complete Profile
@@ -140,7 +140,7 @@
                     <h2 class="section-title">
                         <i class="fas fa-car"></i> My Rides
                     </h2>
-                    <a href="{{ url_for('post_ride') }}"
+                    <a href="{{ url_for('rides.post_ride') }}"
                        class="btn-sm btn-primary">
                         <i class="fas fa-plus"></i> Post Ride
                     </a>
@@ -184,12 +184,12 @@
                                 </td>
                                 <td>
                                     <div style="display:flex; gap:5px">
-                                        <a href="{{ url_for('ride_detail', ride_id=ride[0]) }}"
+                                        <a href="{{ url_for('rides.ride_detail', ride_id=ride[0]) }}"
                                            class="btn-xs btn-outline">
                                             View
                                         </a>
                                         {% if ride[4] == 'active' %}
-                                        <a href="{{ url_for('delete_ride', ride_id=ride[0]) }}"
+                                        <a href="{{ url_for('rides.delete_ride', ride_id=ride[0]) }}"
                                            class="btn-xs btn-danger"
                                            onclick="return confirm('Cancel ride?')">
                                             Cancel
@@ -206,7 +206,7 @@
                 <div class="empty-profile-section">
                     <i class="fas fa-car"></i>
                     <p>No rides posted yet</p>
-                    <a href="{{ url_for('post_ride') }}"
+                    <a href="{{ url_for('rides.post_ride') }}"
                        class="btn-sm btn-primary">
                         Post a Ride
                     </a>
@@ -220,7 +220,7 @@
                     <h2 class="section-title">
                         <i class="fas fa-store"></i> My Listings
                     </h2>
-                    <a href="{{ url_for('post_item') }}"
+                    <a href="{{ url_for('marketplace.post_item') }}"
                        class="btn-sm btn-primary">
                         <i class="fas fa-plus"></i> Sell Item
                     </a>
@@ -267,12 +267,12 @@
                                 </td>
                                 <td>
                                     <div style="display:flex; gap:5px">
-                                        <a href="{{ url_for('item_detail', item_id=item[0]) }}"
+                                        <a href="{{ url_for('marketplace.item_detail', item_id=item[0]) }}"
                                            class="btn-xs btn-outline">
                                             View
                                         </a>
                                         {% if item[4] == 'available' %}
-                                        <a href="{{ url_for('delete_item', item_id=item[0]) }}"
+                                        <a href="{{ url_for('marketplace.delete_item', item_id=item[0]) }}"
                                            class="btn-xs btn-danger"
                                            onclick="return confirm('Mark as sold?')">
                                             Sold
@@ -289,7 +289,7 @@
                 <div class="empty-profile-section">
                     <i class="fas fa-store"></i>
                     <p>No items listed yet</p>
-                    <a href="{{ url_for('post_item') }}"
+                    <a href="{{ url_for('marketplace.post_item') }}"
                        class="btn-sm btn-primary">
                         Sell an Item
                     </a>
@@ -303,7 +303,7 @@
                     <h2 class="section-title">
                         <i class="fas fa-home"></i> My Hostel Listings
                     </h2>
-                    <a href="{{ url_for('post_hostel') }}"
+                    <a href="{{ url_for('hostels.post_hostel') }}"
                        class="btn-sm btn-primary">
                         <i class="fas fa-plus"></i> List Hostel
                     </a>
@@ -344,11 +344,11 @@
                                 </td>
                                 <td>
                                     <div style="display:flex; gap:5px">
-                                        <a href="{{ url_for('hostel_detail', hostel_id=hostel[0]) }}"
+                                        <a href="{{ url_for('hostels.hostel_detail', hostel_id=hostel[0]) }}"
                                            class="btn-xs btn-outline">
                                             View
                                         </a>
-                                        <a href="{{ url_for('delete_hostel', hostel_id=hostel[0]) }}"
+                                        <a href="{{ url_for('hostels.delete_hostel', hostel_id=hostel[0]) }}"
                                            class="btn-xs btn-danger"
                                            onclick="return confirm('Remove listing?')">
                                             Remove
@@ -364,7 +364,7 @@
                 <div class="empty-profile-section">
                     <i class="fas fa-home"></i>
                     <p>No hostels listed yet</p>
-                    <a href="{{ url_for('post_hostel') }}"
+                    <a href="{{ url_for('hostels.post_hostel') }}"
                        class="btn-sm btn-primary">
                         List a Hostel
                     </a>
@@ -380,7 +380,7 @@
                 <div style="display:grid;
                             grid-template-columns: repeat(3,1fr);
                             gap:12px; margin-top:15px">
-                    <a href="{{ url_for('messages') }}"
+                    <a href="{{ url_for('messages.messages') }}"
                        style="background:linear-gradient(135deg,#9b59b6,#7d3c98);
                               color:white; padding:18px;
                               border-radius:12px; text-align:center;
@@ -392,7 +392,7 @@
                             Messages
                         </span>
                     </a>
-                    <a href="{{ url_for('notifications') }}"
+                    <a href="{{ url_for('misc.notifications') }}"
                        style="background:linear-gradient(135deg,#e67e22,#d35400);
                               color:white; padding:18px;
                               border-radius:12px; text-align:center;
@@ -404,7 +404,7 @@
                             Notifications
                         </span>
                     </a>
-                    <a href="{{ url_for('global_search') }}"
+                    <a href="{{ url_for('misc.global_search') }}"
                        style="background:linear-gradient(135deg,#2c3e50,#1a252f);
                               color:white; padding:18px;
                               border-radius:12px; text-align:center;

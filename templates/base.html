@@ -16,48 +16,56 @@
     {% if session.user_id %}
     <nav class="navbar">
         <div class="nav-brand">
-            <a href="{{ url_for('dashboard') }}">
+            <a href="{{ url_for('auth.dashboard') }}">
                 <i class="fas fa-graduation-cap"></i>
                 CampusConnect
             </a>
         </div>
         <div class="nav-links" id="navLinks">
-            <a href="{{ url_for('rides') }}"
-               class="nav-link {% if request.endpoint=='rides' %}active{% endif %}">
+            <a href="{{ url_for('rides.rides') }}"
+               class="nav-link {% if request.endpoint=='rides.rides' %}active{% endif %}">
                 <i class="fas fa-car"></i> Rides
             </a>
-            <a href="{{ url_for('hostels') }}"
-               class="nav-link {% if request.endpoint=='hostels' %}active{% endif %}">
+            <a href="{{ url_for('hostels.hostels') }}"
+               class="nav-link {% if request.endpoint=='hostels.hostels' %}active{% endif %}">
                 <i class="fas fa-home"></i> Hostels
             </a>
-            <a href="{{ url_for('marketplace') }}"
-               class="nav-link {% if request.endpoint=='marketplace' %}active{% endif %}">
+            <a href="{{ url_for('marketplace.marketplace') }}"
+               class="nav-link {% if request.endpoint=='marketplace.marketplace' %}active{% endif %}">
                 <i class="fas fa-store"></i> Marketplace
             </a>
-            <a href="{{ url_for('messages') }}"
-               class="nav-link {% if request.endpoint=='messages' %}active{% endif %}">
+            <a href="{{ url_for('new_features.past_papers') }}"
+               class="nav-link {% if request.endpoint=='new_features.past_papers' %}active{% endif %}">
+                <i class="fas fa-file-alt"></i> Past Papers
+            </a>
+            <a href="{{ url_for('new_features.lms_portal') }}"
+               class="nav-link {% if request.endpoint=='new_features.lms_portal' %}active{% endif %}">
+                <i class="fas fa-university"></i> LMS
+            </a>
+            <a href="{{ url_for('messages.messages') }}"
+               class="nav-link {% if request.endpoint=='messages.messages' %}active{% endif %}">
                 <i class="fas fa-envelope"></i> Messages
                 {% if unread is defined and unread > 0 %}
                 <span class="badge">{{ unread }}</span>
                 {% endif %}
             </a>
-            <a href="{{ url_for('notifications') }}"
-               class="nav-link {% if request.endpoint=='notifications' %}active{% endif %}">
+            <a href="{{ url_for('misc.notifications') }}"
+               class="nav-link {% if request.endpoint=='misc.notifications' %}active{% endif %}">
                 <i class="fas fa-bell"></i> Alerts
             </a>
-            <a href="{{ url_for('global_search') }}"
-               class="nav-link {% if request.endpoint=='global_search' %}active{% endif %}">
+            <a href="{{ url_for('misc.global_search') }}"
+               class="nav-link {% if request.endpoint=='misc.global_search' %}active{% endif %}">
                 <i class="fas fa-search"></i> Search
             </a>
         </div>
         <div class="nav-right" id="navRight">
-            <a href="{{ url_for('profile') }}" class="nav-profile">
+            <a href="{{ url_for('misc.profile') }}" class="nav-profile">
                 <div class="nav-avatar">
-                    {{ session.full_name[0].upper() }}
+                    {{ (session.full_name or '?')[0].upper() }}
                 </div>
-                {{ session.full_name.split()[0] }}
+                {{ (session.full_name or 'User').split()[0] }}
             </a>
-            <a href="{{ url_for('logout') }}" class="nav-logout" title="Logout">
+            <a href="{{ url_for('auth.logout') }}" class="nav-logout" title="Logout">
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
