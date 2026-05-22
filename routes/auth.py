@@ -120,6 +120,7 @@ def login():
             session['full_name']  = user['full_name']
             session['email']      = user['email']
             session['university'] = user.get('university','COMSATS University Islamabad')
+            session['profile_pic'] = user.get('profile_pic', '')
             flash(f"Welcome back, {user['full_name']}!",'success')
             return redirect(url_for('auth.dashboard'))
         flash('Invalid email or password!','error')
@@ -131,6 +132,94 @@ def logout():
     session.clear()
     flash(f'Goodbye, {name}! See you soon.','success')
     return redirect(url_for('auth.login'))
+
+
+# ── Forgot Password ────────────────────────────────────────────────────────────
+
+@auth_bp.route('/forgot-password', methods=['GET','POST'])
+def forgot_password():
+    if is_logged_in(): return redirect(url_for('auth.dashboard'))
+    if request.method == 'POST':
+        email = request.form.get('email','').strip().lower()
+        if not email:
+            flash('Please enter your email address.', 'error')
+            return render_template('forgot_password.html')
+        db = get_db()
+        user = db.users.find_one({'email': email})
+        if not user:
+            # Generic message to prevent email enumeration
+            flash('If that email is registered, an OTP has been sent.', 'success')
+            return render_template('forgot_password.html', sent=True)
+        otp = gen_otp()
+        session['pending_reset'] = {
+            'email': email,
+            'otp': otp,
+            'otp_expiry': (datetime.now() + timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S')
+        }
+        html = f"""<body style="font-family:Arial;background:#f4f4f4">
+<div style="max-width:600px;margin:30px auto;background:#fff;border-radius:12px;overflow:hidden">
+<div style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;padding:30px;text-align:center"><h1>CampusConnect</h1></div>
+<div style="padding:40px;text-align:center"><h2>Reset Your Password</h2>
+<p>Use this OTP to reset your password:</p>
+<div style="background:#EEF2FF;border:2px dashed #4F46E5;border-radius:12px;padding:25px;margin:20px auto;display:inline-block">
+<p style="font-size:44px;font-weight:900;color:#4F46E5;letter-spacing:12px;margin:0;font-family:monospace">{otp}</p></div>
+<p style="color:#EF4444;font-weight:bold">Expires in 10 minutes</p>
+<p style="color:#64748B;font-size:13px">If you did not request this, please ignore this email.</p>
+</div></div></body>"""
+        send_async(email, f'CampusConnect Password Reset OTP: {otp}', html)
+        flash('OTP sent to your email address!', 'success')
+        return redirect(url_for('auth.reset_password'))
+    return render_template('forgot_password.html')
+
+
+@auth_bp.route('/reset-password', methods=['GET','POST'])
+def reset_password():
+    if is_logged_in(): return redirect(url_for('auth.dashboard'))
+    if 'pending_reset' not in session:
+        flash('Please request a password reset first.', 'error')
+        return redirect(url_for('auth.forgot_password'))
+    p = session['pending_reset']
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'resend':
+            otp = gen_otp()
+            session['pending_reset']['otp'] = otp
+            session['pending_reset']['otp_expiry'] = (datetime.now() + timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S')
+            session.modified = True
+            html = f"""<body style="font-family:Arial;background:#f4f4f4">
+<div style="max-width:600px;margin:30px auto;background:#fff;border-radius:12px;overflow:hidden">
+<div style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;padding:30px;text-align:center"><h1>CampusConnect</h1></div>
+<div style="padding:40px;text-align:center"><h2>New OTP</h2>
+<div style="background:#EEF2FF;border:2px dashed #4F46E5;border-radius:12px;padding:25px;margin:20px auto;display:inline-block">
+<p style="font-size:44px;font-weight:900;color:#4F46E5;letter-spacing:12px;margin:0;font-family:monospace">{otp}</p></div>
+<p style="color:#EF4444;font-weight:bold">Expires in 10 minutes</p></div></div></body>"""
+            send_async(p['email'], f'CampusConnect New OTP: {otp}', html)
+            flash('New OTP sent!', 'success')
+            return render_template('reset_password.html', email=p['email'])
+        # Validate OTP
+        entered = request.form.get('otp', '').strip()
+        new_pw  = request.form.get('password', '')
+        conf_pw = request.form.get('confirm_password', '')
+        if datetime.now() > datetime.strptime(p['otp_expiry'], '%Y-%m-%d %H:%M:%S'):
+            flash('OTP expired! Please request a new one.', 'error')
+            return render_template('reset_password.html', email=p['email'])
+        if entered != p['otp']:
+            flash('Invalid OTP!', 'error')
+            return render_template('reset_password.html', email=p['email'])
+        if len(new_pw) < 6:
+            flash('Password must be at least 6 characters!', 'error')
+            return render_template('reset_password.html', email=p['email'])
+        if new_pw != conf_pw:
+            flash('Passwords do not match!', 'error')
+            return render_template('reset_password.html', email=p['email'])
+        db = get_db()
+        db.users.update_one({'email': p['email']}, {'$set': {'password': hash_password(new_pw)}})
+        session.pop('pending_reset', None)
+        flash('Password reset successfully! Please login.', 'success')
+        return redirect(url_for('auth.login'))
+    return render_template('reset_password.html', email=p['email'])
+
+
 
 @auth_bp.route('/dashboard')
 def dashboard():

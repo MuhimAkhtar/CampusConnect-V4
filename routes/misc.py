@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database import get_db
-from helpers import is_logged_in, get_unread_count
+from helpers import is_logged_in, get_unread_count, upload_file, ALLOWED_IMG
 from datetime import datetime
 from bson import ObjectId
 
@@ -101,6 +101,7 @@ def profile():
     if not user_doc: return redirect(url_for('auth.login'))
     user = (uid, user_doc['full_name'], user_doc['email'],
             user_doc.get('university',''), user_doc.get('created_at'))
+    profile_pic = user_doc.get('profile_pic', '')
     rides_docs = list(db.rides.find({'user_id':uid}).sort('created_at',-1))
     my_rides = [(str(r['_id']), r['from_location'], r['to_location'], r.get('ride_date'), r.get('status','')) for r in rides_docs]
     items_docs = list(db.marketplace.find({'user_id':uid}).sort('created_at',-1))
@@ -114,7 +115,8 @@ def profile():
                         prof_doc.get('roll_no',''), prof_doc.get('bio',''),
                         prof_doc.get('phone',''), prof_doc.get('city',''))
     return render_template('profile.html', user=user, my_rides=my_rides, my_items=my_items,
-                           my_hostels=my_hostels, user_profile=user_profile, unread=get_unread_count())
+                           my_hostels=my_hostels, user_profile=user_profile,
+                           profile_pic=profile_pic, unread=get_unread_count())
 
 @misc_bp.route('/profile/edit', methods=['GET','POST'])
 def edit_profile():
@@ -122,16 +124,36 @@ def edit_profile():
     db = get_db()
     uid = session['user_id']
     if request.method == 'POST':
-        data = {'user_id':uid, 'department':request.form.get('department',''),
-                'semester':request.form.get('semester',''), 'roll_no':request.form.get('roll_no',''),
-                'bio':request.form.get('bio',''), 'phone':request.form.get('phone',''),
-                'city':request.form.get('city',''), 'updated_at':datetime.utcnow()}
-        db.user_profiles.update_one({'user_id':uid}, {'$set':data}, upsert=True)
-        flash('Profile updated!','success')
+        # Handle profile picture upload
+        pic_url = None
+        if 'profile_pic' in request.files:
+            pic_file = request.files['profile_pic']
+            if pic_file and pic_file.filename:
+                pic_url = upload_file(pic_file, 'avatars', ALLOWED_IMG)
+
+        data = {'user_id': uid, 'department': request.form.get('department',''),
+                'semester': request.form.get('semester',''), 'roll_no': request.form.get('roll_no',''),
+                'bio': request.form.get('bio',''), 'phone': request.form.get('phone',''),
+                'city': request.form.get('city',''), 'updated_at': datetime.utcnow()}
+        db.user_profiles.update_one({'user_id': uid}, {'$set': data}, upsert=True)
+
+        # Save profile pic to users collection and update session
+        if pic_url:
+            db.users.update_one({'_id': ObjectId(uid)}, {'$set': {'profile_pic': pic_url}})
+            session['profile_pic'] = pic_url
+            session.modified = True
+
+        flash('Profile updated!', 'success')
         return redirect(url_for('misc.profile'))
-    prof_doc = db.user_profiles.find_one({'user_id':uid})
+
+    prof_doc = db.user_profiles.find_one({'user_id': uid})
     prof = None
     if prof_doc:
         prof = (prof_doc.get('department',''), prof_doc.get('semester',''), prof_doc.get('roll_no',''),
                 prof_doc.get('bio',''), prof_doc.get('phone',''), prof_doc.get('city',''))
-    return render_template('edit_profile.html', prof=prof, unread=get_unread_count())
+
+    # Get current profile pic
+    user_doc = get_user(db, uid)
+    current_pic = user_doc.get('profile_pic', '') if user_doc else ''
+
+    return render_template('edit_profile.html', prof=prof, current_pic=current_pic, unread=get_unread_count())

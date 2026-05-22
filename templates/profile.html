@@ -17,8 +17,17 @@
         <!-- Profile Sidebar -->
         <div class="profile-sidebar">
             <div class="profile-card">
-                <div class="profile-avatar-large">
-                    {{ session.full_name[0].upper() }}
+                <div class="profile-avatar-wrap">
+                    <div class="profile-avatar-large">
+                        {% if profile_pic %}
+                        <img src="{{ profile_pic }}" alt="Profile Picture">
+                        {% else %}
+                        {{ session.full_name[0].upper() }}
+                        {% endif %}
+                    </div>
+                    <a href="{{ url_for('misc.edit_profile') }}" class="avatar-camera-btn" title="Change photo">
+                        <i class="fas fa-camera"></i>
+                    </a>
                 </div>
                 <h2>{{ session.full_name }}</h2>
                 <p class="profile-email">

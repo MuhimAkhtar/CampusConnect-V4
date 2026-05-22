@@ -14,7 +14,43 @@
 
     <div class="form-page">
         <div class="form-container">
-            <form method="POST" class="styled-form">
+            <form method="POST" class="styled-form" enctype="multipart/form-data">
+
+                <!-- ── Profile Picture Upload ──────────────────────────────── -->
+                <div class="form-group" style="margin-bottom:28px;">
+                    <label>
+                        <i class="fas fa-camera"></i> Profile Picture
+                    </label>
+                    <div class="avatar-upload-area" id="avatarUploadArea">
+                        <div class="avatar-preview" id="avatarPreview">
+                            {% if current_pic %}
+                            <img id="previewImg" src="{{ current_pic }}" alt="Current avatar">
+                            {% else %}
+                            <div class="avatar-placeholder" id="avatarPlaceholder">
+                                <i class="fas fa-user" style="font-size:40px; color:var(--gray);"></i>
+                                <p style="margin:10px 0 0; color:var(--gray); font-size:13px;">No photo yet</p>
+                            </div>
+                            <img id="previewImg" src="" alt="" style="display:none;">
+                            {% endif %}
+                        </div>
+                        <div class="avatar-upload-info">
+                            <label for="profilePicInput" class="btn-outline" style="cursor:pointer;">
+                                <i class="fas fa-upload"></i> Choose Photo
+                            </label>
+                            <input type="file" id="profilePicInput" name="profile_pic"
+                                   accept="image/*" style="display:none;"
+                                   onchange="previewAvatar(this)">
+                            <p style="color:var(--gray); font-size:12px; margin-top:10px;">
+                                <i class="fas fa-info-circle"></i>
+                                JPG, PNG, GIF or WebP. Max 10 MB.
+                            </p>
+                            <p id="selectedFileName" style="color:var(--primary); font-size:13px;
+                                font-weight:600; margin-top:6px; display:none;"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Academic Info ───────────────────────────────────────── -->
                 <div class="form-row">
                     <div class="form-group">
                         <label>
@@ -105,4 +141,46 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewAvatar(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = document.getElementById('previewImg');
+        const placeholder = document.getElementById('avatarPlaceholder');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+
+    const nameEl = document.getElementById('selectedFileName');
+    nameEl.textContent = '✓ ' + file.name;
+    nameEl.style.display = 'block';
+}
+
+// Drag and drop on the upload area
+const area = document.getElementById('avatarUploadArea');
+area.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    area.classList.add('drag-over');
+});
+area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+area.addEventListener('drop', (e) => {
+    e.preventDefault();
+    area.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('profilePicInput').files = dt.files;
+        previewAvatar(document.getElementById('profilePicInput'));
+    }
+});
+</script>
 {% endblock %}

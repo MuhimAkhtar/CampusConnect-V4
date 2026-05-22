@@ -21,6 +21,8 @@
                 CampusConnect
             </a>
         </div>
+
+        <!-- Desktop Nav Links -->
         <div class="nav-links" id="navLinks">
             <a href="{{ url_for('rides.rides') }}"
                class="nav-link {% if request.endpoint=='rides.rides' %}active{% endif %}">
@@ -57,11 +59,34 @@
                class="nav-link {% if request.endpoint=='misc.global_search' %}active{% endif %}">
                 <i class="fas fa-search"></i> Search
             </a>
+
+            <!-- Mobile-only: profile + logout at the bottom of the drawer -->
+            <div class="nav-mobile-footer">
+                <a href="{{ url_for('misc.profile') }}" class="nav-link nav-profile-mobile">
+                    <div class="nav-avatar nav-avatar-sm">
+                        {% if session.profile_pic %}
+                        <img src="{{ session.profile_pic }}" alt="avatar">
+                        {% else %}
+                        {{ (session.full_name or '?')[0].upper() }}
+                        {% endif %}
+                    </div>
+                    <span>{{ (session.full_name or 'User').split()[0] }}</span>
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="nav-link nav-logout-mobile">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
         </div>
+
+        <!-- Desktop Right -->
         <div class="nav-right" id="navRight">
             <a href="{{ url_for('misc.profile') }}" class="nav-profile">
                 <div class="nav-avatar">
+                    {% if session.profile_pic %}
+                    <img src="{{ session.profile_pic }}" alt="avatar">
+                    {% else %}
                     {{ (session.full_name or '?')[0].upper() }}
+                    {% endif %}
                 </div>
                 {{ (session.full_name or 'User').split()[0] }}
             </a>
@@ -69,10 +94,14 @@
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
-        <div class="nav-toggle" onclick="toggleNav()" id="navToggle">
-            <i class="fas fa-bars"></i>
+
+        <div class="nav-toggle" onclick="toggleNav()" id="navToggle" aria-label="Toggle menu">
+            <i class="fas fa-bars" id="navToggleIcon"></i>
         </div>
     </nav>
+
+    <!-- Mobile overlay backdrop -->
+    <div class="nav-backdrop" id="navBackdrop" onclick="closeNav()"></div>
     {% endif %}
 
     <div class="flash-messages">
@@ -102,16 +131,51 @@
 
     <script>
         function toggleNav() {
-            document.getElementById('navLinks').classList.toggle('active');
-            document.getElementById('navRight').classList.toggle('active');
-            document.getElementById('navToggle').classList.toggle('active');
+            const links    = document.getElementById('navLinks');
+            const toggle   = document.getElementById('navToggle');
+            const backdrop = document.getElementById('navBackdrop');
+            const icon     = document.getElementById('navToggleIcon');
+            const isOpen   = links.classList.contains('active');
+            if (isOpen) {
+                closeNav();
+            } else {
+                links.classList.add('active');
+                toggle.classList.add('active');
+                backdrop.classList.add('active');
+                icon.classList.replace('fa-bars', 'fa-times');
+                document.body.style.overflow = 'hidden';
+            }
         }
+
+        function closeNav() {
+            const links    = document.getElementById('navLinks');
+            const toggle   = document.getElementById('navToggle');
+            const backdrop = document.getElementById('navBackdrop');
+            const icon     = document.getElementById('navToggleIcon');
+            if (!links) return;
+            links.classList.remove('active');
+            toggle.classList.remove('active');
+            backdrop.classList.remove('active');
+            icon.classList.replace('fa-times', 'fa-bars');
+            document.body.style.overflow = '';
+        }
+
+        // Close on nav-link click (mobile)
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) closeNav();
+            });
+        });
+
+        // Auto-dismiss flash alerts
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(a => {
                 a.classList.add('animate__slideOutRight');
                 setTimeout(() => a.remove(), 500);
             });
         }, 4000);
+
+        // Active link highlight by pathname
         const currentPath = window.location.pathname;
         document.querySelectorAll('.nav-link').forEach(link => {
             if(link.getAttribute('href') === currentPath) {
@@ -119,5 +183,6 @@
             }
         });
     </script>
+
 </body>
 </html>
