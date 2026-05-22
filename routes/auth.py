@@ -3,7 +3,7 @@ from database import get_db
 from helpers import hash_password, is_logged_in, is_valid_email
 from datetime import datetime, timedelta
 from bson import ObjectId
-import random, string, smtplib, ssl, threading, os
+import random, string, smtplib, ssl, os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -17,21 +17,37 @@ def gen_otp():
     return ''.join(random.choices(string.digits, k=6))
 
 def _send_email(to, subject, html):
+    """
+    Send email via Gmail SMTP port 587 (STARTTLS) synchronously.
+    On Vercel serverless, daemon threads are killed after the response returns,
+    so we MUST send synchronously. Port 587 STARTTLS is used instead of 465 SSL
+    because Vercel's outbound firewall sometimes blocks port 465.
+    """
+    if not MAIL_PASS:
+        print("Email skipped: MAIL_PASSWORD env var not set.")
+        return False
     try:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subject
         msg['From'] = MAIL_FROM
         msg['To'] = to
-        msg.attach(MIMEText(html,'html'))
+        msg.attach(MIMEText(html, 'html'))
         ctx = ssl.create_default_context()
-        with smtplib.SMTP_SSL('smtp.gmail.com',465,context=ctx) as s:
+        with smtplib.SMTP('smtp.gmail.com', 587, timeout=15) as s:
+            s.ehlo()
+            s.starttls(context=ctx)
+            s.ehlo()
             s.login(MAIL_USER, MAIL_PASS)
             s.sendmail(MAIL_USER, to, msg.as_string())
+        print(f"Email sent OK to {to}")
+        return True
     except Exception as e:
         print(f"Email error: {e}")
+        return False
 
+# send_async now sends synchronously — Vercel kills threads after response
 def send_async(to, subject, html):
-    threading.Thread(target=_send_email, args=(to,subject,html), daemon=True).start()
+    return _send_email(to, subject, html)
 
 def otp_html(name, otp):
     return f"""<body style="font-family:Arial;background:#f4f4f4">

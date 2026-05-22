@@ -239,14 +239,15 @@ img { max-width: 100%; }
     font-weight: 600;
 }
 
-/* Nav backdrop (mobile) */
+/* ================================
+   NAV BACKDROP (mobile)
+   ================================ */
 .nav-backdrop {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.35);
-    z-index: 998;
-    backdrop-filter: blur(2px);
+    background: rgba(0,0,0,0.45);
+    z-index: 1099;
     opacity: 0;
     transition: opacity 0.25s ease;
 }
@@ -280,13 +281,17 @@ img { max-width: 100%; }
     cursor: pointer;
     font-size: 20px;
     color: var(--dark);
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-sm);
     align-items: center;
     justify-content: center;
     transition: var(--transition);
     margin-left: auto;
+    background: transparent;
+    border: none;
+    z-index: 1101;
+    position: relative;
 }
 
 .nav-toggle:hover { background: var(--light-gray); }
@@ -3037,135 +3042,117 @@ img { max-width: 100%; }
 }
 
 @media (max-width: 768px) {
-    .navbar { padding: 0 16px; height: 60px; }
+    .navbar {
+        padding: 0 16px;
+        height: 60px;
+        z-index: 1100;
+    }
 
-    /* Hide desktop profile/logout — moved into mobile drawer */
+    /* Hide desktop profile/logout — shown inside mobile drawer */
     .nav-right { display: none !important; }
 
-    /* ==================================================
-       MOBILE DRAWER — always rendered as flex so CSS
-       transitions (opacity, transform) actually animate.
-       Visibility controlled via opacity + pointer-events.
-       ================================================== */
+    /* Show hamburger */
+    .nav-toggle {
+        display: flex !important;
+        z-index: 1101;
+    }
+
+    /* ===================================================
+       MOBILE DRAWER — slides in from left.
+       Always position:fixed with solid background.
+       translateX(-100%) = hidden off-screen to the left.
+       translateX(0)      = visible.
+       No display toggling = smooth CSS transitions work.
+       =================================================== */
     .nav-links {
-        display: flex !important;          /* always in layout */
-        position: fixed;
-        top: 60px;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        background: #ffffff;
-        flex-direction: column;
-        padding: 8px 0 32px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-        z-index: 1100;
-        border-top: 2px solid var(--border);
-        gap: 2px;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        /* Hidden state */
-        opacity: 0;
-        transform: translateY(-8px);
-        pointer-events: none;
-        visibility: hidden;
-        transition: opacity 0.22s cubic-bezier(0.4,0,0.2,1),
-                    transform 0.22s cubic-bezier(0.4,0,0.2,1),
-                    visibility 0s linear 0.22s;
-        margin-left: 0 !important;  /* override desktop margin */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 280px !important;
+        max-width: 85vw !important;
+        background: #FFFFFF !important;
+        flex-direction: column !important;
+        display: flex !important;
+        padding: 72px 0 32px !important;   /* 72px = navbar height + gap */
+        box-shadow: 4px 0 24px rgba(0,0,0,0.18) !important;
+        z-index: 1100 !important;
+        border-right: 1px solid var(--border) !important;
+        gap: 0 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        margin: 0 !important;
         flex: none !important;
+        /* Hidden: slid off-screen left */
+        transform: translateX(-100%) !important;
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .nav-links.active {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
-        visibility: visible;
-        transition: opacity 0.22s cubic-bezier(0.4,0,0.2,1),
-                    transform 0.22s cubic-bezier(0.4,0,0.2,1),
-                    visibility 0s linear 0s;
+        transform: translateX(0) !important;
     }
 
-    /* Make each link taller for comfortable touch targets */
-    .nav-link {
-        padding: 14px 20px;
-        font-size: 15px;
-        border-radius: 0;
-        border-bottom: 1px solid rgba(226,232,240,0.5);
+    /* Each nav item — full-width, easy to tap */
+    .nav-links .nav-link {
+        padding: 15px 20px !important;
+        font-size: 15px !important;
+        border-radius: 0 !important;
+        border-bottom: 1px solid rgba(226,232,240,0.6) !important;
         color: var(--dark) !important;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 500;
-        transition: background 0.15s ease;
-        min-height: 52px;
+        display: flex !important;
+        align-items: center !important;
+        gap: 14px !important;
+        font-weight: 500 !important;
+        min-height: 54px !important;
+        width: 100% !important;
+        transform: none !important;
     }
 
-    .nav-link:hover, .nav-link.active {
-        background: var(--primary-light);
+    .nav-links .nav-link:hover,
+    .nav-links .nav-link.active {
+        background: var(--primary-light) !important;
         color: var(--primary) !important;
-        transform: none;
+        transform: none !important;
     }
 
-    .nav-link i {
-        width: 20px;
-        text-align: center;
-        font-size: 16px;
-        color: var(--primary);
-        flex-shrink: 0;
+    .nav-links .nav-link i {
+        width: 22px !important;
+        text-align: center !important;
+        font-size: 17px !important;
+        color: var(--primary) !important;
+        flex-shrink: 0 !important;
     }
 
-    /* Mobile footer (profile + logout) inside drawer */
+    /* Mobile footer: profile + logout at bottom of drawer */
     .nav-mobile-footer {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        padding-top: 0;
-        margin-top: 8px;
-        border-top: 2px solid var(--border);
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+        padding-top: 0 !important;
+        margin-top: auto !important;
+        border-top: 2px solid var(--border) !important;
     }
 
     .nav-profile-mobile {
         color: var(--dark) !important;
-        font-weight: 600;
-        padding: 14px 20px;
-        min-height: 56px;
-        border-bottom: 1px solid rgba(226,232,240,0.5);
+        font-weight: 600 !important;
+        padding: 15px 20px !important;
+        min-height: 56px !important;
+        border-bottom: 1px solid rgba(226,232,240,0.6) !important;
     }
 
     .nav-logout-mobile {
         color: var(--danger) !important;
-        font-weight: 600;
-        padding: 14px 20px;
-        min-height: 52px;
+        font-weight: 600 !important;
+        padding: 15px 20px !important;
+        min-height: 54px !important;
     }
 
     .nav-logout-mobile i { color: var(--danger) !important; }
 
-    /* Show the hamburger toggle button */
-    .nav-toggle {
-        display: flex;
-        margin-left: auto;
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-        z-index: 1101;
-    }
-
-    /* Backdrop overlay */
-    .nav-backdrop {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 1050;
-        opacity: 0;
-        transition: opacity 0.22s ease;
-    }
-    .nav-backdrop.active {
-        display: block;
-        opacity: 1;
-    }
+    /* Flash messages - don't overlap navbar */
+    .flash-messages { right: 10px; left: 10px; max-width: none; top: 70px; }
+    .alert { font-size: 13px; padding: 12px 14px; }
 
     /* --- Layout fixes --- */
     .auth-page  { flex-direction: column; }
@@ -3190,7 +3177,6 @@ img { max-width: 100%; }
     .page-header .page-title { font-size: 20px; }
     .facilities-grid     { grid-template-columns: repeat(2, 1fr); }
     .dashboard-page      { padding: 12px 16px; }
-    .main-content        { padding-top: 0; }
 
     .form-page,
     .results-section,
@@ -3200,10 +3186,6 @@ img { max-width: 100%; }
     .detail-page,
     .profile-page,
     .messages-page { padding-left: 16px; padding-right: 16px; }
-
-    /* Flash messages on mobile */
-    .flash-messages { right: 10px; left: 10px; max-width: none; top: 70px; }
-    .alert { font-size: 13px; padding: 12px 14px; }
 }
 
 @media (max-width: 480px) {
