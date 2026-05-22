@@ -45,6 +45,11 @@
                             {{ (convo[2]|pkt).strftime('%d %b, %I:%M %p') if convo[2] else 'No messages yet' }}
                         </p>
                     </div>
+                    {% if convo[3] > 0 %}
+                    <span class="convo-unread-badge">
+                        {{ convo[3] }}
+                    </span>
+                    {% endif %}
                     <div class="convo-arrow">
                         <i class="fas fa-chevron-right"></i>
                     </div>
