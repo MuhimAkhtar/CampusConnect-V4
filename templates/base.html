@@ -135,14 +135,15 @@
             const toggle   = document.getElementById('navToggle');
             const backdrop = document.getElementById('navBackdrop');
             const icon     = document.getElementById('navToggleIcon');
-            const isOpen   = links.classList.contains('active');
+            if (!links) return;
+            const isOpen = links.classList.contains('active');
             if (isOpen) {
                 closeNav();
             } else {
                 links.classList.add('active');
-                toggle.classList.add('active');
-                backdrop.classList.add('active');
-                icon.classList.replace('fa-bars', 'fa-times');
+                if (toggle) toggle.classList.add('active');
+                if (backdrop) backdrop.classList.add('active');
+                if (icon) icon.classList.replace('fa-bars', 'fa-times');
                 document.body.style.overflow = 'hidden';
             }
         }
@@ -154,17 +155,25 @@
             const icon     = document.getElementById('navToggleIcon');
             if (!links) return;
             links.classList.remove('active');
-            toggle.classList.remove('active');
-            backdrop.classList.remove('active');
-            icon.classList.replace('fa-times', 'fa-bars');
+            if (toggle) toggle.classList.remove('active');
+            if (backdrop) backdrop.classList.remove('active');
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
             document.body.style.overflow = '';
         }
 
-        // Close on nav-link click (mobile)
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
+        // Close menu when any nav-link is tapped (mobile)
+        document.querySelectorAll('#navLinks .nav-link').forEach(function(link) {
+            link.addEventListener('click', function() {
                 if (window.innerWidth <= 768) closeNav();
             });
+        });
+
+        // Also close when resizing back to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) closeNav();
         });
 
         // Auto-dismiss flash alerts
