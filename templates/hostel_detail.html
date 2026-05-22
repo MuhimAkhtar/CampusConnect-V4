@@ -14,10 +14,32 @@
     {% if hostel %}
     <div class="detail-page">
         <div class="detail-main">
-            <div class="detail-card" style="padding: 0; overflow: hidden; border-radius: 15px; margin-bottom: 20px;">
-                {% if hostel[10] %}
-                <img src="{{  hostel[10] }}" alt="{{ hostel[1] }}"
-                    style="width: 100%; max-height: 450px; object-fit: cover; display: block;">
+            <div class="detail-card" style="padding: 0; overflow: hidden; border-radius: 15px; margin-bottom: 20px; position: relative;">
+                {% if hostel[10] and hostel[10]|length > 0 %}
+                <div class="image-gallery" id="hostelGallery">
+                    {% for img_url in hostel[10] %}
+                    <div class="gallery-slide {% if loop.first %}active{% endif %}">
+                        <img src="{{ img_url }}" alt="{{ hostel[1] }} - Photo {{ loop.index }}"
+                            style="width: 100%; max-height: 450px; object-fit: cover; display: block;">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if hostel[10]|length > 1 %}
+                <button class="gallery-btn gallery-prev" onclick="changeSlide(-1, 'hostelGallery')">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="gallery-btn gallery-next" onclick="changeSlide(1, 'hostelGallery')">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <div class="gallery-dots" id="hostelGalleryDots">
+                    {% for img_url in hostel[10] %}
+                    <span class="gallery-dot {% if loop.first %}active{% endif %}" onclick="goToSlide({{ loop.index0 }}, 'hostelGallery')"></span>
+                    {% endfor %}
+                </div>
+                <div class="gallery-counter">
+                    <span id="hostelGalleryCounter">1</span> / {{ hostel[10]|length }}
+                </div>
+                {% endif %}
                 {% else %}
                 <div
                     style="height: 300px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #adb5bd;">
@@ -340,6 +362,41 @@
                 }
             })
             .catch(err => console.log('Map error:', err));
+    }
+
+    // Image gallery carousel
+    function changeSlide(direction, galleryId) {
+        const gallery = document.getElementById(galleryId);
+        if (!gallery) return;
+        const slides = gallery.querySelectorAll('.gallery-slide');
+        const dots = document.getElementById(galleryId + 'Dots');
+        const counter = document.getElementById(galleryId + 'Counter');
+        let current = 0;
+        slides.forEach((s, i) => { if (s.classList.contains('active')) current = i; });
+        slides[current].classList.remove('active');
+        current = (current + direction + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        if (dots) {
+            dots.querySelectorAll('.gallery-dot').forEach((d, i) => {
+                d.classList.toggle('active', i === current);
+            });
+        }
+        if (counter) counter.textContent = current + 1;
+    }
+    function goToSlide(index, galleryId) {
+        const gallery = document.getElementById(galleryId);
+        if (!gallery) return;
+        const slides = gallery.querySelectorAll('.gallery-slide');
+        const dots = document.getElementById(galleryId + 'Dots');
+        const counter = document.getElementById(galleryId + 'Counter');
+        slides.forEach(s => s.classList.remove('active'));
+        slides[index].classList.add('active');
+        if (dots) {
+            dots.querySelectorAll('.gallery-dot').forEach((d, i) => {
+                d.classList.toggle('active', i === index);
+            });
+        }
+        if (counter) counter.textContent = index + 1;
     }
 </script>
 {% endblock %}

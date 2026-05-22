@@ -90,20 +90,23 @@
 
                 <div class="form-group">
                     <label>
-                        <i class="fas fa-image"></i> Hostel Photo
+                        <i class="fas fa-images"></i> Hostel Photos <span style="font-weight:400; font-size:12px; color:var(--gray)">(1-5 photos)</span>
                     </label>
-                    <div class="image-upload-box" onclick="document.getElementById('hostelImage').click()">
-                        <img id="imagePreview" src="" alt="" style="display:none;
-                             width:100%; height:200px; object-fit:cover; border-radius:8px">
-                        <div id="uploadPlaceholder">
+                    <div class="multi-image-upload" id="imageUploadArea" onclick="document.getElementById('hostelImages').click()">
+                        <div id="uploadPlaceholder" class="upload-placeholder">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <p>Click to upload hostel photo</p>
-                            <small>JPG, PNG, WEBP up to 5MB</small>
+                            <p>Click to upload hostel photos</p>
+                            <small>JPG, PNG, WEBP up to 5MB each • Max 5 photos</small>
                         </div>
+                        <div id="imagePreviews" class="image-previews-grid"></div>
                     </div>
-                    <input type="file" name="image" id="hostelImage"
-                           accept="image/*" style="display:none"
-                           onchange="previewImage(this)">
+                    <input type="file" name="images" id="hostelImages"
+                           accept="image/*" multiple style="display:none"
+                           onchange="previewMultipleImages(this)">
+                    <div id="imageCount" class="image-count-info" style="display:none">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="imageCountText"></span>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-primary btn-full btn-large"
@@ -118,16 +121,42 @@
 
 {% block extra_js %}
 <script>
-// Image preview function (Add this to make the preview work)
-function previewImage(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('imagePreview').src = e.target.result;
-            document.getElementById('imagePreview').style.display = 'block';
-            document.getElementById('uploadPlaceholder').style.display = 'none';
+// Multi-image preview function
+function previewMultipleImages(input) {
+    const previewsContainer = document.getElementById('imagePreviews');
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const countInfo = document.getElementById('imageCount');
+    const countText = document.getElementById('imageCountText');
+
+    previewsContainer.innerHTML = '';
+
+    if (input.files && input.files.length > 0) {
+        if (input.files.length > 5) {
+            alert('Maximum 5 photos allowed. Only the first 5 will be uploaded.');
         }
-        reader.readAsDataURL(input.files[0]);
+
+        const count = Math.min(input.files.length, 5);
+        placeholder.style.display = 'none';
+        countInfo.style.display = 'flex';
+        countText.textContent = `${count} photo${count > 1 ? 's' : ''} selected (max 5)`;
+
+        for (let i = 0; i < count; i++) {
+            const reader = new FileReader();
+            const idx = i;
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview ${idx + 1}">
+                    <span class="preview-number">${idx + 1}</span>
+                `;
+                previewsContainer.appendChild(div);
+            };
+            reader.readAsDataURL(input.files[i]);
+        }
+    } else {
+        placeholder.style.display = 'flex';
+        countInfo.style.display = 'none';
     }
 }
 

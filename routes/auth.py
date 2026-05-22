@@ -249,8 +249,9 @@ def dashboard():
                 u['full_name'] if u else 'Unknown')
 
     def fmt_hostel(h, u):
+        imgs = h.get('image_urls') or ([h['image_url']] if h.get('image_url') else [])
         return (str(h['_id']), h['name'], h['location'], h['price'], h.get('gender',''),
-                h.get('facilities',''), h.get('contact',''), u['full_name'] if u else 'Unknown', h.get('image_url'))
+                h.get('facilities',''), h.get('contact',''), u['full_name'] if u else 'Unknown', imgs[0] if imgs else None)
 
     def fmt_item(i, u):
         return (str(i['_id']), i['title'], i['price'], i.get('category',''), i.get('condition',''),

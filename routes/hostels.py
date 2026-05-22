@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database import get_db
-from helpers import is_logged_in, get_unread_count, upload_file, ALLOWED_IMG
+from helpers import is_logged_in, get_unread_count, upload_file, upload_files, ALLOWED_IMG
 from datetime import datetime
 from bson import ObjectId
 
@@ -10,11 +10,20 @@ def get_user(db, uid):
     try: return db.users.find_one({'_id': ObjectId(uid)})
     except: return None
 
+def _get_images(doc):
+    """Return list of image URLs, with backward compat for old single image_url field."""
+    urls = doc.get('image_urls')
+    if urls and isinstance(urls, list):
+        return urls
+    single = doc.get('image_url')
+    return [single] if single else []
+
 def fmt(h, u):
+    imgs = _get_images(h)
     return (str(h['_id']), h['name'], h['location'], h['price'],
             h.get('gender',''), h.get('facilities',''), h.get('contact',''),
             u['full_name'] if u else 'Unknown',
-            h.get('image_url'),
+            imgs[0] if imgs else None,
             u.get('profile_pic','') if u else '')
 
 @hostels_bp.route('/hostels')
@@ -48,14 +57,14 @@ def hostels():
 def post_hostel():
     if not is_logged_in(): return redirect(url_for('auth.login'))
     if request.method == 'POST':
-        image_url = upload_file(request.files.get('image'), 'hostels', ALLOWED_IMG)
+        image_urls = upload_files(request.files.getlist('images'), 'hostels', ALLOWED_IMG, max_files=5)
         db = get_db()
         db.hostels.insert_one({
             'user_id': session['user_id'],
             'name': request.form['name'], 'location': request.form['location'],
             'price': float(request.form['price']), 'gender': request.form['gender'],
             'facilities': request.form['facilities'], 'contact': request.form['contact'],
-            'image_url': image_url, 'created_at': datetime.utcnow()
+            'image_urls': image_urls, 'created_at': datetime.utcnow()
         })
         flash('Hostel listed!','success')
         return redirect(url_for('hostels.hostels'))
@@ -69,10 +78,11 @@ def hostel_detail(hostel_id):
     except: return redirect(url_for('hostels.hostels'))
     if not h: return redirect(url_for('hostels.hostels'))
     u = get_user(db, h['user_id'])
+    imgs = _get_images(h)
     hostel = (str(h['_id']), h['name'], h['location'], h['price'],
               h.get('gender',''), h.get('facilities',''), h.get('contact',''),
               u['full_name'] if u else '?', u['email'] if u else '', str(u['_id']) if u else None,
-              h.get('image_url'), u.get('profile_pic','') if u else '')
+              imgs, u.get('profile_pic','') if u else '')
     bookmarked = db.hostel_bookmarks.count_documents({'user_id':session['user_id'],'hostel_id':hostel_id}) > 0
     rev_docs = list(db.reviews.find({'target_type':'HOSTEL','target_id':hostel_id}).sort('created_at',-1))
     reviews = []

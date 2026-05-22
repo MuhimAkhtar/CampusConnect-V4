@@ -3260,3 +3260,206 @@ img { max-width: 100%; }
     animation: shimmer 1.5s infinite;
     border-radius: var(--radius-sm);
 }
+
+/* =====================================================
+   MULTI-IMAGE UPLOAD & IMAGE GALLERY
+   ===================================================== */
+
+/* Multi-Image Upload Box */
+.multi-image-upload {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--light-gray);
+    min-height: 120px;
+}
+
+.multi-image-upload:hover {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.03);
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--gray);
+    padding: 20px 0;
+}
+
+.upload-placeholder i {
+    font-size: 2rem;
+    color: var(--primary);
+    opacity: 0.6;
+}
+
+.upload-placeholder p {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.upload-placeholder small {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* Image Preview Grid */
+.image-previews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.preview-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 2px solid white;
+}
+
+.preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.preview-number {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: var(--primary);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.image-count-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Image Gallery Carousel */
+.image-gallery {
+    position: relative;
+    width: 100%;
+}
+
+.gallery-slide {
+    display: none;
+}
+
+.gallery-slide.active {
+    display: block;
+    animation: galleryFadeIn 0.35s ease;
+}
+
+@keyframes galleryFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.gallery-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--dark);
+    z-index: 5;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    transition: var(--transition);
+    backdrop-filter: blur(4px);
+}
+
+.gallery-btn:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.gallery-prev { left: 12px; }
+.gallery-next { right: 12px; }
+
+.gallery-dots {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 5;
+}
+
+.gallery-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.gallery-dot.active {
+    background: white;
+    width: 20px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.gallery-counter {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(0,0,0,0.55);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 5;
+    backdrop-filter: blur(4px);
+}
+
+/* Responsive adjustments for gallery */
+@media (max-width: 600px) {
+    .gallery-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+    .gallery-prev { left: 8px; }
+    .gallery-next { right: 8px; }
+    .image-previews-grid {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 6px;
+    }
+}

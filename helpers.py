@@ -47,6 +47,15 @@ def upload_file(file, folder, allowed_exts):
     file.save(local)
     return f"/static/uploads/{fname}"
 
+def upload_files(files, folder, allowed_exts, max_files=5):
+    """Upload multiple files (up to max_files). Returns a list of URLs."""
+    urls = []
+    for f in files[:max_files]:
+        url = upload_file(f, folder, allowed_exts)
+        if url:
+            urls.append(url)
+    return urls
+
 def hash_password(pw):
     return hashlib.sha256(pw.encode()).hexdigest()
 
