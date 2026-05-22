@@ -22,15 +22,27 @@ def hostels():
     if not is_logged_in(): return redirect(url_for('auth.login'))
     search = request.args.get('search','')
     gender = request.args.get('gender','')
+    bookmarked = request.args.get('bookmarked','') == 'true'
+    
     db = get_db()
     q = {}
     if search:
         q['$or'] = [{'name':{'$regex':search,'$options':'i'}},
                     {'location':{'$regex':search,'$options':'i'}}]
     if gender: q['gender'] = gender
+    
+    if bookmarked:
+        bm_docs = list(db.hostel_bookmarks.find({'user_id': session['user_id']}))
+        hostel_ids = []
+        for b in bm_docs:
+            try: hostel_ids.append(ObjectId(b['hostel_id']))
+            except: pass
+        q['_id'] = {'$in': hostel_ids}
+
     docs = list(db.hostels.find(q).sort('created_at',-1))
     result = [fmt(h, get_user(db, h['user_id'])) for h in docs]
-    return render_template('hostels.html', hostels=result, search=search, gender=gender, unread=get_unread_count())
+    return render_template('hostels.html', hostels=result, search=search, gender=gender,
+                           bookmarked_only=bookmarked, unread=get_unread_count())
 
 @hostels_bp.route('/hostels/post', methods=['GET','POST'])
 def post_hostel():

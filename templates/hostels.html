@@ -4,12 +4,23 @@
 <div class="page-container">
     <div class="page-header hostels-bg">
         <div class="page-header-content">
-            <h1><i class="fas fa-home"></i> Hostel Listings</h1>
+            <h1><i class="fas fa-home"></i> {% if bookmarked_only %}Bookmarked Hostels{% else %}Hostel Listings{% endif %}</h1>
             <p>Find verified accommodation near COMSATS University</p>
         </div>
-        <a href="{{ url_for('hostels.post_hostel') }}" class="btn-primary">
-            <i class="fas fa-plus"></i> List a Hostel
-        </a>
+        <div class="header-actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            {% if bookmarked_only %}
+            <a href="{{ url_for('hostels.hostels') }}" class="btn-outline-white">
+                <i class="fas fa-list"></i> All Hostels
+            </a>
+            {% else %}
+            <a href="{{ url_for('hostels.hostels', bookmarked='true') }}" class="btn-outline-white">
+                <i class="fas fa-bookmark"></i> Bookmarked
+            </a>
+            {% endif %}
+            <a href="{{ url_for('hostels.post_hostel') }}" class="btn-primary">
+                <i class="fas fa-plus"></i> List a Hostel
+            </a>
+        </div>
     </div>
 
     <div class="search-section">
@@ -114,12 +125,21 @@
         </div>
         {% else %}
         <div class="empty-state large">
+            {% if bookmarked_only %}
+            <i class="fas fa-bookmark" style="font-size: 48px; color: var(--gray); margin-bottom: 15px; opacity: 0.3;"></i>
+            <h3>No bookmarked hostels</h3>
+            <p>You haven't bookmarked any hostels yet. Browse hostels and bookmark your favorites!</p>
+            <a href="{{ url_for('hostels.hostels') }}" class="btn-primary">
+                <i class="fas fa-search"></i> Browse Hostels
+            </a>
+            {% else %}
             <i class="fas fa-home"></i>
             <h3>No hostels found</h3>
             <p>Be the first to list a hostel!</p>
             <a href="{{ url_for('hostels.post_hostel') }}" class="btn-primary">
                 <i class="fas fa-plus"></i> List a Hostel
             </a>
+            {% endif %}
         </div>
         {% endif %}
     </div>
