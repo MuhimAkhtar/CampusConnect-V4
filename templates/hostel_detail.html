@@ -180,9 +180,13 @@
                     <i class="fas fa-user"></i> Listed By
                 </h2>
                 <div class="poster-profile">
+                    {% if hostel[11] %}
+                    <img src="{{ hostel[11] }}" alt="{{ hostel[7] }}" class="poster-avatar-large" style="object-fit: cover; background: none;">
+                    {% else %}
                     <div class="poster-avatar-large">
                         {{ hostel[7][0].upper() }}
                     </div>
+                    {% endif %}
                     <h3>{{ hostel[7] }}</h3>
                     <p>{{ hostel[8] }}</p>
                 </div>

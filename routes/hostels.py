@@ -14,7 +14,8 @@ def fmt(h, u):
     return (str(h['_id']), h['name'], h['location'], h['price'],
             h.get('gender',''), h.get('facilities',''), h.get('contact',''),
             u['full_name'] if u else 'Unknown',
-            h.get('image_url'))
+            h.get('image_url'),
+            u.get('profile_pic','') if u else '')
 
 @hostels_bp.route('/hostels')
 def hostels():
@@ -59,7 +60,7 @@ def hostel_detail(hostel_id):
     hostel = (str(h['_id']), h['name'], h['location'], h['price'],
               h.get('gender',''), h.get('facilities',''), h.get('contact',''),
               u['full_name'] if u else '?', u['email'] if u else '', str(u['_id']) if u else None,
-              h.get('image_url'))
+              h.get('image_url'), u.get('profile_pic','') if u else '')
     bookmarked = db.hostel_bookmarks.count_documents({'user_id':session['user_id'],'hostel_id':hostel_id}) > 0
     rev_docs = list(db.reviews.find({'target_type':'HOSTEL','target_id':hostel_id}).sort('created_at',-1))
     reviews = []

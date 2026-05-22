@@ -17,7 +17,7 @@ def fmt(r, u, full=False):
            str(u['_id']) if u else None,
            r.get('pickup_lat'), r.get('pickup_lng'), r.get('dropoff_lat'), r.get('dropoff_lng'),
            r.get('distance_km'), r.get('duration_mins'), r.get('status','active'),
-           u['email'] if u else '')
+           u['email'] if u else '', u.get('profile_pic','') if u else '')
     return row
 
 @rides_bp.route('/rides')

@@ -31,8 +31,12 @@
                 {% for convo in conversations %}
                 <a href="{{ url_for('messages.chat', other_id=convo[0]) }}"
                    class="conversation-item">
-                    <div class="convo-avatar">
+                    <div class="convo-avatar" style="position: relative;">
+                        {% if convo[5] %}
+                        <img src="{{ convo[5] }}" alt="{{ convo[1] }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
                         {{ convo[1][0].upper() }}
+                        {% endif %}
                     </div>
                     <div class="convo-info">
                         <h4>{{ convo[1] }}</h4>

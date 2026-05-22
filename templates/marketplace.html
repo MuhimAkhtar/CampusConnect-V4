@@ -103,9 +103,13 @@
                     {% endif %}
                     <div class="market-card-footer">
                         <span class="item-price">Rs. {{ item[3] }}</span>
-                        <span class="item-seller">
+                        <span class="item-seller" style="display: flex; align-items: center; gap: 6px;">
+                            {% if item[9] %}
+                            <img src="{{ item[9] }}" alt="{{ item[6] }}" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; display: inline-block;">
+                            {% else %}
                             <i class="fas fa-user"></i>
-                            {{ item[6] }}
+                            {% endif %}
+                            <span>{{ item[6] }}</span>
                         </span>
                     </div>
                 </div>

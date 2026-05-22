@@ -33,7 +33,8 @@ def messages():
         last_time = last_msg['created_at'] if last_msg else None
         unread_from = db.messages.count_documents({'sender_id':oid,'receiver_id':uid,'is_read':False})
         conversations.append((oid, name, last_time, unread_from,
-                              last_msg['message'][:40] if last_msg else ''))
+                              last_msg['message'][:40] if last_msg else '',
+                              u.get('profile_pic','') if u else ''))
     conversations.sort(key=lambda x: x[2] if x[2] else datetime.min, reverse=True)
     return render_template('messages.html', conversations=conversations, unread=get_unread_count())
 
@@ -64,7 +65,7 @@ def chat(other_id):
 
     chats = [(c['message'], c['sender_id'], c.get('created_at'), str(c['_id'])) for c in chat_docs]
     other_user_doc = get_user(db, other_id)
-    other_user = (other_user_doc['full_name'], other_user_doc['email']) if other_user_doc else ('Unknown','')
+    other_user = (other_user_doc['full_name'], other_user_doc['email'], other_user_doc.get('profile_pic','')) if other_user_doc else ('Unknown','','')
     return render_template('chat.html', chats=chats, other_user=other_user,
                            other_id=other_id, unread=get_unread_count())
 

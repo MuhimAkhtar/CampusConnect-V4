@@ -94,9 +94,13 @@
                         {% endfor %}
                     </div>
                     {% endif %}
-                    <p class="posted-by">
-                        <i class="fas fa-user"></i>
-                        Listed by {{ h[7] }}
+                    <p class="posted-by" style="display: flex; align-items: center; gap: 8px;">
+                        {% if h[9] %}
+                        <img src="{{ h[9] }}" alt="{{ h[7] }}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; display: inline-block;">
+                        {% else %}
+                        <i class="fas fa-user" style="font-size: 14px; color: var(--gray);"></i>
+                        {% endif %}
+                        <span>Listed by {{ h[7] }}</span>
                     </p>
                 </div>
                 <div class="card-footer">

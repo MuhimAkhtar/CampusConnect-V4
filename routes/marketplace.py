@@ -14,7 +14,8 @@ def fmt(m, u):
     return (str(m['_id']), m['title'], m.get('description',''), m['price'],
             m.get('category',''), m.get('condition',''),
             u['full_name'] if u else '?', str(u['_id']) if u else None,
-            m.get('image_url'))
+            m.get('image_url'),
+            u.get('profile_pic','') if u else '')
 
 @marketplace_bp.route('/marketplace')
 def marketplace():
@@ -59,7 +60,7 @@ def item_detail(item_id):
     item = (str(m['_id']), m['title'], m.get('description',''), m['price'],
             m.get('category',''), m.get('condition',''), m.get('status','available'),
             u['full_name'] if u else '?', u['email'] if u else '', str(u['_id']) if u else None,
-            m.get('image_url'))
+            m.get('image_url'), u.get('profile_pic','') if u else '')
     return render_template('item_detail.html', item=item, unread=get_unread_count())
 
 @marketplace_bp.route('/marketplace/delete/<item_id>')

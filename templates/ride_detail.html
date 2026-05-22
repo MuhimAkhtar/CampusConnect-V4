@@ -262,11 +262,15 @@
                     <i class="fas fa-user"></i> Posted By
                 </h2>
                 <div class="poster-profile">
+                    {% if ride[17] %}
+                    <img src="{{ ride[17] }}" alt="{{ ride[7] }}" class="poster-avatar-large" style="object-fit: cover; background: none;">
+                    {% else %}
                     <div class="poster-avatar-large">
                         {{ ride[7][0].upper() if ride[7] else '?' }}
                     </div>
+                    {% endif %}
                     <h3>{{ ride[7] }}</h3>
-                    <p>{{ ride[15] }}</p>
+                    <p>{{ ride[16] }}</p>
                 </div>
                 {% if ride[8] != session.user_id %}
                 <a href="{{ url_for('messages.chat', other_id=ride[8]) }}"

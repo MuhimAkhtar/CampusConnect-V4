@@ -91,9 +91,13 @@
                     <i class="fas fa-user"></i> Seller
                 </h2>
                 <div class="poster-profile">
+                    {% if item[11] %}
+                    <img src="{{ item[11] }}" alt="{{ item[7] }}" class="poster-avatar-large" style="object-fit: cover; background: none;">
+                    {% else %}
                     <div class="poster-avatar-large">
                         {{ item[7][0].upper() }}
                     </div>
+                    {% endif %}
                     <h3>{{ item[7] }}</h3>
                     <p>{{ item[8] }}</p>
                 </div>

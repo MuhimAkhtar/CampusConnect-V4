@@ -8,7 +8,11 @@
       <i class="fas fa-arrow-left"></i>
     </a>
     <div class="chat-user-info">
+      {% if other_user and other_user[2] %}
+      <img src="{{ other_user[2] }}" alt="{{ other_user[0] }}" class="chat-avatar" style="object-fit: cover; border-radius: 50%; width: 40px; height: 40px;">
+      {% else %}
       <div class="chat-avatar">{{ other_user[0][0].upper() if other_user else '?' }}</div>
+      {% endif %}
       <div>
         <h3>{{ other_user[0] if other_user else 'Unknown' }}</h3>
         <p id="statusText" style="font-size:12px;color:#6366f1">Online</p>
@@ -28,7 +32,11 @@
         {% endif %}
         <div class="message-wrapper {% if chat[1] == session.user_id %}sent{% else %}received{% endif %}" data-ts="{{ chat[2].isoformat() if chat[2] else '' }}" data-mid="{{ chat[3] }}">
           {% if chat[1] != session.user_id %}
-          <div class="msg-avatar">{{ other_user[0][0].upper() if other_user else '?' }}</div>
+            {% if other_user and other_user[2] %}
+            <img src="{{ other_user[2] }}" alt="{{ other_user[0] }}" class="msg-avatar" style="object-fit: cover; background: none;">
+            {% else %}
+            <div class="msg-avatar">{{ other_user[0][0].upper() if other_user else '?' }}</div>
+            {% endif %}
           {% endif %}
           <div class="message-bubble">
             <p>{{ chat[0] }}</p>
@@ -102,7 +110,13 @@ function appendMessage(msg, isMine, ts) {
   d.setAttribute('data-ts', ts || '');
   const pktDate = utcToPkt(ts);
   const timeStr = pktDate ? pktDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-  const avatarHtml = isMine ? '' : `<div class="msg-avatar">{{ other_user[0][0].upper() if other_user else '?' }}</div>`;
+  const avatarHtml = isMine ? '' : (
+    {% if other_user and other_user[2] %}
+      `<img src="{{ other_user[2] }}" alt="{{ other_user[0] }}" class="msg-avatar" style="object-fit: cover; background: none;">`
+    {% else %}
+      `<div class="msg-avatar">{{ other_user[0][0].upper() if other_user else '?' }}</div>`
+    {% endif %}
+  );
   const tickHtml   = isMine ? '<i class="fas fa-check-double"></i>' : '';
   d.innerHTML = `${avatarHtml}<div class="message-bubble"><p>${escHtml(msg)}</p><span class="msg-time">${timeStr} ${tickHtml}</span></div>`;
   chatMessages.appendChild(d);
