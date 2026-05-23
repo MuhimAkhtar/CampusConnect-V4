@@ -135,7 +135,7 @@
                 </div>
 
                 {% if event[10] != session['user_id'] %}
-                <a href="{{ url_for('messages.chat_room', recipient_id=event[10]) }}" class="btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-weight: 600; padding: 10px; border-radius: 8px;">
+                <a href="{{ url_for('messages.chat', other_id=event[10]) }}" class="btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; font-weight: 600; padding: 10px; border-radius: 8px;">
                     <i class="fas fa-comment-dots"></i> Message Organizer
                 </a>
                 {% else %}
