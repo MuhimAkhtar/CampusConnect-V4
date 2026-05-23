@@ -381,6 +381,10 @@ img { max-width: 100%; }
     50%       { transform: scale(1.15); }
 }
 
+.nav-mobile-actions {
+    display: none;
+}
+
 .nav-toggle {
     display: none;
     cursor: pointer;
@@ -3173,10 +3177,38 @@ img { max-width: 100%; }
     /* Hide desktop profile/logout — shown inside mobile drawer */
     .nav-right { display: none !important; }
 
-    /* Show hamburger */
+    /* Show mobile header actions wrapper side-by-side */
+    .nav-mobile-actions {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+    }
+
+    .mobile-dark-toggle {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background: transparent !important;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        width: 38px;
+        height: 38px;
+        color: var(--gray);
+        cursor: pointer;
+        font-size: 15px;
+        transition: var(--transition);
+    }
+
+    .mobile-dark-toggle:hover {
+        background: var(--primary-light) !important;
+        color: var(--primary);
+    }
+
     .nav-toggle {
         display: flex !important;
         z-index: 1101;
+        margin-left: 0 !important;
     }
 
     /* ===================================================

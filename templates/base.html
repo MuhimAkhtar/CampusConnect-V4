@@ -110,8 +110,14 @@
             </a>
         </div>
 
-        <div class="nav-toggle" onclick="toggleNav()" id="navToggle" aria-label="Toggle menu">
-            <i class="fas fa-bars" id="navToggleIcon"></i>
+        <div class="nav-mobile-actions">
+            <!-- Mobile Dark Mode Toggle (visible only on mobile) -->
+            <button class="dark-mode-toggle mobile-dark-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode" id="darkModeBtnMobile">
+                <i class="fas fa-moon" id="darkModeIconMobile"></i>
+            </button>
+            <div class="nav-toggle" onclick="toggleNav()" id="navToggle" aria-label="Toggle menu">
+                <i class="fas fa-bars" id="navToggleIcon"></i>
+            </div>
         </div>
     </nav>
 
@@ -216,10 +222,11 @@
             updateDarkModeIcon();
         }
         function updateDarkModeIcon() {
-            const icon = document.getElementById('darkModeIcon');
-            if (!icon) return;
+            const icons = document.querySelectorAll('#darkModeIcon, #darkModeIconMobile');
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            icons.forEach(icon => {
+                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            });
         }
         // Apply saved theme on load
         (function() {
