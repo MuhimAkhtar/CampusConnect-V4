@@ -3568,3 +3568,67 @@ img { max-width: 100%; }
         gap: 6px;
     }
 }
+
+/* ==========================================
+   LAPTOP NAVIGATION BAR RESPONSIVENESS HOTFIX
+   Fits all 11 modules + brand + profile nicely
+   ========================================== */
+@media (min-width: 769px) and (max-width: 1440px) {
+    .navbar {
+        padding: 0 16px;
+    }
+    .nav-links {
+        margin-left: 12px;
+        gap: 1px;
+    }
+    .nav-link {
+        padding: 6px 6px;
+        font-size: 12.5px;
+        gap: 4px;
+    }
+    .nav-right {
+        gap: 8px;
+    }
+    .nav-profile {
+        padding: 4px 10px 4px 4px;
+        font-size: 13px;
+        gap: 6px;
+    }
+    .nav-logout {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1280px) {
+    .nav-brand a {
+        font-size: 17px;
+        gap: 6px;
+    }
+    .nav-brand i {
+        font-size: 18px;
+    }
+    .nav-link {
+        font-size: 11.5px;
+        padding: 6px 4px;
+        gap: 3px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1120px) {
+    /* Hide icon to save maximum horizontal space */
+    .nav-link i {
+        display: none !important;
+    }
+    .nav-link {
+        font-size: 11.5px;
+        padding: 6px 4px;
+    }
+    .nav-profile span {
+        display: none !important; /* Hide name, keep just avatar to fit cleanly */
+    }
+    .nav-profile {
+        padding: 4px;
+    }
+}
