@@ -332,6 +332,7 @@
                     <label style="font-size: 12px; margin-bottom: 4px;"><i class="fas fa-sliders-h"></i> Course Type / Credits</label>
                     <select class="input-compact course-type" style="width: 100%;" onchange="toggleSections(${courseCount})">
                         <option value="theory-3">Theory Only (3 Credits)</option>
+                        <option value="theory-2">Theory Only (2 Credits)</option>
                         <option value="blended-4">Theory + Lab (4 Credits: 3T + 1L)</option>
                         <option value="blended-3">Theory + Lab (3 Credits: 2T + 1L)</option>
                     </select>
@@ -615,6 +616,9 @@
         if (typeSelect === "theory-3") {
             blendedFinal = theoryAgg;
             credits = 3;
+        } else if (typeSelect === "theory-2") {
+            blendedFinal = theoryAgg;
+            credits = 2;
         } else if (typeSelect === "blended-4") {
             credits = 4;
             blendedFinal = (theoryAgg * 0.75) + (labAgg * 0.25);
