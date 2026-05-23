@@ -304,7 +304,7 @@
 
 {% block extra_js %}
 <script>
-    const map = L.map('hostelDetailMap').setView([33.6844, 73.0479], 14);
+    const map = L.map('hostelDetailMap').setView([33.6518, 73.1565], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
@@ -314,7 +314,7 @@
     const nameStr = locData ? locData.dataset.name : '';
 
     // COMSATS marker
-    L.marker([33.6844, 73.0479], {
+    L.marker([33.6518, 73.1565], {
         icon: L.divIcon({
             html: '<div class="map-marker blue-marker"><i class="fas fa-university"></i></div>',
             className: '', iconSize: [35, 35]
@@ -353,7 +353,7 @@
 
                     // Draw line to COMSATS
                     L.polyline(
-                        [[lat, lng], [33.6844, 73.0479]],
+                        [[lat, lng], [33.6518, 73.1565]],
                         {
                             color: '#1877f2', weight: 2,
                             opacity: 0.5, dashArray: '5,10'

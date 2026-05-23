@@ -15,8 +15,8 @@
 
     <!-- Hidden data for map -->
     <div id="ride-map-data" style="display:none"
-         data-lat1="{{ ride[7] if ride[7] else 33.6844 }}"
-         data-lng1="{{ ride[8] if ride[8] else 73.0479 }}"
+         data-lat1="{{ ride[7] if ride[7] else 33.6518 }}"
+         data-lng1="{{ ride[8] if ride[8] else 73.1565 }}"
          data-lat2="{{ ride[9] if ride[9] else 33.7215 }}"
          data-lng2="{{ ride[10] if ride[10] else 73.0433 }}"
          data-from="{{ ride[1]|replace('"','') }}"
@@ -364,14 +364,14 @@
 
 {% block extra_js %}
 <script>
-const map = L.map('detailMap').setView([33.6844, 73.0479], 12);
+const map = L.map('detailMap').setView([33.6518, 73.1565], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
 const mapData = document.getElementById('ride-map-data');
-const lat1    = mapData ? parseFloat(mapData.dataset.lat1) : 33.6844;
-const lng1    = mapData ? parseFloat(mapData.dataset.lng1) : 73.0479;
+const lat1    = mapData ? parseFloat(mapData.dataset.lat1) : 33.6518;
+const lng1    = mapData ? parseFloat(mapData.dataset.lng1) : 73.1565;
 const lat2    = mapData ? parseFloat(mapData.dataset.lat2) : 33.7215;
 const lng2    = mapData ? parseFloat(mapData.dataset.lng2) : 73.0433;
 const from    = mapData ? mapData.dataset.from : 'Pickup';

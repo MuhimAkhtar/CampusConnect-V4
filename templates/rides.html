@@ -135,7 +135,7 @@
 {% block extra_js %}
 <script>
 // Initialize map centered on COMSATS Islamabad
-const map = L.map('ridesMap').setView([33.6844, 73.0479], 12);
+const map = L.map('ridesMap').setView([33.6518, 73.1565], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
@@ -153,7 +153,7 @@ const redIcon = L.divIcon({
 });
 
 // COMSATS marker
-L.marker([33.6844, 73.0479], {
+L.marker([33.6518, 73.1565], {
     icon: L.divIcon({
         html: '<div class="map-marker blue-marker"><i class="fas fa-university"></i></div>',
         className: '',

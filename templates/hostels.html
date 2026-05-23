@@ -148,12 +148,12 @@
 
 {% block extra_js %}
 <script>
-const map = L.map('hostelsMap').setView([33.6844, 73.0479], 13);
+const map = L.map('hostelsMap').setView([33.6518, 73.1565], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-L.marker([33.6844, 73.0479], {
+L.marker([33.6518, 73.1565], {
     icon: L.divIcon({
         html: '<div class="map-marker blue-marker"><i class="fas fa-university"></i></div>',
         className: '', iconSize: [35, 35]
