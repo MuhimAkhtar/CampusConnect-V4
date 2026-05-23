@@ -1,0 +1,540 @@
+{% extends 'base.html' %}
+{% block title %}GPA Calculator - CampusConnect{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calc-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        margin-bottom: 20px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+    
+    [data-theme="dark"] .calc-card {
+        background: var(--light-gray);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .calc-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .component-section {
+        background: rgba(248, 250, 252, 0.8);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-top: 12px;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    [data-theme="dark"] .component-section {
+        background: rgba(15, 23, 42, 0.3);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .component-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .input-compact {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        font-size: 13px;
+        background: var(--white);
+        color: var(--dark);
+        transition: var(--transition);
+    }
+
+    .input-compact:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .badge-grade {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .grade-a { background: rgba(16, 185, 129, 0.15); color: #059669; }
+    .grade-b { background: rgba(59, 130, 246, 0.15); color: #2563eb; }
+    .grade-c { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+    .grade-d { background: rgba(139, 92, 246, 0.15); color: #7c3aed; }
+    .grade-f { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+
+    .calc-header-bg {
+        background: linear-gradient(135deg, #4F46E5, #3B82F6);
+    }
+
+    .sgpa-container {
+        position: sticky;
+        bottom: 20px;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border);
+        box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1), var(--shadow-lg);
+        border-radius: var(--radius-xl);
+        padding: 20px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 30px;
+        animation: slideUp 0.4s ease;
+    }
+
+    [data-theme="dark"] .sgpa-container {
+        background: rgba(30, 41, 59, 0.9);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .radial-progress-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+    }
+
+    .btn-remove-course {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-remove-course:hover {
+        background: var(--danger);
+        color: white;
+        transform: rotate(90deg);
+    }
+
+    .rule-card {
+        background: rgba(99, 102, 241, 0.05);
+        border-left: 4px solid var(--primary);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 24px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header calc-header-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-calculator"></i> COMSATS GPA Calculator</h1>
+            <p>Calculate your course aggregates and SGPA following the official absolute grading scale and theory+lab blending rules</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ url_for('calculators.merit_calculator') }}" class="btn-outline-white">
+                <i class="fas fa-graduation-cap"></i> Merit Calculator
+            </a>
+        </div>
+    </div>
+
+    <!-- COMSATS Rules Info Banner -->
+    <div class="rule-card">
+        <i class="fas fa-info-circle fa-lg" style="color: var(--primary); margin-top: 2px;"></i>
+        <div>
+            <strong style="color: var(--dark); font-size: 14px; display: block; margin-bottom: 4px;">CRITICAL COMSATS Evaluation & Blending Rules:</strong>
+            <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--gray); line-height: 1.5;">
+                <li><strong>Theory Evaluation</strong>: Quizzes 15%, Assignments 10%, Midterm 25%, Terminal 50%</li>
+                <li><strong>Lab Evaluation</strong>: Lab Assignments/Journal 25%, Lab Midterm 25%, Lab Terminal 50%</li>
+                <li><strong>Theory + Lab Blending</strong>: Blended Final % = (Theory * 0.75) + (Lab * 0.25) [for 4cr 3T+1L] or (Theory * 0.6667) + (Lab * 0.3333) [for 3cr 2T+1L]</li>
+                <li><strong style="color: var(--danger);">Separate Passing Criteria Rule</strong>: You must score <strong>&ge; 50% separately</strong> in both the Theory and Lab components. If either is below 50%, you will get an <strong>F grade (0.0 GP)</strong>.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Calculator Area -->
+    <div id="calculator-workspace">
+        <div id="course-cards-container">
+            <!-- Dynamic course cards go here -->
+        </div>
+
+        <!-- Add Course Button -->
+        <button id="btn-add-course" class="btn-primary" style="margin-top: 10px; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fas fa-plus"></i> Add Course
+        </button>
+    </div>
+
+    <!-- Sticky SGPA Summary Bar -->
+    <div class="sgpa-container">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="radial-progress-wrapper">
+                <svg width="80" height="80" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border)" stroke-width="6" />
+                    <circle id="radial-progress-bar" cx="40" cy="40" r="34" fill="none" stroke="var(--primary)" stroke-width="6" 
+                            stroke-dasharray="213.6" stroke-dashoffset="213.6" stroke-linecap="round" transform="rotate(-90 40 40)" 
+                            style="transition: stroke-dashoffset 0.5s ease-out;" />
+                </svg>
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <span id="sgpa-value" style="font-size: 20px; font-weight: 800; color: var(--primary); margin: 0; line-height: 1;">0.00</span>
+                    <span style="font-size: 9px; color: var(--gray); font-weight: bold; margin-top: 2px;">SGPA</span>
+                </div>
+            </div>
+            <div>
+                <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--dark);">Academic Summary</h4>
+                <p style="margin: 3px 0 0 0; font-size: 13px; color: var(--gray);">
+                    Total Credits: <strong id="summary-credits">0</strong> &nbsp;|&nbsp; 
+                    Passed: <strong id="summary-passed" style="color: var(--success);">0</strong> &nbsp;|&nbsp; 
+                    Failed: <strong id="summary-failed" style="color: var(--danger);">0</strong>
+                </p>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+            <button onclick="resetCalculator()" class="btn-outline" style="padding: 10px 18px; border-radius: 8px;">
+                <i class="fas fa-undo"></i> Reset
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let courseCount = 0;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Start with 1 course card by default
+        addCourseCard();
+        
+        document.getElementById("btn-add-course").addEventListener("click", () => {
+            addCourseCard();
+        });
+    });
+
+    function addCourseCard() {
+        courseCount++;
+        const container = document.getElementById("course-cards-container");
+        
+        const card = document.createElement("div");
+        card.className = "calc-card";
+        card.id = `course-card-${courseCount}`;
+        card.innerHTML = `
+            <button class="btn-remove-course" onclick="removeCourseCard(${courseCount})" title="Remove Course">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: center; margin-right: 35px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 12px; margin-bottom: 4px;"><i class="fas fa-book"></i> Course Name</label>
+                    <input type="text" placeholder="e.g. Object Oriented Programming" class="input-compact course-name">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="font-size: 12px; margin-bottom: 4px;"><i class="fas fa-sliders-h"></i> Course Type / Credits</label>
+                    <select class="input-compact course-type" onchange="toggleSections(${courseCount})">
+                        <option value="theory-3">Theory Only (3 Credits)</option>
+                        <option value="blended-4">Theory + Lab (4 Credits: 3T + 1L)</option>
+                        <option value="blended-3">Theory + Lab (3 Credits: 2T + 1L)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dynamic Evaluation Areas -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 15px;">
+                
+                <!-- Theory evaluation -->
+                <div class="component-section" id="theory-section-${courseCount}">
+                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--dark); border-bottom: 1px solid var(--border); padding-bottom: 6px; display: flex; justify-content: space-between;">
+                        <span><i class="fas fa-university"></i> Theory Component (100% Weight)</span>
+                        <span id="theory-agg-${courseCount}" style="color: var(--primary);">0.0%</span>
+                    </h4>
+                    <div class="component-grid">
+                        <div>
+                            <label style="font-size: 11px; color: var(--gray);">Quizzes (15%)</label>
+                            <input type="number" min="0" max="100" placeholder="%" class="input-compact quiz-val" oninput="calculateCard(${courseCount})">
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: var(--gray);">Assigns (10%)</label>
+                            <input type="number" min="0" max="100" placeholder="%" class="input-compact assign-val" oninput="calculateCard(${courseCount})">
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: var(--gray);">Midterm (25%)</label>
+                            <input type="number" min="0" max="100" placeholder="%" class="input-compact mid-val" oninput="calculateCard(${courseCount})">
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: var(--gray);">Terminal (50%)</label>
+                            <input type="number" min="0" max="100" placeholder="%" class="input-compact term-val" oninput="calculateCard(${courseCount})">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lab evaluation -->
+                <div class="component-section" id="lab-section-${courseCount}" style="display: none;">
+                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--dark); border-bottom: 1px solid var(--border); padding-bottom: 6px; display: flex; justify-content: space-between;">
+                        <span><i class="fas fa-flask"></i> Lab Component (100% Weight)</span>
+                        <span id="lab-agg-${courseCount}" style="color: var(--primary);">0.0%</span>
+                    </h4>
+                    <div class="component-grid">
+                        <div>
+                            <label style="font-size: 11px; color: var(--gray);">Lab Journal (25%)</label>
+                            <input type="number" min="0" max="100" placeholder="%" class="input-compact lab-journal-val" oninput="calculateCard(${courseCount})">
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: var(--gray);">Lab Mid (25%)</label>
+                            <input type="number" min="0" max="100" placeholder="%" class="input-compact lab-mid-val" oninput="calculateCard(${courseCount})">
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: var(--gray);">Lab Term (50%)</label>
+                            <input type="number" min="0" max="100" placeholder="%" class="input-compact lab-term-val" oninput="calculateCard(${courseCount})">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Calculated Course Output -->
+            <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; gap: 15px; font-size: 13px; color: var(--gray);">
+                    <span>Blended Total: <strong id="course-blend-${courseCount}" style="color: var(--dark);">0.0%</strong></span>
+                    <span>Grade Point: <strong id="course-gp-${courseCount}" style="color: var(--dark);">0.00</strong></span>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div id="course-alert-${courseCount}" style="display: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.15);">
+                        <!-- Alert content dynamic -->
+                    </div>
+                    <span id="course-grade-${courseCount}" class="badge-grade grade-f">F</span>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(card);
+        calculateCard(courseCount);
+    }
+
+    function removeCourseCard(id) {
+        const card = document.getElementById(`course-card-${id}`);
+        if (card) {
+            card.remove();
+            calculateSGPA();
+        }
+    }
+
+    function toggleSections(id) {
+        const typeSelect = document.querySelector(`#course-card-${id} .course-type`);
+        const labSection = document.getElementById(`lab-section-${id}`);
+        
+        if (typeSelect.value.startsWith("blended")) {
+            labSection.style.display = "block";
+        } else {
+            labSection.style.display = "none";
+        }
+        
+        calculateCard(id);
+    }
+
+    function getVal(input) {
+        if (!input) return 0;
+        let val = parseFloat(input.value);
+        if (isNaN(val) || val < 0) return 0;
+        if (val > 100) {
+            input.value = 100;
+            return 100;
+        }
+        return val;
+    }
+
+    function calculateCard(id) {
+        const card = document.getElementById(`course-card-${id}`);
+        if (!card) return;
+
+        const typeSelect = card.querySelector(".course-type").value;
+        
+        // Inputs
+        const qz = getVal(card.querySelector(".quiz-val"));
+        const as = getVal(card.querySelector(".assign-val"));
+        const md = getVal(card.querySelector(".mid-val"));
+        const tm = getVal(card.querySelector(".term-val"));
+
+        const labJ = getVal(card.querySelector(".lab-journal-val"));
+        const labM = getVal(card.querySelector(".lab-mid-val"));
+        const labT = getVal(card.querySelector(".lab-term-val"));
+
+        // Theory Aggregate: Quizzes 15%, Assignments 10%, Midterm 25%, Terminal 50%
+        const theoryAgg = (qz * 0.15) + (as * 0.1) + (md * 0.25) + (tm * 0.5);
+        document.getElementById(`theory-agg-${id}`).textContent = `${theoryAgg.toFixed(1)}%`;
+
+        // Lab Aggregate: Journal 25%, Lab Mid 25%, Lab Term 50%
+        const labAgg = (labJ * 0.25) + (labM * 0.25) + (labT * 0.5);
+        document.getElementById(`lab-agg-${id}`).textContent = `${labAgg.toFixed(1)}%`;
+
+        // Blending calculations
+        let blendedFinal = 0;
+        let credits = 3;
+        let failedComponent = false;
+        let failedMessage = "";
+
+        if (typeSelect === "theory-3") {
+            blendedFinal = theoryAgg;
+            credits = 3;
+        } else if (typeSelect === "blended-4") {
+            credits = 4;
+            blendedFinal = (theoryAgg * 0.75) + (labAgg * 0.25);
+            
+            // Critical passing condition: must score >= 50% in both components separately
+            const theoryPassed = theoryAgg >= 50;
+            const labPassed = labAgg >= 50;
+            if (!theoryPassed && !labPassed) {
+                failedComponent = true;
+                failedMessage = "Failed Both Components";
+            } else if (!theoryPassed) {
+                failedComponent = true;
+                failedMessage = "Failed Theory Component";
+            } else if (!labPassed) {
+                failedComponent = true;
+                failedMessage = "Failed Lab Component";
+            }
+        } else if (typeSelect === "blended-3") {
+            credits = 3;
+            blendedFinal = (theoryAgg * (2/3)) + (labAgg * (1/3));
+            
+            // Critical passing condition: must score >= 50% in both components separately
+            const theoryPassed = theoryAgg >= 50;
+            const labPassed = labAgg >= 50;
+            if (!theoryPassed && !labPassed) {
+                failedComponent = true;
+                failedMessage = "Failed Both Components";
+            } else if (!theoryPassed) {
+                failedComponent = true;
+                failedMessage = "Failed Theory Component";
+            } else if (!labPassed) {
+                failedComponent = true;
+                failedMessage = "Failed Lab Component";
+            }
+        }
+
+        // Apply grading scale
+        let gp = 0;
+        let grade = "F";
+        let gradeClass = "grade-f";
+
+        // Determine grade based on final percentage (or component fail)
+        if (failedComponent) {
+            gp = 0.0;
+            grade = "F";
+            gradeClass = "grade-f";
+        } else {
+            const finalPct = Math.round(blendedFinal * 100) / 100;
+            if (finalPct >= 85) { gp = 4.0; grade = "A"; gradeClass = "grade-a"; }
+            else if (finalPct >= 80) { gp = 3.7; grade = "A-"; gradeClass = "grade-a"; }
+            else if (finalPct >= 75) { gp = 3.3; grade = "B+"; gradeClass = "grade-b"; }
+            else if (finalPct >= 70) { gp = 3.0; grade = "B"; gradeClass = "grade-b"; }
+            else if (finalPct >= 65) { gp = 2.7; grade = "B-"; gradeClass = "grade-b"; }
+            else if (finalPct >= 61) { gp = 2.3; grade = "C+"; gradeClass = "grade-c"; }
+            else if (finalPct >= 58) { gp = 2.0; grade = "C"; gradeClass = "grade-c"; }
+            else if (finalPct >= 55) { gp = 1.7; grade = "C-"; gradeClass = "grade-c"; }
+            else if (finalPct >= 52) { gp = 1.3; grade = "D+"; gradeClass = "grade-d"; }
+            else if (finalPct >= 50) { gp = 1.0; grade = "D"; gradeClass = "grade-d"; }
+            else { gp = 0.0; grade = "F"; gradeClass = "grade-f"; }
+        }
+
+        // Update UI of the card
+        document.getElementById(`course-blend-${id}`).textContent = `${blendedFinal.toFixed(1)}%`;
+        document.getElementById(`course-gp-${id}`).textContent = gp.toFixed(2);
+        
+        const gradeBadge = document.getElementById(`course-grade-${id}`);
+        gradeBadge.className = `badge-grade ${gradeClass}`;
+        gradeBadge.textContent = grade;
+
+        const alertBadge = document.getElementById(`course-alert-${id}`);
+        if (failedComponent) {
+            alertBadge.textContent = failedMessage;
+            alertBadge.style.display = "block";
+        } else {
+            alertBadge.style.display = "none";
+        }
+
+        // Save credits and GP data directly to the card elements for easy aggregation
+        card.setAttribute("data-credits", credits);
+        card.setAttribute("data-gp", gp);
+        card.setAttribute("data-passed", gp > 0 ? "true" : "false");
+
+        calculateSGPA();
+    }
+
+    function calculateSGPA() {
+        const cards = document.querySelectorAll(".calc-card");
+        let totalCredits = 0;
+        let totalPoints = 0;
+        let passedCredits = 0;
+        let failedCredits = 0;
+
+        cards.forEach(card => {
+            const cr = parseFloat(card.getAttribute("data-credits")) || 0;
+            const gp = parseFloat(card.getAttribute("data-gp")) || 0;
+            const passed = card.getAttribute("data-passed") === "true";
+
+            totalCredits += cr;
+            totalPoints += (gp * cr);
+            if (passed) {
+                passedCredits += cr;
+            } else {
+                failedCredits += cr;
+            }
+        });
+
+        const sgpa = totalCredits > 0 ? (totalPoints / totalCredits) : 0.0;
+
+        // Update sticky summary
+        document.getElementById("sgpa-value").textContent = sgpa.toFixed(2);
+        document.getElementById("summary-credits").textContent = totalCredits;
+        document.getElementById("summary-passed").textContent = passedCredits;
+        document.getElementById("summary-failed").textContent = failedCredits;
+
+        // Radial progress animation
+        const circle = document.getElementById("radial-progress-bar");
+        const radius = 34;
+        const circumference = 2 * Math.PI * radius; // ~213.6
+        // Map SGPA (0 to 4) to dash offset (circumference to 0)
+        const percent = sgpa / 4.0;
+        const offset = circumference - (percent * circumference);
+        circle.style.strokeDashoffset = Math.max(0, Math.min(circumference, offset));
+    }
+
+    function resetCalculator() {
+        if (confirm("Are you sure you want to clear all courses and values?")) {
+            const container = document.getElementById("course-cards-container");
+            container.innerHTML = "";
+            courseCount = 0;
+            addCourseCard();
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Lost & Found - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+
+    <!-- Page Header -->
+    <div class="page-header lost-found-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-search-location"></i> Lost & Found Board</h1>
+            <p>Recover lost items or report items you have found on campus</p>
+        </div>
+        <a href="{{ url_for('lost_found.post_lost_found') }}" class="btn-primary">
+            <i class="fas fa-plus"></i> Report Item
+        </a>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="search-section">
+        <form method="GET" class="search-form">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search"
+                       value="{{ search }}"
+                       placeholder="Search lost or found materials...">
+            </div>
+            <select name="type" class="filter-select">
+                <option value="">All Types</option>
+                <option value="Lost" {% if item_type=='Lost' %}selected{% endif %}>Lost</option>
+                <option value="Found" {% if item_type=='Found' %}selected{% endif %}>Found</option>
+            </select>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-search"></i> Search
+            </button>
+            {% if search or item_type %}
+            <a href="{{ url_for('lost_found.lost_found') }}" class="btn-outline">
+                <i class="fas fa-times"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Type Pills / Category Pills -->
+    <div class="category-pills">
+        <a href="{{ url_for('lost_found.lost_found') }}"
+           class="pill {% if not item_type %}active{% endif %}">
+            All Items
+        </a>
+        <a href="{{ url_for('lost_found.lost_found', type='Lost') }}"
+           class="pill {% if item_type=='Lost' %}active{% endif %}" style="display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-question-circle" style="color: var(--danger);"></i> Lost
+        </a>
+        <a href="{{ url_for('lost_found.lost_found', type='Found') }}"
+           class="pill {% if item_type=='Found' %}active{% endif %}" style="display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-check-circle" style="color: var(--success);"></i> Found
+        </a>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="results-section">
+        {% if search or item_type %}
+        <p class="results-count">
+            <i class="fas fa-filter"></i>
+            {{ items|length }} item(s) found
+        </p>
+        {% endif %}
+
+        {% if items %}
+        <div class="cards-grid three-col">
+            {% for item in items %}
+            <div class="market-card {% if item[10] == 'resolved' %}resolved-card{% endif %}" style="{% if item[10] == 'resolved' %}opacity: 0.75;{% endif %}">
+                <div class="market-card-image" style="height: 200px; overflow: hidden; position: relative; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    {% if item[6] %}
+                    <img src="{{ item[6] }}" alt="{{ item[1] }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div class="market-placeholder">
+                        {% if item[3] == 'Lost' %}
+                        <i class="fas fa-search-location fa-3x" style="color: #FCA5A5;"></i>
+                        {% else %}
+                        <div class="box-found-icon">
+                            <i class="fas fa-box-open fa-3x" style="color: #86EFAC;"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Status Badge / Type Badge -->
+                    <span class="event-category-badge" style="position: absolute; top: 10px; left: 10px; z-index: 2; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; background: {% if item[3] == 'Lost' %}var(--danger){% else %}var(--success){% endif %}; color: white;">
+                        {{ item[3] }}
+                    </span>
+
+                    {% if item[10] == 'resolved' %}
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 3;">
+                        <span style="background: var(--success); color: white; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; text-transform: uppercase; box-shadow: 0 4px 6px rgba(0,0,0,0.15);">
+                            <i class="fas fa-check-circle"></i> Resolved
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="market-card-body">
+                    <h3>{{ item[1] }}</h3>
+                    
+                    {% if item[2] %}
+                    <p class="item-desc" style="font-size: 13px; color: var(--gray); margin-bottom: 8px; line-height: 1.4;">
+                        {{ item[2][:75] }}{% if item[2]|length > 75 %}...{% endif %}
+                    </p>
+                    {% endif %}
+
+                    <div style="display: flex; flex-direction: column; gap: 4px; margin: 8px 0;">
+                        <span style="font-size: 12px; color: var(--gray); display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-map-marker-alt" style="color: var(--danger); width: 14px;"></i>
+                            {{ item[4] }}
+                        </span>
+                        <span style="font-size: 12px; color: var(--gray); display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-calendar-alt" style="color: var(--primary); width: 14px;"></i>
+                            Reported on {{ item[5] }}
+                        </span>
+                    </div>
+
+                    <div class="market-card-footer">
+                        <span class="item-seller" style="display: flex; align-items: center; gap: 6px;">
+                            {% if item[9] %}
+                            <img src="{{ item[9] }}" alt="{{ item[7] }}" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; display: inline-block;">
+                            {% else %}
+                            <i class="fas fa-user"></i>
+                            {% endif %}
+                            <span>{{ item[7] }}</span>
+                        </span>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('lost_found.lost_found_detail', item_id=item[0]) }}"
+                   class="market-card-link">
+                    View Details
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state large">
+            <i class="fas fa-search-location"></i>
+            <h3>No items reported</h3>
+            <p>Everything seems accounted for! Or you can report a new lost/found item.</p>
+            <a href="{{ url_for('lost_found.post_lost_found') }}" class="btn-primary">
+                <i class="fas fa-plus"></i> Report Item
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

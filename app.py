@@ -16,6 +16,9 @@ from routes.marketplace import marketplace_bp
 from routes.messages import messages_bp
 from routes.misc import misc_bp
 from routes.new_features import new_bp
+from routes.lost_found import lost_found_bp
+from routes.events import events_bp
+from routes.calculators import calculators_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(rides_bp)
@@ -24,6 +27,9 @@ app.register_blueprint(marketplace_bp)
 app.register_blueprint(messages_bp)
 app.register_blueprint(misc_bp)
 app.register_blueprint(new_bp)
+app.register_blueprint(lost_found_bp)
+app.register_blueprint(events_bp)
+app.register_blueprint(calculators_bp)
 
 # ── Pakistan Standard Time filter (UTC → UTC+5) ──────────────────────────────
 @app.template_filter('pkt')

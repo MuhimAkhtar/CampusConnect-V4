@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Report Lost/Found Item - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header lost-found-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-plus-circle"></i> Report Lost & Found</h1>
+            <p>Help other students by reporting a lost or found material on campus</p>
+        </div>
+        <a href="{{ url_for('lost_found.lost_found') }}" class="btn-outline-white">
+            <i class="fas fa-arrow-left"></i> Back to Board
+        </a>
+    </div>
+
+    <div class="form-page">
+        <div class="form-container">
+            <form method="POST" class="styled-form" enctype="multipart/form-data">
+
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label><i class="fas fa-search-location"></i> Item Name / Title</label>
+                        <input type="text" name="title" placeholder="e.g. Black HP Laptop Charger, Brown Leather Wallet" required maxlength="100">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-question-circle"></i> Type</label>
+                        <select name="type" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-family: inherit;">
+                            <option value="">Select Type</option>
+                            <option value="Lost">Lost (I lost something)</option>
+                            <option value="Found">Found (I found something)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Location on Campus</label>
+                        <input type="text" name="location" placeholder="e.g. Library Desk 4, EE Cafeteria" required maxlength="100">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Description</label>
+                    <textarea name="description" rows="4" placeholder="Describe the item's key features, condition, color, and how the owner can contact you or where they can pick it up..." required style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-family: inherit;"></textarea>
+                </div>
+
+                <!-- Single Image Upload (specifically added forLost and Found clarification) -->
+                <div class="form-group">
+                    <label><i class="fas fa-camera"></i> Clarifying Picture (Highly Recommended)</label>
+                    <div class="image-upload-box" onclick="document.getElementById('itemImage').click()" style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
+                        <input type="file" id="itemImage" name="image" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                        <div id="uploadPlaceholder">
+                            <i class="fas fa-cloud-upload-alt fa-3x" style="color: var(--primary); margin-bottom: 12px;"></i>
+                            <p style="margin: 0; color: #64748b; font-weight: 500;">Click to upload a picture of the object</p>
+                            <span style="font-size: 12px; color: #94a3b8;">Allows other students to instantly clarify the item (Max 10MB)</span>
+                        </div>
+                        <div id="imagePreviewContainer" style="display: none; position: relative;">
+                            <img id="imagePreview" src="" alt="Preview" style="max-height: 250px; border-radius: 8px; margin: 0 auto; display: block; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+                            <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Change Photo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="margin-top: 10px; padding: 12px; font-size: 16px; font-weight: bold; width: 100%;">
+                    <i class="fas fa-bullhorn"></i> Submit Report
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input) {
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const container = document.getElementById('imagePreviewContainer');
+    const preview = document.getElementById('imagePreview');
+
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            placeholder.style.display = 'none';
+            container.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        placeholder.style.display = 'block';
+        container.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

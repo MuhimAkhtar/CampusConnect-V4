@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% block title %}Merit Calculator - CampusConnect{% endblock %}
+
+{% block extra_css %}
+<style>
+    .merit-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl);
+        padding: 30px;
+        max-width: 600px;
+        margin: 0 auto;
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
+    }
+
+    [data-theme="dark"] .merit-card {
+        background: var(--light-gray);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .merit-input-group {
+        margin-bottom: 20px;
+    }
+
+    .merit-input-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: var(--dark);
+    }
+
+    .merit-input-group .description {
+        font-size: 11px;
+        color: var(--gray);
+        margin-bottom: 6px;
+    }
+
+    .merit-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .merit-input-wrapper i {
+        position: absolute;
+        left: 14px;
+        color: var(--gray);
+    }
+
+    .merit-input-wrapper input {
+        width: 100%;
+        padding: 10px 14px 10px 38px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--dark);
+        background: var(--white);
+        transition: var(--transition);
+    }
+
+    [data-theme="dark"] .merit-input-wrapper input {
+        background: var(--bg);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .merit-input-wrapper input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .weight-tag {
+        position: absolute;
+        right: 14px;
+        font-size: 11px;
+        font-weight: 700;
+        background: var(--primary-light);
+        color: var(--primary);
+        padding: 2px 8px;
+        border-radius: 12px;
+    }
+
+    .result-merit {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        margin-top: 30px;
+        text-align: center;
+        box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
+    }
+
+    .breakdown-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+    .breakdown-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-list {
+        background: var(--light-gray);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-top: 24px;
+        border: 1px solid var(--border);
+    }
+
+    [data-theme="dark"] .info-list {
+        background: rgba(15, 23, 42, 0.2);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header calc-header-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-graduation-cap"></i> COMSATS Merit Calculator</h1>
+            <p>Calculate your blended aggregate percentage for COMSATS admissions based on standard weighting criteria</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ url_for('calculators.gpa_calculator') }}" class="btn-outline-white">
+                <i class="fas fa-calculator"></i> GPA Calculator
+            </a>
+        </div>
+    </div>
+
+    <!-- Calculator Card -->
+    <div class="merit-card">
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-sliders-h" style="color: var(--primary);"></i> Enter Your Academic Marks
+        </h3>
+
+        <!-- Matric Field -->
+        <div class="merit-input-group">
+            <label>Matric / O-Level Percentage</label>
+            <div class="description">Weight contribution: 10% of total merit</div>
+            <div class="merit-input-wrapper">
+                <i class="fas fa-university"></i>
+                <input type="number" id="matric-pct" min="0" max="100" step="0.01" placeholder="e.g. 85.50" oninput="calculateMerit()">
+                <span class="weight-tag">10% Weight</span>
+            </div>
+        </div>
+
+        <!-- FSc / Intermediate Field -->
+        <div class="merit-input-group">
+            <label>FSc / ICS / A-Level Percentage</label>
+            <div class="description">Weight contribution: 40% of total merit</div>
+            <div class="merit-input-wrapper">
+                <i class="fas fa-book"></i>
+                <input type="number" id="fsc-pct" min="0" max="100" step="0.01" placeholder="e.g. 78.20" oninput="calculateMerit()">
+                <span class="weight-tag">40% Weight</span>
+            </div>
+        </div>
+
+        <!-- NTS Field -->
+        <div class="merit-input-group">
+            <label>NTS NAT / Entry Test Score</label>
+            <div class="description">Weight contribution: 50% of total merit (out of 100 marks)</div>
+            <div class="merit-input-wrapper">
+                <i class="fas fa-file-signature"></i>
+                <input type="number" id="nts-score" min="0" max="100" step="1" placeholder="e.g. 74" oninput="calculateMerit()">
+                <span class="weight-tag">50% Weight</span>
+            </div>
+        </div>
+
+        <!-- Grand Result Output -->
+        <div class="result-merit">
+            <span style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85;">Calculated Merit Score</span>
+            <h2 id="merit-total" style="font-size: 42px; font-weight: 800; margin: 6px 0; line-height: 1;">0.00%</h2>
+            <div id="merit-rating" style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.2); margin-bottom: 20px;">
+                Enter details to calculate
+            </div>
+
+            <!-- Breakdown -->
+            <div style="text-align: left; padding: 12px 16px; background: rgba(0,0,0,0.15); border-radius: 8px;">
+                <div class="breakdown-row">
+                    <span>Matric Contribution (10%):</span>
+                    <strong id="matric-contrib">0.00%</strong>
+                </div>
+                <div class="breakdown-row">
+                    <span>FSc / Inter Contribution (40%):</span>
+                    <strong id="fsc-contrib">0.00%</strong>
+                </div>
+                <div class="breakdown-row">
+                    <span>NTSNAT Contribution (50%):</span>
+                    <strong id="nts-contrib">0.00%</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admission Cutoff Insights -->
+        <div class="info-list">
+            <h4 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-info-circle" style="color: var(--primary);"></i> Historical Cutoff Insights (CUI Islamabad)
+            </h4>
+            <p style="font-size: 12px; color: var(--gray); margin: 0 0 8px 0; line-height: 1.5;">
+                Merits vary each semester, but these are typical benchmarks for top programs:
+            </p>
+            <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: var(--gray); line-height: 1.6;">
+                <li><strong>BS Computer Science / Software Eng</strong>: &ge; 82% - 86% merit</li>
+                <li><strong>BS Computer Engineering / Cyber Sec</strong>: &ge; 78% - 82% merit</li>
+                <li><strong>BS Data Science / AI</strong>: &ge; 77% - 81% merit</li>
+                <li><strong>BS Electrical Engineering</strong>: &ge; 64% - 68% merit</li>
+                <li><strong>BS Business Administration</strong>: &ge; 60% - 65% merit</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function calculateMerit() {
+        const matVal = parseFloat(document.getElementById("matric-pct").value) || 0;
+        const fscVal = parseFloat(document.getElementById("fsc-pct").value) || 0;
+        const ntsVal = parseFloat(document.getElementById("nts-score").value) || 0;
+
+        // Enforce max limits
+        const matric = Math.min(100, Math.max(0, matVal));
+        const fsc = Math.min(100, Math.max(0, fscVal));
+        const nts = Math.min(100, Math.max(0, ntsVal));
+
+        // Calculations
+        const matContrib = matric * 0.10;
+        const fscContrib = fsc * 0.40;
+        const ntsContrib = nts * 0.50;
+        const grandTotal = matContrib + fscContrib + ntsContrib;
+
+        // Update breakdowns
+        document.getElementById("matric-contrib").textContent = `${matContrib.toFixed(2)}%`;
+        document.getElementById("fsc-contrib").textContent = `${fscContrib.toFixed(2)}%`;
+        document.getElementById("nts-contrib").textContent = `${ntsContrib.toFixed(2)}%`;
+        
+        // Animated/instant grand score
+        document.getElementById("merit-total").textContent = `${grandTotal.toFixed(2)}%`;
+
+        // Determine Rating
+        const ratingBadge = document.getElementById("merit-rating");
+        if (grandTotal === 0) {
+            ratingBadge.textContent = "Enter details to calculate";
+            ratingBadge.style.color = "white";
+        } else if (grandTotal >= 85) {
+            ratingBadge.textContent = "Excellent Merit (Very High Chance)";
+            ratingBadge.style.color = "#a7f3d0"; // Light emerald
+        } else if (grandTotal >= 75) {
+            ratingBadge.textContent = "Good Merit (Strong Admission Chance)";
+            ratingBadge.style.color = "#bfdbfe"; // Light blue
+        } else if (grandTotal >= 65) {
+            ratingBadge.textContent = "Average Merit (Medium Chance)";
+            ratingBadge.style.color = "#fef3c7"; // Light amber
+        } else {
+            ratingBadge.textContent = "Below Average Merit (Select program carefully)";
+            ratingBadge.style.color = "#fecaca"; // Light red
+        }
+    }
+</script>
+{% endblock %}

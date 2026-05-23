@@ -39,6 +39,111 @@
 }
 
 /* ================================
+   DARK MODE THEME
+   ================================ */
+[data-theme="dark"] {
+    --primary:        #818CF8;
+    --primary-dark:   #6366F1;
+    --primary-light:  rgba(99,102,241,0.15);
+    --secondary:      #A78BFA;
+    --accent:         #22D3EE;
+    --success:        #34D399;
+    --danger:         #F87171;
+    --warning:        #FBBF24;
+    --dark:           #F1F5F9;
+    --dark-2:         #E2E8F0;
+    --gray:           #94A3B8;
+    --light-gray:     #1E293B;
+    --border:         #334155;
+    --white:          #0F172A;
+    --shadow-sm:      0 1px 3px rgba(0,0,0,0.3);
+    --shadow:         0 4px 6px -1px rgba(0,0,0,0.4);
+    --shadow-lg:      0 10px 15px -3px rgba(0,0,0,0.4);
+    --shadow-xl:      0 20px 25px -5px rgba(0,0,0,0.5);
+    --shadow-colored: 0 8px 25px rgba(129,140,248,0.2);
+}
+
+[data-theme="dark"] body {
+    background: #0B1120;
+}
+
+[data-theme="dark"] .navbar {
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom-color: #1E293B;
+}
+
+[data-theme="dark"] .alert-success { background: #065F46; border-left-color: #34D399; color: #D1FAE5; }
+[data-theme="dark"] .alert-error,
+[data-theme="dark"] .alert-danger  { background: #7F1D1D; border-left-color: #F87171; color: #FEE2E2; }
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+    color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: #64748B !important;
+}
+
+[data-theme="dark"] .filter-select {
+    background: #1E293B;
+    color: #F1F5F9;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .search-input-wrapper {
+    background: #1E293B;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .search-input-wrapper input {
+    color: #F1F5F9;
+}
+
+[data-theme="dark"] .nav-links {
+    background: #0F172A;
+}
+
+/* Dark mode toggle button */
+.dark-mode-toggle {
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    color: var(--gray);
+    transition: var(--transition);
+    margin-right: 8px;
+}
+
+.dark-mode-toggle:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-color: var(--primary);
+    transform: rotate(30deg);
+}
+
+/* Page header backgrounds for new modules */
+.lost-found-bg {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+}
+.events-bg {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #5B21B6 100%);
+}
+.calc-bg {
+    background: linear-gradient(135deg, #06B6D4 0%, #0891B2 50%, #0E7490 100%);
+}
+
+/* ================================
    RESET & BASE
    ================================ */
 *, *::before, *::after {

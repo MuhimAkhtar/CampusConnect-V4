@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Campus Events - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+
+    <!-- Page Header -->
+    <div class="page-header events-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-calendar-alt"></i> Campus Events</h1>
+            <p>Discover events, workshops & activities at COMSATS</p>
+        </div>
+        <a href="{{ url_for('events.post_event') }}" class="btn-primary">
+            <i class="fas fa-plus"></i> Post Event
+        </a>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="search-section">
+        <form method="GET" class="search-form">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search"
+                       value="{{ search }}"
+                       placeholder="Search events...">
+            </div>
+            <select name="category" class="filter-select">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}"
+                    {% if category==cat %}selected{% endif %}>
+                    {{ cat }}
+                </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-search"></i> Search
+            </button>
+            {% if search or category %}
+            <a href="{{ url_for('events.events') }}" class="btn-outline">
+                <i class="fas fa-times"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Category Pills -->
+    <div class="category-pills">
+        <a href="{{ url_for('events.events') }}"
+           class="pill {% if not category %}active{% endif %}">
+            All Events
+        </a>
+        {% for cat, icon in [('Academic','graduation-cap'),('Social','users'),
+                              ('Sports','futbol'),('Career','briefcase'),
+                              ('Cultural','music'),('Other','star')] %}
+        <a href="{{ url_for('events.events', category=cat) }}"
+           class="pill {% if category==cat %}active{% endif %}">
+            <i class="fas fa-{{ icon }}"></i> {{ cat }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Results -->
+    <div class="results-section">
+        {% if search or category %}
+        <p class="results-count">
+            <i class="fas fa-filter"></i>
+            {{ events|length }} event(s) found
+        </p>
+        {% endif %}
+
+        {% if events %}
+        <div class="cards-grid three-col">
+            {% for ev in events %}
+            <div class="market-card">
+                <div class="market-card-image" style="height: 200px; overflow: hidden; position: relative; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    {% if ev[7] %}
+                    <img src="{{ ev[7] }}" alt="{{ ev[1] }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div class="market-placeholder">
+                        <i class="fas fa-calendar-alt fa-3x" style="color: #C4B5FD;"></i>
+                    </div>
+                    {% endif %}
+
+                    <span class="event-category-badge event-cat-{{ ev[6].lower() }}" style="position: absolute; top: 10px; right: 10px; z-index: 2; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;">
+                        {{ ev[6] }}
+                    </span>
+                </div>
+
+                <div class="market-card-body">
+                    <h3>{{ ev[1] }}</h3>
+
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin: 8px 0;">
+                        <span style="font-size: 12px; color: var(--gray); display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-clock" style="color: var(--primary); width: 14px;"></i>
+                            {{ ev[3] }}{% if ev[4] %} at {{ ev[4] }}{% endif %}
+                        </span>
+                        {% if ev[5] %}
+                        <span style="font-size: 12px; color: var(--gray); display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-map-marker-alt" style="color: var(--danger); width: 14px;"></i>
+                            {{ ev[5] }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="market-card-footer">
+                        <span class="item-seller" style="display: flex; align-items: center; gap: 6px;">
+                            {% if ev[9] %}
+                            <img src="{{ ev[9] }}" alt="{{ ev[8] }}" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; display: inline-block;">
+                            {% else %}
+                            <i class="fas fa-user"></i>
+                            {% endif %}
+                            <span>{{ ev[8] }}</span>
+                        </span>
+                        {% if ev[11] > 0 %}
+                        <span style="font-size: 11px; color: var(--success); font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                            <i class="fas fa-check-circle"></i> {{ ev[11] }} Going
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <a href="{{ url_for('events.event_detail', event_id=ev[0]) }}"
+                   class="market-card-link">
+                    View Details
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state large">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>No events found</h3>
+            <p>Be the first to post a campus event!</p>
+            <a href="{{ url_for('events.post_event') }}" class="btn-primary">
+                <i class="fas fa-plus"></i> Post Event
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

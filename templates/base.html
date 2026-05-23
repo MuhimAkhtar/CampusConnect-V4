@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,6 +44,18 @@
                class="nav-link {% if request.endpoint=='new_features.lms_portal' %}active{% endif %}">
                 <i class="fas fa-university"></i> LMS
             </a>
+            <a href="{{ url_for('lost_found.lost_found') }}"
+               class="nav-link {% if request.endpoint and 'lost_found' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-search-location"></i> Lost & Found
+            </a>
+            <a href="{{ url_for('events.events') }}"
+               class="nav-link {% if request.endpoint and 'events' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-calendar-alt"></i> Events
+            </a>
+            <a href="{{ url_for('calculators.gpa_calculator') }}"
+               class="nav-link {% if request.endpoint and 'calculators' in request.endpoint %}active{% endif %}">
+                <i class="fas fa-calculator"></i> Calculators
+            </a>
             <a href="{{ url_for('messages.messages') }}"
                class="nav-link {% if request.endpoint=='messages.messages' %}active{% endif %}">
                 <i class="fas fa-envelope"></i> Messages
@@ -80,6 +92,9 @@
 
         <!-- Desktop Right -->
         <div class="nav-right" id="navRight">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode" id="darkModeBtn">
+                <i class="fas fa-moon" id="darkModeIcon"></i>
+            </button>
             <a href="{{ url_for('misc.profile') }}" class="nav-profile">
                 <div class="nav-avatar">
                     {% if session.profile_pic %}
@@ -191,6 +206,29 @@
                 link.classList.add('active');
             }
         });
+
+        // Dark Mode
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? '' : 'dark');
+            localStorage.setItem('cc-theme', isDark ? 'light' : 'dark');
+            updateDarkModeIcon();
+        }
+        function updateDarkModeIcon() {
+            const icon = document.getElementById('darkModeIcon');
+            if (!icon) return;
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        // Apply saved theme on load
+        (function() {
+            const saved = localStorage.getItem('cc-theme');
+            if (saved === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            updateDarkModeIcon();
+        })();
     </script>
 
 </body>

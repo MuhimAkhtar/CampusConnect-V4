@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Post Event - CampusConnect{% endblock %}
+{% block content %}
+<div class="page-container">
+    <div class="page-header events-bg">
+        <div class="page-header-content">
+            <h1><i class="fas fa-calendar-plus"></i> Post an Event</h1>
+            <p>Promote your academic, social, or sporting event to the campus</p>
+        </div>
+        <a href="{{ url_for('events.events') }}" class="btn-outline-white">
+            <i class="fas fa-arrow-left"></i> Back to Events
+        </a>
+    </div>
+
+    <div class="form-page">
+        <div class="form-container">
+            <form method="POST" class="styled-form" enctype="multipart/form-data">
+
+                <div class="form-group">
+                    <label><i class="fas fa-heading"></i> Event Title</label>
+                    <input type="text" name="title" placeholder="e.g. Annual Programming Competition 2026" required maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Event Description</label>
+                    <textarea name="description" rows="4" placeholder="Tell students what this event is about, schedule, registration steps, etc..." required style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-family: inherit;"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-day"></i> Date</label>
+                        <input type="date" name="event_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Time (Optional)</label>
+                        <input type="time" name="event_time">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Venue / Location</label>
+                        <input type="text" name="venue" placeholder="e.g. EE Seminar Hall, CUI Islamabad" required maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-list"></i> Category</label>
+                        <select name="category" required style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; font-family: inherit;">
+                            <option value="">Select Category</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-link"></i> External Registration Link (Optional)</label>
+                    <input type="url" name="registration_link" placeholder="e.g. https://forms.gle/... or Google Form link">
+                </div>
+
+                <!-- Single Image Upload -->
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Event Poster (Optional)</label>
+                    <div class="image-upload-box" onclick="document.getElementById('eventImage').click()" style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.2s ease;">
+                        <input type="file" id="eventImage" name="image" accept="image/*" style="display: none;" onchange="previewImage(this)">
+                        <div id="uploadPlaceholder">
+                            <i class="fas fa-cloud-upload-alt fa-3x" style="color: var(--primary); margin-bottom: 12px;"></i>
+                            <p style="margin: 0; color: #64748b; font-weight: 500;">Click to upload event poster</p>
+                            <span style="font-size: 12px; color: #94a3b8;">PNG, JPG, JPEG or WEBP (Max 10MB)</span>
+                        </div>
+                        <div id="imagePreviewContainer" style="display: none; position: relative;">
+                            <img id="imagePreview" src="" alt="Preview" style="max-height: 250px; border-radius: 8px; margin: 0 auto; display: block; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+                            <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px;">Change Photo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="margin-top: 10px; padding: 12px; font-size: 16px; font-weight: bold; width: 100%;">
+                    <i class="fas fa-bullhorn"></i> Publish Event
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input) {
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const container = document.getElementById('imagePreviewContainer');
+    const preview = document.getElementById('imagePreview');
+
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            placeholder.style.display = 'none';
+            container.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        placeholder.style.display = 'block';
+        container.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}
