@@ -8,7 +8,7 @@
         border: 1px solid var(--border);
         border-radius: var(--radius-xl);
         padding: 24px;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
@@ -27,9 +27,9 @@
 
     .component-section {
         background: rgba(248, 250, 252, 0.8);
-        border-radius: var(--radius);
+        border-radius: var(--radius-lg);
         padding: 16px;
-        margin-top: 12px;
+        margin-top: 14px;
         border: 1px solid rgba(226, 232, 240, 0.8);
     }
 
@@ -38,28 +38,102 @@
         border-color: rgba(255, 255, 255, 0.05);
     }
 
-    .component-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 12px;
-        margin-top: 8px;
+    .component-title {
+        margin: 0 0 12px 0;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: var(--dark);
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .marks-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+    }
+
+    .marks-table th {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--gray);
+        text-align: left;
+        padding-bottom: 6px;
+    }
+
+    .marks-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .input-compact {
-        width: 100%;
-        padding: 8px 12px;
+        padding: 6px 10px;
         border-radius: 6px;
         border: 1px solid var(--border);
-        font-size: 13px;
+        font-size: 12px;
         background: var(--white);
         color: var(--dark);
         transition: var(--transition);
+        width: 80px;
+    }
+
+    .input-title {
+        width: 100%;
+        min-width: 100px;
     }
 
     .input-compact:focus {
         border-color: var(--primary);
         outline: none;
         box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .btn-add-row {
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: var(--transition);
+    }
+
+    .btn-add-row:hover {
+        background: var(--primary-light);
+    }
+
+    .btn-remove-row {
+        background: none;
+        border: none;
+        color: var(--danger);
+        cursor: pointer;
+        font-size: 12px;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: var(--transition);
+    }
+
+    .btn-remove-row:hover {
+        background: rgba(239, 68, 68, 0.1);
     }
 
     .badge-grade {
@@ -78,7 +152,7 @@
     .grade-f { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
 
     .calc-header-bg {
-        background: linear-gradient(135deg, #4F46E5, #3B82F6);
+        background: linear-gradient(135deg, #0F172A, #1E293B);
     }
 
     .sgpa-container {
@@ -103,11 +177,6 @@
         border-color: rgba(255, 255, 255, 0.1);
     }
 
-    @keyframes slideUp {
-        from { transform: translateY(50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-
     .radial-progress-wrapper {
         position: relative;
         width: 80px;
@@ -129,6 +198,7 @@
         border: none;
         cursor: pointer;
         transition: var(--transition);
+        z-index: 5;
     }
 
     .btn-remove-course:hover {
@@ -155,8 +225,8 @@
     <!-- Page Header -->
     <div class="page-header calc-header-bg">
         <div class="page-header-content">
-            <h1><i class="fas fa-calculator"></i> COMSATS GPA Calculator</h1>
-            <p>Calculate your course aggregates and SGPA following the official absolute grading scale and theory+lab blending rules</p>
+            <h1><i class="fas fa-calculator"></i> COMSATS CUOnline Portal GPA Calculator</h1>
+            <p>Enter your individual marks directly from your portal tables — we calculate percentages and aggregates dynamically!</p>
         </div>
         <div style="display: flex; gap: 10px;">
             <a href="{{ url_for('calculators.merit_calculator') }}" class="btn-outline-white">
@@ -169,12 +239,12 @@
     <div class="rule-card">
         <i class="fas fa-info-circle fa-lg" style="color: var(--primary); margin-top: 2px;"></i>
         <div>
-            <strong style="color: var(--dark); font-size: 14px; display: block; margin-bottom: 4px;">CRITICAL COMSATS Evaluation & Blending Rules:</strong>
+            <strong style="color: var(--dark); font-size: 14px; display: block; margin-bottom: 4px;">Portal Calculations Guide:</strong>
             <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--gray); line-height: 1.5;">
-                <li><strong>Theory Evaluation</strong>: Quizzes 15%, Assignments 10%, Midterm 25%, Terminal 50%</li>
-                <li><strong>Lab Evaluation</strong>: Lab Assignments/Journal 25%, Lab Midterm 25%, Lab Terminal 50%</li>
-                <li><strong>Theory + Lab Blending</strong>: Blended Final % = (Theory * 0.75) + (Lab * 0.25) [for 4cr 3T+1L] or (Theory * 0.6667) + (Lab * 0.3333) [for 3cr 2T+1L]</li>
-                <li><strong style="color: var(--danger);">Separate Passing Criteria Rule</strong>: You must score <strong>&ge; 50% separately</strong> in both the Theory and Lab components. If either is below 50%, you will get an <strong>F grade (0.0 GP)</strong>.</li>
+                <li><strong>Quizzes (15%)</strong> & <strong>Assignments (10%)</strong>: Dynamically aggregated using <code>Sum(Obtained) / Sum(Total) * Weight</code>.</li>
+                <li><strong>Midterm (25%)</strong>: Typically graded out of 25. <strong>Terminal (50%)</strong>: Typically graded out of 50.</li>
+                <li><strong>Lab Component</strong>: Lab Assignments are weighted at 25%, Lab Midterm at 25%, and Lab Terminal/Project at 50%.</li>
+                <li><strong style="color: var(--danger);">Critical Passing Rule</strong>: Both Theory and Lab components MUST separately aggregate &ge; 50% to pass. Otherwise, the course receives an F grade (0.0 GP).</li>
             </ul>
         </div>
     </div>
@@ -245,6 +315,8 @@
         const card = document.createElement("div");
         card.className = "calc-card";
         card.id = `course-card-${courseCount}`;
+        
+        // Initial HTML template representing the portal marks inputs
         card.innerHTML = `
             <button class="btn-remove-course" onclick="removeCourseCard(${courseCount})" title="Remove Course">
                 <i class="fas fa-times"></i>
@@ -253,12 +325,12 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: center; margin-right: 35px;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label style="font-size: 12px; margin-bottom: 4px;"><i class="fas fa-book"></i> Course Name</label>
-                    <input type="text" placeholder="e.g. Object Oriented Programming" class="input-compact course-name">
+                    <input type="text" placeholder="e.g. Database Systems" class="input-compact course-name" style="width: 100%;">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 0;">
                     <label style="font-size: 12px; margin-bottom: 4px;"><i class="fas fa-sliders-h"></i> Course Type / Credits</label>
-                    <select class="input-compact course-type" onchange="toggleSections(${courseCount})">
+                    <select class="input-compact course-type" style="width: 100%;" onchange="toggleSections(${courseCount})">
                         <option value="theory-3">Theory Only (3 Credits)</option>
                         <option value="blended-4">Theory + Lab (4 Credits: 3T + 1L)</option>
                         <option value="blended-3">Theory + Lab (3 Credits: 2T + 1L)</option>
@@ -267,52 +339,93 @@
             </div>
 
             <!-- Dynamic Evaluation Areas -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 15px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 20px;">
                 
                 <!-- Theory evaluation -->
                 <div class="component-section" id="theory-section-${courseCount}">
-                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--dark); border-bottom: 1px solid var(--border); padding-bottom: 6px; display: flex; justify-content: space-between;">
-                        <span><i class="fas fa-university"></i> Theory Component (100% Weight)</span>
+                    <h4 class="component-title">
+                        <span><i class="fas fa-university"></i> Theory Aggregate</span>
                         <span id="theory-agg-${courseCount}" style="color: var(--primary);">0.0%</span>
                     </h4>
-                    <div class="component-grid">
+                    
+                    <!-- Quizzes Table -->
+                    <div style="margin-bottom: 14px;">
+                        <label style="font-size: 11px; font-weight: 700; color: var(--dark); display: block; margin-bottom: 6px;">Quizzes (15% Weight)</label>
+                        <div id="quizzes-rows-${courseCount}">
+                            <!-- Dynamic rows -->
+                        </div>
+                        <button type="button" class="btn-add-row" onclick="addMarkRow(${courseCount}, 'quizzes')">
+                            <i class="fas fa-plus"></i> Add Quiz Row
+                        </button>
+                    </div>
+
+                    <!-- Assignments Table -->
+                    <div style="margin-bottom: 14px; border-top: 1px solid var(--border); padding-top: 12px;">
+                        <label style="font-size: 11px; font-weight: 700; color: var(--dark); display: block; margin-bottom: 6px;">Assignments (10% Weight)</label>
+                        <div id="assignments-rows-${courseCount}">
+                            <!-- Dynamic rows -->
+                        </div>
+                        <button type="button" class="btn-add-row" onclick="addMarkRow(${courseCount}, 'assignments')">
+                            <i class="fas fa-plus"></i> Add Assignment Row
+                        </button>
+                    </div>
+
+                    <!-- Mid & Terminal Exam -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
                         <div>
-                            <label style="font-size: 11px; color: var(--gray);">Quizzes (15%)</label>
-                            <input type="number" min="0" max="100" placeholder="%" class="input-compact quiz-val" oninput="calculateCard(${courseCount})">
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--dark); display: block; margin-bottom: 6px;">Midterm (25%)</label>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <input type="number" min="0" step="0.5" placeholder="Obt" class="input-compact mid-obt" oninput="calculateCard(${courseCount})">
+                                <span style="font-size: 11px; color: var(--gray);">/</span>
+                                <input type="number" min="1" placeholder="Tot" value="25" class="input-compact mid-tot" oninput="calculateCard(${courseCount})">
+                            </div>
                         </div>
                         <div>
-                            <label style="font-size: 11px; color: var(--gray);">Assigns (10%)</label>
-                            <input type="number" min="0" max="100" placeholder="%" class="input-compact assign-val" oninput="calculateCard(${courseCount})">
-                        </div>
-                        <div>
-                            <label style="font-size: 11px; color: var(--gray);">Midterm (25%)</label>
-                            <input type="number" min="0" max="100" placeholder="%" class="input-compact mid-val" oninput="calculateCard(${courseCount})">
-                        </div>
-                        <div>
-                            <label style="font-size: 11px; color: var(--gray);">Terminal (50%)</label>
-                            <input type="number" min="0" max="100" placeholder="%" class="input-compact term-val" oninput="calculateCard(${courseCount})">
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--dark); display: block; margin-bottom: 6px;">Terminal (50%)</label>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <input type="number" min="0" step="0.5" placeholder="Obt" class="input-compact term-obt" oninput="calculateCard(${courseCount})">
+                                <span style="font-size: 11px; color: var(--gray);">/</span>
+                                <input type="number" min="1" placeholder="Tot" value="50" class="input-compact term-tot" oninput="calculateCard(${courseCount})">
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Lab evaluation -->
                 <div class="component-section" id="lab-section-${courseCount}" style="display: none;">
-                    <h4 style="margin: 0; font-size: 13px; font-weight: 700; color: var(--dark); border-bottom: 1px solid var(--border); padding-bottom: 6px; display: flex; justify-content: space-between;">
-                        <span><i class="fas fa-flask"></i> Lab Component (100% Weight)</span>
+                    <h4 class="component-title">
+                        <span><i class="fas fa-flask"></i> Lab Aggregate</span>
                         <span id="lab-agg-${courseCount}" style="color: var(--primary);">0.0%</span>
                     </h4>
-                    <div class="component-grid">
+
+                    <!-- Lab Assignments Table -->
+                    <div style="margin-bottom: 14px;">
+                        <label style="font-size: 11px; font-weight: 700; color: var(--dark); display: block; margin-bottom: 6px;">Lab Assignments (25% Weight)</label>
+                        <div id="lab-assign-rows-${courseCount}">
+                            <!-- Dynamic rows -->
+                        </div>
+                        <button type="button" class="btn-add-row" onclick="addMarkRow(${courseCount}, 'lab-assign')">
+                            <i class="fas fa-plus"></i> Add Lab Row
+                        </button>
+                    </div>
+
+                    <!-- Lab Mid & Term -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
                         <div>
-                            <label style="font-size: 11px; color: var(--gray);">Lab Journal (25%)</label>
-                            <input type="number" min="0" max="100" placeholder="%" class="input-compact lab-journal-val" oninput="calculateCard(${courseCount})">
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--dark); display: block; margin-bottom: 6px;">Lab Mid (25%)</label>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <input type="number" min="0" step="0.5" placeholder="Obt" class="input-compact labmid-obt" oninput="calculateCard(${courseCount})">
+                                <span style="font-size: 11px; color: var(--gray);">/</span>
+                                <input type="number" min="1" placeholder="Tot" value="25" class="input-compact labmid-tot" oninput="calculateCard(${courseCount})">
+                            </div>
                         </div>
                         <div>
-                            <label style="font-size: 11px; color: var(--gray);">Lab Mid (25%)</label>
-                            <input type="number" min="0" max="100" placeholder="%" class="input-compact lab-mid-val" oninput="calculateCard(${courseCount})">
-                        </div>
-                        <div>
-                            <label style="font-size: 11px; color: var(--gray);">Lab Term (50%)</label>
-                            <input type="number" min="0" max="100" placeholder="%" class="input-compact lab-term-val" oninput="calculateCard(${courseCount})">
+                            <label style="font-size: 11.5px; font-weight: 700; color: var(--dark); display: block; margin-bottom: 6px;">Lab Term (50%)</label>
+                            <div style="display: flex; gap: 4px; align-items: center;">
+                                <input type="number" min="0" step="0.5" placeholder="Obt" class="input-compact labterm-obt" oninput="calculateCard(${courseCount})">
+                                <span style="font-size: 11px; color: var(--gray);">/</span>
+                                <input type="number" min="1" placeholder="Tot" value="50" class="input-compact labterm-tot" oninput="calculateCard(${courseCount})">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -320,10 +433,10 @@
             </div>
 
             <!-- Calculated Course Output -->
-            <div style="margin-top: 15px; padding-top: 12px; border-top: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="margin-top: 20px; padding-top: 12px; border-top: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; gap: 15px; font-size: 13px; color: var(--gray);">
-                    <span>Blended Total: <strong id="course-blend-${courseCount}" style="color: var(--dark);">0.0%</strong></span>
-                    <span>Grade Point: <strong id="course-gp-${courseCount}" style="color: var(--dark);">0.00</strong></span>
+                    <span>Blended Score: <strong id="course-blend-${courseCount}" style="color: var(--dark);">0.0%</strong></span>
+                    <span>GP: <strong id="course-gp-${courseCount}" style="color: var(--dark);">0.00</strong></span>
                 </div>
                 
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -336,7 +449,63 @@
         `;
         
         container.appendChild(card);
+
+        // Pre-populate with 4 quizzes, 4 assignments by default (matching standard semester like in screenshot!)
+        for (let i = 1; i <= 4; i++) {
+            addMarkRow(courseCount, 'quizzes', i);
+            addMarkRow(courseCount, 'assignments', i);
+            addMarkRow(courseCount, 'lab-assign', i);
+        }
+
         calculateCard(courseCount);
+    }
+
+    function addMarkRow(courseId, type, num = null) {
+        const container = document.getElementById(`${type}-rows-${courseId}`);
+        if (!container) return;
+
+        const count = container.children.length + 1;
+        const index = num || Date.now() + Math.random();
+
+        const row = document.createElement("div");
+        row.className = "marks-row";
+        row.id = `row-${courseId}-${type}-${index}`;
+
+        let placeholderObt = "";
+        let placeholderTot = "";
+        
+        // Dynamic placeholders matching typical marks in CUOnline portal
+        if (type === 'quizzes') {
+            placeholderObt = "e.g. 12";
+            placeholderTot = "15";
+        } else if (type === 'assignments') {
+            placeholderObt = "e.g. 15";
+            placeholderTot = "20";
+        } else {
+            placeholderObt = "e.g. 9";
+            placeholderTot = "10";
+        }
+
+        row.innerHTML = `
+            <input type="text" value="${type.slice(0, 3).toUpperCase()} ${count}" class="input-compact input-title" style="flex: 1; min-width: 80px;" placeholder="Name">
+            <input type="number" min="0" step="0.5" placeholder="${placeholderObt}" class="input-compact mark-obt" oninput="calculateCard(${courseId})">
+            <span style="font-size: 11px; color: var(--gray);">/</span>
+            <input type="number" min="0.1" step="0.5" placeholder="${placeholderTot}" class="input-compact mark-tot" oninput="calculateCard(${courseId})">
+            <button type="button" class="btn-remove-row" onclick="removeMarkRow(${courseId}, '${type}', '${index}')" title="Remove Row">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        `;
+
+        container.appendChild(row);
+        calculateCard(courseId);
+    }
+
+    function removeMarkRow(courseId, type, index) {
+        const row = document.getElementById(`row-${courseId}-${type}-${index}`);
+        if (row) {
+            row.remove();
+            calculateCard(courseId);
+        }
     }
 
     function removeCourseCard(id) {
@@ -360,15 +529,36 @@
         calculateCard(id);
     }
 
-    function getVal(input) {
-        if (!input) return 0;
-        let val = parseFloat(input.value);
-        if (isNaN(val) || val < 0) return 0;
-        if (val > 100) {
-            input.value = 100;
-            return 100;
-        }
-        return val;
+    // Helper to extract obtained/total marks and calculate contribution
+    function getWeightedAggregate(rowsId) {
+        const container = document.getElementById(rowsId);
+        if (!container) return { obtained: 0, total: 0, percent: 0 };
+
+        const rows = container.querySelectorAll(".marks-row");
+        let totalObt = 0;
+        let totalTot = 0;
+        let activeRowsCount = 0;
+
+        rows.forEach(row => {
+            const obtVal = parseFloat(row.querySelector(".mark-obt").value);
+            const totVal = parseFloat(row.querySelector(".mark-tot").value);
+
+            if (!isNaN(obtVal) && !isNaN(totVal) && totVal > 0) {
+                totalObt += Math.min(obtVal, totVal); // prevent obtained exceeding total
+                totalTot += totVal;
+                activeRowsCount++;
+            }
+        });
+
+        const percent = totalTot > 0 ? (totalObt / totalTot) * 100 : 0;
+        return { obtained: totalObt, total: totalTot, percent: percent };
+    }
+
+    function getExamValue(obtInput, totInput) {
+        const obt = parseFloat(obtInput.value);
+        const tot = parseFloat(totInput.value);
+        if (isNaN(obt) || isNaN(tot) || tot <= 0) return 0;
+        return (Math.min(obt, tot) / tot) * 100;
     }
 
     function calculateCard(id) {
@@ -377,22 +567,43 @@
 
         const typeSelect = card.querySelector(".course-type").value;
         
-        // Inputs
-        const qz = getVal(card.querySelector(".quiz-val"));
-        const as = getVal(card.querySelector(".assign-val"));
-        const md = getVal(card.querySelector(".mid-val"));
-        const tm = getVal(card.querySelector(".term-val"));
+        // 1. Quizzes (15%) and Assignments (10%)
+        const quizData = getWeightedAggregate(`quizzes-rows-${id}`);
+        const assignData = getWeightedAggregate(`assignments-rows-${id}`);
 
-        const labJ = getVal(card.querySelector(".lab-journal-val"));
-        const labM = getVal(card.querySelector(".lab-mid-val"));
-        const labT = getVal(card.querySelector(".lab-term-val"));
+        // 2. Mids and Terminals
+        const midObt = card.querySelector(".mid-obt");
+        const midTot = card.querySelector(".mid-tot");
+        const termObt = card.querySelector(".term-obt");
+        const termTot = card.querySelector(".term-tot");
 
-        // Theory Aggregate: Quizzes 15%, Assignments 10%, Midterm 25%, Terminal 50%
-        const theoryAgg = (qz * 0.15) + (as * 0.1) + (md * 0.25) + (tm * 0.5);
+        const midPercent = getExamValue(midObt, midTot);
+        const termPercent = getExamValue(termObt, termTot);
+
+        // Theory Aggregate = Quizzes 15% + Assignments 10% + Mids 25% + Terminal 50%
+        const quizContribution = quizData.percent * 0.15;
+        const assignContribution = assignData.percent * 0.10;
+        const midContribution = midPercent * 0.25;
+        const termContribution = termPercent * 0.50;
+
+        const theoryAgg = quizContribution + assignContribution + midContribution + termContribution;
         document.getElementById(`theory-agg-${id}`).textContent = `${theoryAgg.toFixed(1)}%`;
 
-        // Lab Aggregate: Journal 25%, Lab Mid 25%, Lab Term 50%
-        const labAgg = (labJ * 0.25) + (labM * 0.25) + (labT * 0.5);
+        // 3. Lab Component (Assignments 25% + Mid 25% + Terminal 50%)
+        const labAssignData = getWeightedAggregate(`lab-assign-rows-${id}`);
+        const labMidObt = card.querySelector(".labmid-obt");
+        const labMidTot = card.querySelector(".labmid-tot");
+        const labTermObt = card.querySelector(".labterm-obt");
+        const labTermTot = card.querySelector(".labterm-tot");
+
+        const labMidPercent = getExamValue(labMidObt, labMidTot);
+        const labTermPercent = getExamValue(labTermObt, labTermTot);
+
+        const labAssignContrib = labAssignData.percent * 0.25;
+        const labMidContrib = labMidPercent * 0.25;
+        const labTermContrib = labTermPercent * 0.50;
+
+        const labAgg = labAssignContrib + labMidContrib + labTermContrib;
         document.getElementById(`lab-agg-${id}`).textContent = `${labAgg.toFixed(1)}%`;
 
         // Blending calculations
@@ -445,7 +656,6 @@
         let grade = "F";
         let gradeClass = "grade-f";
 
-        // Determine grade based on final percentage (or component fail)
         if (failedComponent) {
             gp = 0.0;
             grade = "F";
@@ -512,7 +722,6 @@
 
         const sgpa = totalCredits > 0 ? (totalPoints / totalCredits) : 0.0;
 
-        // Update sticky summary
         document.getElementById("sgpa-value").textContent = sgpa.toFixed(2);
         document.getElementById("summary-credits").textContent = totalCredits;
         document.getElementById("summary-passed").textContent = passedCredits;
@@ -522,7 +731,6 @@
         const circle = document.getElementById("radial-progress-bar");
         const radius = 34;
         const circumference = 2 * Math.PI * radius; // ~213.6
-        // Map SGPA (0 to 4) to dash offset (circumference to 0)
         const percent = sgpa / 4.0;
         const offset = circumference - (percent * circumference);
         circle.style.strokeDashoffset = Math.max(0, Math.min(circumference, offset));
