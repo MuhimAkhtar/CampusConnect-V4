@@ -3224,7 +3224,7 @@ img { max-width: 100%; }
         width: 100% !important;
         max-width: 100% !important;
         max-height: calc(100vh - 60px) !important;
-        background: #FFFFFF !important;
+        background: var(--white) !important;
         flex-direction: column !important;
         display: flex !important;
         padding: 6px 0 20px !important;
@@ -3255,7 +3255,7 @@ img { max-width: 100%; }
         padding: 15px 20px !important;
         font-size: 15px !important;
         border-radius: 0 !important;
-        border-bottom: 1px solid rgba(226,232,240,0.6) !important;
+        border-bottom: 1px solid var(--border) !important;
         color: var(--dark) !important;
         display: flex !important;
         align-items: center !important;
