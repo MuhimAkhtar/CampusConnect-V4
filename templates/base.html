@@ -236,6 +236,127 @@
             }
             updateDarkModeIcon();
         })();
+
+        // --- GLOBAL AUDIO & NOTIFICATION ENGINE ---
+        let audioCtx = null;
+        function initAudio() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                
+                // Silent note trigger to unlock mobile iOS/Android audio subsystems
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(0);
+                osc.stop(audioCtx.currentTime + 0.01);
+            } catch(e) {
+                console.warn("Audio Context init warning:", e);
+            }
+        }
+
+        const audioUnlockEvents = ['click', 'keydown', 'touchstart', 'touchend', 'mousedown', 'focus'];
+        audioUnlockEvents.forEach(evt => {
+            document.addEventListener(evt, initAudio, { passive: true });
+        });
+
+        function playNotificationSound() {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                
+                const now = audioCtx.currentTime;
+                
+                // Tone 1: G5
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(783.99, now);
+                gain1.gain.setValueAtTime(0.12, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.25);
+
+                // Tone 2: C6 (slightly offset)
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(1046.50, now + 0.08);
+                gain2.gain.setValueAtTime(0.12, now + 0.08);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start(now + 0.08);
+                osc2.stop(now + 0.35);
+            } catch (e) {
+                console.error("Audio playback error:", e);
+            }
+        }
+
+        // Global check for unread messages on page load
+        (function() {
+            const currentUnread = parseInt("{{ unread if unread is defined else 0 }}") || 0;
+            if (currentUnread > 0) {
+                const lastAlerted = parseInt(sessionStorage.getItem('cc-alerted-unread')) || 0;
+                
+                // Only alert if there are new unread messages that haven't been alerted in this session
+                if (currentUnread > lastAlerted) {
+                    const flashContainer = document.querySelector('.flash-messages') || document.body;
+                    const toast = document.createElement('div');
+                    toast.className = 'alert alert-info animate__animated animate__slideInRight';
+                    toast.style.cursor = 'pointer';
+                    toast.onclick = function() {
+                        window.location.href = "{{ url_for('messages.messages') }}";
+                    };
+                    
+                    toast.innerHTML = `
+                        <i class="fas fa-envelope" style="color: #6366f1; margin-right: 8px;"></i>
+                        <span>You have <strong>${currentUnread}</strong> unread message${currentUnread > 1 ? 's' : ''}! Click to view.</span>
+                        <span class="alert-close" onclick="event.stopPropagation(); this.parentElement.remove()" style="margin-left: 12px; cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    `;
+                    flashContainer.appendChild(toast);
+
+                    // Auto-remove toast after 6 seconds
+                    setTimeout(() => {
+                        toast.classList.add('animate__slideOutRight');
+                        setTimeout(() => toast.remove(), 500);
+                    }, 6000);
+
+                    // Play chime on the first user interaction to comply with autoplay policy
+                    let soundPlayed = false;
+                    function playOnGesture() {
+                        if (!soundPlayed) {
+                            playNotificationSound();
+                            soundPlayed = true;
+                            sessionStorage.setItem('cc-alerted-unread', currentUnread);
+                        }
+                        audioUnlockEvents.forEach(evt => {
+                            document.removeEventListener(evt, playOnGesture);
+                        });
+                    }
+                    audioUnlockEvents.forEach(evt => {
+                        document.addEventListener(evt, playOnGesture, { passive: true });
+                    });
+                }
+            } else {
+                // Reset session alert count if user is fully read
+                sessionStorage.setItem('cc-alerted-unread', 0);
+            }
+        })();
     </script>
 
 </body>
