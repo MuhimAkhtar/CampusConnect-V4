@@ -87,15 +87,34 @@ const SEND_URL     = "{{ url_for('messages.send_message', other_id=other_id) }}"
 // Web Audio API notification sound generator (zero network request or file dependencies)
 let audioCtx = null;
 function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    
+    // Golden Hack: Play a virtually silent note synchronously within the user gesture to permanently unlock iOS and Android audio subsystems
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(0);
+    osc.stop(audioCtx.currentTime + 0.01);
+  } catch(e) {
+    console.warn("Audio Context init warning:", e);
   }
 }
-document.addEventListener('click', initAudio, { once: true });
-document.addEventListener('keydown', initAudio, { once: true });
+
+// Bind to multiple user interactions to guarantee activation on all mobile & desktop environments
+const audioUnlockEvents = ['click', 'keydown', 'touchstart', 'touchend', 'mousedown', 'focus'];
+audioUnlockEvents.forEach(evt => {
+  document.addEventListener(evt, initAudio, { passive: true });
+});
 
 function playNotificationSound() {
   try {
