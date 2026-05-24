@@ -307,6 +307,11 @@
 
         // Global check for unread messages on page load
         (function() {
+            // Force reset on dashboard to guarantee that whenever a user logs in and comes to the dashboard, the alert is triggered!
+            if ("{{ request.endpoint }}" === "auth.dashboard") {
+                sessionStorage.setItem('cc-alerted-unread', 0);
+            }
+
             const currentUnread = parseInt("{{ unread if unread is defined else 0 }}") || 0;
             if (currentUnread > 0) {
                 const lastAlerted = parseInt(sessionStorage.getItem('cc-alerted-unread')) || 0;
