@@ -80,8 +80,84 @@
 const chatMessages = document.getElementById('chatMessages');
 const messageInput = document.getElementById('messageInput');
 const OTHER_ID     = "{{ other_id }}";
+const OTHER_NAME   = "{{ other_user[0] if other_user else 'Unknown' }}";
 const POLL_URL     = "{{ url_for('messages.chat_poll', other_id=other_id) }}";
 const SEND_URL     = "{{ url_for('messages.send_message', other_id=other_id) }}";
+
+// Web Audio API notification sound generator (zero network request or file dependencies)
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+document.addEventListener('click', initAudio, { once: true });
+document.addEventListener('keydown', initAudio, { once: true });
+
+function playNotificationSound() {
+  try {
+    initAudio();
+    if (!audioCtx) return;
+    
+    // Play a premium dual-tone chime (G5 followed by C6) for a bright, satisfying "ping" sound
+    const now = audioCtx.currentTime;
+    
+    // Tone 1: G5
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(783.99, now);
+    gain1.gain.setValueAtTime(0.12, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+    
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.25);
+
+    // Tone 2: C6 (slightly offset in time)
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1046.50, now + 0.08);
+    gain2.gain.setValueAtTime(0.12, now + 0.08);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    osc2.start(now + 0.08);
+    osc2.stop(now + 0.35);
+  } catch (e) {
+    console.error("Audio playback error:", e);
+  }
+}
+
+function showIncomingToast(msg) {
+  const flashContainer = document.querySelector('.flash-messages') || document.body;
+  const toast = document.createElement('div');
+  toast.className = 'alert alert-info animate__animated animate__slideInRight';
+  
+  // Truncate message preview if too long
+  const preview = msg.length > 65 ? msg.substring(0, 62) + '...' : msg;
+  
+  toast.innerHTML = `
+      <i class="fas fa-comment-dots" style="color: #6366f1; margin-right: 8px;"></i>
+      <span><strong>${OTHER_NAME}:</strong> ${escHtml(preview)}</span>
+      <span class="alert-close" onclick="this.parentElement.remove()" style="margin-left: 12px; cursor: pointer;">
+          <i class="fas fa-times"></i>
+      </span>
+  `;
+  flashContainer.appendChild(toast);
+  
+  // Auto-remove with a sliding transition after 4 seconds
+  setTimeout(() => {
+      toast.classList.add('animate__slideOutRight');
+      setTimeout(() => toast.remove(), 500);
+  }, 4000);
+}
 
 // Get timestamp of the last message
 function getLastTs() {
@@ -163,7 +239,19 @@ async function pollOnce() {
     const resp  = await fetch(url);
     const data  = await resp.json();
     if (data.messages && data.messages.length > 0) {
-      data.messages.forEach(m => appendMessage(m.message, m.is_mine, m.created_at));
+      let hasIncoming = false;
+      let lastIncoming = null;
+      data.messages.forEach(m => {
+        appendMessage(m.message, m.is_mine, m.created_at);
+        if (!m.is_mine) {
+          hasIncoming = true;
+          lastIncoming = m;
+        }
+      });
+      if (hasIncoming && lastIncoming) {
+        playNotificationSound();
+        showIncomingToast(lastIncoming.message);
+      }
       scrollBottom(true);
     }
   } catch(e) {}
@@ -181,7 +269,19 @@ async function pollMessages() {
       const resp  = await fetch(url);
       const data  = await resp.json();
       if (data.messages && data.messages.length > 0) {
-        data.messages.forEach(m => appendMessage(m.message, m.is_mine, m.created_at));
+        let hasIncoming = false;
+        let lastIncoming = null;
+        data.messages.forEach(m => {
+          appendMessage(m.message, m.is_mine, m.created_at);
+          if (!m.is_mine) {
+            hasIncoming = true;
+            lastIncoming = m;
+          }
+        });
+        if (hasIncoming && lastIncoming) {
+          playNotificationSound();
+          showIncomingToast(lastIncoming.message);
+        }
         scrollBottom();
       }
     } catch(e) {}
