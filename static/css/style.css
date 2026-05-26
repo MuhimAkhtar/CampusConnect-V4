@@ -1293,7 +1293,13 @@ img { max-width: 100%; }
 /* ================================
    PAGE LAYOUTS
    ================================ */
-.page-container { max-width: 1400px; margin: 0 auto; padding: 0 0 40px; }
+.page-container,
+.page-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 30px 40px;
+    box-sizing: border-box;
+}
 .main-content   { min-height: calc(100vh - 64px); }
 
 .page-header {
@@ -1307,6 +1313,7 @@ img { max-width: 100%; }
     gap: 15px;
     position: relative;
     overflow: hidden;
+    border-radius: var(--radius-xl);
 }
 
 .page-header::before {
@@ -1367,7 +1374,7 @@ img { max-width: 100%; }
    SEARCH SECTION
    ================================ */
 .search-section {
-    padding: 0 28px;
+    padding: 0;
     margin-bottom: 24px;
 }
 
@@ -1437,7 +1444,7 @@ img { max-width: 100%; }
     box-shadow: 0 0 0 4px rgba(79,70,229,0.1);
 }
 
-.results-section { padding: 0 28px; }
+.results-section { padding: 0; }
 
 .results-count {
     color: var(--gray);
@@ -1452,7 +1459,7 @@ img { max-width: 100%; }
 /* ================================
    MAP
    ================================ */
-.map-section { padding: 0 28px; margin-bottom: 24px; }
+.map-section { padding: 0; margin-bottom: 24px; }
 
 .map-container {
     height: 380px;
@@ -1621,7 +1628,7 @@ img { max-width: 100%; }
 /* ================================
    FORMS
    ================================ */
-.form-page { padding: 0 28px 32px; }
+.form-page { padding: 0 0 32px; }
 
 .form-container {
     max-width: 760px;
@@ -1758,7 +1765,7 @@ img { max-width: 100%; }
    DETAIL PAGES
    ================================ */
 .detail-page {
-    padding: 0 28px 32px;
+    padding: 0 0 32px;
     display: grid;
     grid-template-columns: 1fr 320px;
     gap: 24px;
@@ -2175,7 +2182,7 @@ img { max-width: 100%; }
    MARKETPLACE
    ================================ */
 .category-pills {
-    padding: 0 28px;
+    padding: 0;
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
@@ -2385,7 +2392,7 @@ img { max-width: 100%; }
    MESSAGES & CHAT
    ================================ */
 .messages-page {
-    padding: 0 28px 32px;
+    padding: 0 0 32px;
     display: grid;
     grid-template-columns: 360px 1fr;
     gap: 20px;
@@ -2790,7 +2797,7 @@ img { max-width: 100%; }
    PROFILE
    ================================ */
 .profile-page {
-    padding: 0 28px 32px;
+    padding: 0 0 32px;
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 24px;
@@ -3336,6 +3343,11 @@ img { max-width: 100%; }
     .facilities-grid     { grid-template-columns: repeat(2, 1fr); }
     .dashboard-page      { padding: 12px 16px; }
 
+    .page-container,
+    .page-wrapper {
+        padding: 16px 16px 30px;
+    }
+
     .form-page,
     .results-section,
     .search-section,
@@ -3343,7 +3355,7 @@ img { max-width: 100%; }
     .category-pills,
     .detail-page,
     .profile-page,
-    .messages-page { padding-left: 16px; padding-right: 16px; }
+    .messages-page { padding-left: 0; padding-right: 0; }
 }
 
 @media (max-width: 480px) {
