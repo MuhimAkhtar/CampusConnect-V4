@@ -3,7 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}CampusConnect{% endblock %}</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>{% block title %}CampusConnect - COMSATS Student Hub{% endblock %}</title>
+    <meta name="description" content="CampusConnect (cuiconnect.app) is the ultimate student hub for COMSATS University Islamabad (CUI). Buy/sell academic resources, share rides, list/find local hostels, download past papers, and access official university portals.">
+    <meta name="keywords" content="COMSATS, CUI, CampusConnect, cuiconnect.app, COMSATS Islamabad, student portal, student marketplace, student rideshare, carpool, hostels near COMSATS, past papers CUI, university services">
+    <meta name="author" content="Muheem Akhtar">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="canonical" href="https://cuiconnect.app{{ request.path if request else '/' }}">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cuiconnect.app{{ request.path if request else '/' }}">
+    <meta property="og:title" content="CampusConnect - COMSATS University Student Hub">
+    <meta property="og:description" content="The all-in-one digital marketplace, rideshare, hostel finder, and study resources hub for CUI Islamabad students.">
+    <meta property="og:image" content="https://cuiconnect.app/static/favicon.png">
+    <meta property="og:site_name" content="CampusConnect">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://cuiconnect.app{{ request.path if request else '/' }}">
+    <meta property="twitter:title" content="CampusConnect - COMSATS University Student Hub">
+    <meta property="twitter:description" content="The all-in-one digital marketplace, rideshare, hostel finder, and study resources hub for CUI Islamabad students.">
+    <meta property="twitter:image" content="https://cuiconnect.app/static/favicon.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>

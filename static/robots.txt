@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /static/
+
+# Disallow sensitive auth and private pages
+Disallow: /logout
+Disallow: /profile
+Disallow: /profile/edit
+Disallow: /notifications
+Disallow: /messages
+Disallow: /chat
+Disallow: /dashboard
+
+Sitemap: https://cuiconnect.app/sitemap.xml

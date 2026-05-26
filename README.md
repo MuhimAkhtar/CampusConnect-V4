@@ -1,8 +1,16 @@
-# 🎓 CampusConnect V4
+# 🎓 CampusConnect V4 — Live on [cuiconnect.app](https://cuiconnect.app/)
 
-CampusConnect is a comprehensive web-based platform designed specifically for university students. It serves as a centralized hub to buy/sell items, find carpools, browse hostel accommodations, share past exam papers, and access official university services—all in one place.
+<p align="left">
+  <a href="https://cuiconnect.app/" target="_blank">
+    <img src="https://img.shields.io/badge/Live_Site-cuiconnect.app-4F46E5?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Live Site" />
+  </a>
+  <img src="https://img.shields.io/badge/Status-Active_Deploy-10B981?style=for-the-badge" alt="Deploy Status" />
+  <img src="https://img.shields.io/badge/SEO-Optimized-06B6D4?style=for-the-badge" alt="SEO Optimized" />
+</p>
 
-V4 represents a major architectural upgrade, migrating the platform to a highly scalable **MongoDB Atlas** database, integrating **Cloudflare R2** for fast cloud media storage, and implementing a fully custom **Real-Time AJAX Messaging System**.
+CampusConnect is a comprehensive web-based platform designed specifically for university students at **COMSATS University Islamabad (CUI)**. It serves as a centralized hub to buy/sell items, find carpools, browse hostel accommodations, share past exam papers, list lost/found items, and access official university services—all in one place.
+
+V4 represents a major architectural upgrade, migrating the platform to a highly scalable **MongoDB Atlas** database, integrating **Cloudflare R2** for fast cloud media storage, implementing a fully custom **Real-Time AJAX Messaging System**, and optimizing the frontend layouts with professional responsive UI spacing and robust SEO metadata.
 
 ---
 

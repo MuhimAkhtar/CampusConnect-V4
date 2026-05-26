@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from dotenv import load_dotenv
 from datetime import timedelta
 import os
@@ -30,6 +30,14 @@ app.register_blueprint(new_bp)
 app.register_blueprint(lost_found_bp)
 app.register_blueprint(events_bp)
 app.register_blueprint(calculators_bp)
+
+@app.route('/robots.txt')
+def serve_robots():
+    return send_from_directory(app.static_folder, 'robots.txt')
+
+@app.route('/sitemap.xml')
+def serve_sitemap():
+    return send_from_directory(app.static_folder, 'sitemap.xml')
 
 # ── Pakistan Standard Time filter (UTC → UTC+5) ──────────────────────────────
 @app.template_filter('pkt')
