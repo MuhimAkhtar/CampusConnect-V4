@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database import get_db
 from helpers import is_logged_in, get_unread_count, upload_file, ALLOWED_IMG
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson import ObjectId
 
 rides_bp = Blueprint('rides', __name__)
@@ -30,7 +30,22 @@ def rides():
         q['$or'] = [{'from_location':{'$regex':search,'$options':'i'}},
                     {'to_location':{'$regex':search,'$options':'i'}}]
     docs = list(db.rides.find(q).sort('ride_date', 1))
-    result = [fmt(r, get_user(db, r['user_id'])) for r in docs]
+    
+    # Filter out rides that departed more than 1 hour ago
+    filtered_docs = []
+    now_local = datetime.utcnow() + timedelta(hours=5)
+    for r in docs:
+        if r.get('ride_date') and r.get('ride_time'):
+            try:
+                h, m = map(int, r.get('ride_time', '00:00').split(':'))
+                scheduled_dt = r['ride_date'] + timedelta(hours=h, minutes=m)
+                if scheduled_dt + timedelta(hours=1) < now_local:
+                    continue # departed more than 1 hour ago, skip!
+            except:
+                pass
+        filtered_docs.append(r)
+        
+    result = [fmt(r, get_user(db, r['user_id'])) for r in filtered_docs]
     return render_template('rides.html', rides=result, search=search, unread=get_unread_count())
 
 @rides_bp.route('/rides/post', methods=['GET','POST'])

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database import get_db
 from helpers import is_logged_in, get_unread_count, upload_file, ALLOWED_IMG
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson import ObjectId
 
 misc_bp = Blueprint('misc', __name__)
@@ -32,9 +32,21 @@ def global_search():
             pat = {'$regex': kw, '$options': 'i'}
 
             # ── Rides ──────────────────────────────────────────────────────────
-            rides_docs = list(db.rides.find(
+            rides_docs_all = list(db.rides.find(
                 {'status': 'active', '$or': [{'from_location': pat}, {'to_location': pat}]}
             ))
+            now_local = datetime.utcnow() + timedelta(hours=5)
+            rides_docs = []
+            for r in rides_docs_all:
+                if r.get('ride_date') and r.get('ride_time'):
+                    try:
+                        h, m = map(int, r.get('ride_time', '00:00').split(':'))
+                        scheduled_dt = r['ride_date'] + timedelta(hours=h, minutes=m)
+                        if scheduled_dt + timedelta(hours=1) < now_local:
+                            continue
+                    except:
+                        pass
+                rides_docs.append(r)
             for r in rides_docs:
                 try:
                     u = get_user(db, r.get('user_id', ''))

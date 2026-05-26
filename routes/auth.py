@@ -257,7 +257,23 @@ def dashboard():
         return (str(i['_id']), i['title'], i['price'], i.get('category',''), i.get('condition',''),
                 u['full_name'] if u else 'Unknown')
 
-    ride_docs    = list(db.rides.find({'status':'active'}).sort('created_at',-1).limit(3))
+    # Fetch recent active rides, filter departed ones in Python, and take the first 3
+    ride_docs_all = list(db.rides.find({'status':'active'}).sort('created_at',-1).limit(30))
+    ride_docs = []
+    now_local = datetime.utcnow() + timedelta(hours=5)
+    for r in ride_docs_all:
+        if r.get('ride_date') and r.get('ride_time'):
+            try:
+                h, m = map(int, r.get('ride_time', '00:00').split(':'))
+                scheduled_dt = r['ride_date'] + timedelta(hours=h, minutes=m)
+                if scheduled_dt + timedelta(hours=1) < now_local:
+                    continue
+            except:
+                pass
+        ride_docs.append(r)
+        if len(ride_docs) == 3:
+            break
+
     hostel_docs  = list(db.hostels.find().sort('created_at',-1).limit(3))
     item_docs    = list(db.marketplace.find({'status':'available'}).sort('created_at',-1).limit(4))
 
