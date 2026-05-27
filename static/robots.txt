@@ -11,4 +11,4 @@ Disallow: /messages
 Disallow: /chat
 Disallow: /dashboard
 
-Sitemap: https://cuiconnect.app/sitemap.xml
+Sitemap: https://www.cuiconnect.app/sitemap.xml

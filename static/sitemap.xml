@@ -2,70 +2,70 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Main Pages -->
   <url>
-    <loc>https://cuiconnect.app/</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://cuiconnect.app/login</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/login</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cuiconnect.app/register</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/register</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <!-- Public Services -->
   <url>
-    <loc>https://cuiconnect.app/rides</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/rides</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://cuiconnect.app/hostels</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/hostels</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://cuiconnect.app/marketplace</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/marketplace</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://cuiconnect.app/past-papers</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/past-papers</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cuiconnect.app/lms</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/lms</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://cuiconnect.app/lost-found</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/lost-found</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cuiconnect.app/events</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/events</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cuiconnect.app/calculators</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://www.cuiconnect.app/calculators</loc>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

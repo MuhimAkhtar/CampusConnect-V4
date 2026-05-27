@@ -15,7 +15,6 @@ def get_user(db, uid):
 
 @new_bp.route('/past-papers')
 def past_papers():
-    if not is_logged_in(): return redirect(url_for('auth.login'))
     db = get_db()
     subject     = request.args.get('subject','')
     course_code = request.args.get('course_code','')

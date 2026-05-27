@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
-{% block title %}Past Papers - CampusConnect{% endblock %}
+{% block title %}COMSATS Past Papers & CUI Islamabad Study Resources - CampusConnect{% endblock %}
+{% block meta_description %}Download COMSATS University Islamabad (CUI) past exam papers, midterm and final term papers, quizzes, and course resources shared by students.{% endblock %}
+{% block meta_keywords %}COMSATS past papers, CUI past papers, COMSATS Islamabad, COMSATS midterm papers, COMSATS final papers, COMSATS study resources, CUI Islamabad, student hub{% endblock %}
+{% block og_title %}COMSATS University Islamabad Past Papers Database - CampusConnect{% endblock %}
+{% block og_description %}Access free midterm papers, final exam papers, quizzes, and assignments for CUI Islamabad courses on CampusConnect.{% endblock %}
+{% block twitter_title %}COMSATS University Islamabad Past Papers Database - CampusConnect{% endblock %}
+{% block twitter_description %}Access free midterm papers, final exam papers, quizzes, and assignments for CUI Islamabad courses on CampusConnect.{% endblock %}
+
 {% block content %}
 <div class="page-wrapper">
   <div class="page-hero" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);padding:40px 24px;border-radius:16px;color:#fff;margin-bottom:28px">
-    <h1 style="margin:0 0 8px"><i class="fas fa-file-alt"></i> Past Papers</h1>
-    <p style="margin:0;opacity:.85">Browse &amp; download exam papers shared by students</p>
+    <h1 style="margin:0 0 8px"><i class="fas fa-file-alt"></i> COMSATS Past Papers & Study Resources</h1>
+    <p style="margin:0;opacity:.85">Browse, search, and download exam papers shared by students</p>
     <a href="{{ url_for('new_features.upload_paper') }}" class="btn-primary" style="margin-top:16px;display:inline-block;background:#fff;color:#4F46E5;font-weight:700">
       <i class="fas fa-upload"></i> Upload Paper
     </a>
