@@ -81,7 +81,36 @@ def register():
             flash('Passwords do not match!','error'); return render_template('register.html')
         if len(pw) < 6:
             flash('Password min 6 characters!','error'); return render_template('register.html')
+            
         db = get_db()
+        
+        # Get client IP address
+        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        if client_ip and ',' in client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+            
+        # Rate Limiting: Max 3 signup attempts per IP or Email per 5 minutes
+        five_mins_ago = datetime.utcnow() - timedelta(minutes=5)
+        ip_attempts = db.signup_attempts.count_documents({
+            'ip': client_ip,
+            'created_at': {'$gte': five_mins_ago}
+        })
+        email_attempts = db.signup_attempts.count_documents({
+            'email': email,
+            'created_at': {'$gte': five_mins_ago}
+        })
+        
+        if ip_attempts >= 3 or email_attempts >= 3:
+            flash('Too many verification requests! Please try again in 5 minutes.', 'error')
+            return render_template('register.html')
+            
+        # Log this attempt
+        db.signup_attempts.insert_one({
+            'ip': client_ip,
+            'email': email,
+            'created_at': datetime.utcnow()
+        })
+        
         if db.users.count_documents({'email':email}) > 0:
             flash('Email already registered!','error'); return render_template('register.html')
         otp = gen_otp()
@@ -160,7 +189,35 @@ def forgot_password():
         if not email:
             flash('Please enter your email address.', 'error')
             return render_template('forgot_password.html')
+            
         db = get_db()
+        
+        # Get client IP address
+        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+        if client_ip and ',' in client_ip:
+            client_ip = client_ip.split(',')[0].strip()
+            
+        # Rate Limiting: Max 3 password reset attempts per IP or Email per 5 minutes
+        five_mins_ago = datetime.utcnow() - timedelta(minutes=5)
+        ip_attempts = db.signup_attempts.count_documents({
+            'ip': client_ip,
+            'created_at': {'$gte': five_mins_ago}
+        })
+        email_attempts = db.signup_attempts.count_documents({
+            'email': email,
+            'created_at': {'$gte': five_mins_ago}
+        })
+        
+        if ip_attempts >= 3 or email_attempts >= 3:
+            flash('Too many requests! Please try again in 5 minutes.', 'error')
+            return render_template('forgot_password.html')
+            
+        # Log this attempt
+        db.signup_attempts.insert_one({
+            'ip': client_ip,
+            'email': email,
+            'created_at': datetime.utcnow()
+        })
         user = db.users.find_one({'email': email})
         if not user:
             # Generic message to prevent email enumeration

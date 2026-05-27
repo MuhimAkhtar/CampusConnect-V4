@@ -17,7 +17,15 @@ def get_client():
 def get_db():
     """Return the campusconnect database."""
     client = get_client()
-    return client.get_database('campusconnect')
+    db = client.get_database('campusconnect')
+    
+    # Ensure TTL index on signup_attempts created_at field (expires after 15 minutes)
+    try:
+        db.signup_attempts.create_index("created_at", expireAfterSeconds=900)
+    except:
+        pass
+        
+    return db
 
 if __name__ == '__main__':
     print("Connecting to MongoDB... ⏳")
