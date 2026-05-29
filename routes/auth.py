@@ -18,10 +18,11 @@ def gen_otp():
 
 def _send_email(to, subject, html):
     """
-    Send email via Gmail SMTP port 587 (STARTTLS) synchronously.
+    Send email via SMTP port 587 (STARTTLS) synchronously.
     On Vercel serverless, daemon threads are killed after the response returns,
     so we MUST send synchronously. Port 587 STARTTLS is used instead of 465 SSL
     because Vercel's outbound firewall sometimes blocks port 465.
+    Supports both Gmail and COMSATS Microsoft Office 365 Outlook SMTP automatically.
     """
     if not MAIL_PASS:
         print("Email skipped: MAIL_PASSWORD env var not set.")
@@ -33,13 +34,19 @@ def _send_email(to, subject, html):
         msg['To'] = to
         msg.attach(MIMEText(html, 'html'))
         ctx = ssl.create_default_context()
-        with smtplib.SMTP('smtp.gmail.com', 587, timeout=15) as s:
+        
+        # Dynamically determine SMTP host based on sending email
+        smtp_host = 'smtp.gmail.com'
+        if 'comsats.edu.pk' in MAIL_USER.lower() or 'office365' in MAIL_USER.lower():
+            smtp_host = 'smtp.office365.com'
+            
+        with smtplib.SMTP(smtp_host, 587, timeout=20) as s:
             s.ehlo()
             s.starttls(context=ctx)
             s.ehlo()
             s.login(MAIL_USER, MAIL_PASS)
             s.sendmail(MAIL_USER, to, msg.as_string())
-        print(f"Email sent OK to {to}")
+        print(f"Email sent OK to {to} via {smtp_host}")
         return True
     except Exception as e:
         print(f"Email error: {e}")
