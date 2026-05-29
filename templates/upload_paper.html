@@ -41,10 +41,10 @@
         </div>
         <div class="form-group" style="margin-bottom:28px">
           <label class="form-label">PDF File *</label>
-          <div id="dropZone" style="border:2px dashed #c7d2fe;border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:.2s;background:#fafafa">
-            <i class="fas fa-file-pdf" style="font-size:40px;color:#6366f1;margin-bottom:12px;display:block"></i>
-            <p style="margin:0;color:#4b5563;font-weight:600">Drag & drop PDF here</p>
-            <p style="margin:4px 0 12px;color:#9ca3af;font-size:13px">or click to browse</p>
+          <div id="dropZone" class="dropzone">
+            <i class="fas fa-file-pdf"></i>
+            <p>Drag & drop PDF here</p>
+            <p class="subtitle">or click to browse</p>
             <input type="file" name="pdf" id="pdfInput" accept=".pdf" required style="display:none">
             <label for="pdfInput" class="btn-secondary" style="cursor:pointer">Choose File</label>
             <p id="fileName" style="margin:12px 0 0;color:#6366f1;font-size:13px;font-weight:600"></p>
@@ -71,10 +71,10 @@ const submitBtn = document.getElementById('submitBtn');
 pdfInput.addEventListener('change', () => {
   if (pdfInput.files[0]) fileName.textContent = '📄 ' + pdfInput.files[0].name;
 });
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor='#4F46E5'; dropZone.style.background='#EEF2FF'; });
-dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor='#c7d2fe'; dropZone.style.background='#fafafa'; });
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
 dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.style.borderColor='#c7d2fe'; dropZone.style.background='#fafafa';
+  e.preventDefault(); dropZone.classList.remove('dragover');
   const file = e.dataTransfer.files[0];
   if (file && file.type === 'application/pdf') {
     const dt = new DataTransfer(); dt.items.add(file); pdfInput.files = dt.files;

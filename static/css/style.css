@@ -571,6 +571,75 @@ img { max-width: 100%; }
 .btn-sm     { padding: 7px 14px; font-size: 13px; }
 .btn-xs     { padding: 4px 10px; font-size: 12px; border-radius: var(--radius-sm); }
 
+.btn-secondary {
+    background: var(--light-gray);
+    color: var(--dark-2);
+    border: 1px solid var(--border);
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+    white-space: nowrap;
+    font-family: var(--font-main);
+}
+
+.btn-secondary:hover {
+    background: var(--border);
+    color: var(--dark);
+    transform: translateY(-2px);
+}
+
+/* ================================
+   DROPZONE / FILE UPLOAD
+   ================================ */
+.dropzone {
+    border: 2px dashed var(--primary);
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--light-gray);
+}
+
+.dropzone:hover, .dropzone.dragover {
+    border-color: var(--secondary);
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.dropzone i {
+    font-size: 40px;
+    color: var(--primary);
+    margin-bottom: 12px;
+    display: block;
+    transition: var(--transition);
+}
+
+.dropzone:hover i {
+    transform: scale(1.1);
+    color: var(--secondary);
+}
+
+.dropzone p {
+    margin: 0;
+    font-weight: 600;
+    color: var(--dark-2);
+}
+
+.dropzone p.subtitle {
+    margin: 4px 0 12px;
+    color: var(--gray);
+    font-size: 13px;
+    font-weight: 500;
+}
+
 /* ================================
    AUTH PAGES
    ================================ */
