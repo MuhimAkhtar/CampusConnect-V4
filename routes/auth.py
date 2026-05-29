@@ -11,7 +11,7 @@ auth_bp = Blueprint('auth', __name__)
 
 MAIL_USER = os.environ.get('MAIL_USERNAME','campusconnect.noreplygmail@gmail.com')
 MAIL_PASS = os.environ.get('MAIL_PASSWORD','')
-MAIL_FROM = f'CampusConnect <{MAIL_USER}>'
+MAIL_FROM = os.environ.get('MAIL_FROM', 'CampusConnect <noreply@cuiconnect.app>')
 
 def gen_otp():
     return ''.join(random.choices(string.digits, k=6))
@@ -39,6 +39,8 @@ def _send_email(to, subject, html):
         smtp_host = 'smtp.gmail.com'
         if 'comsats.edu.pk' in MAIL_USER.lower() or 'office365' in MAIL_USER.lower():
             smtp_host = 'smtp.office365.com'
+        elif 'brevo' in MAIL_USER.lower() or 'sib' in MAIL_USER.lower():
+            smtp_host = 'smtp-relay.brevo.com'
             
         with smtplib.SMTP(smtp_host, 587, timeout=20) as s:
             s.ehlo()
