@@ -27,7 +27,7 @@
     <meta property="og:url" content="https://www.cuiconnect.app{{ request.path if request else '/' }}">
     <meta property="og:title" content="{% block og_title %}CampusConnect - COMSATS University Student Hub{% endblock %}">
     <meta property="og:description" content="{% block og_description %}The all-in-one digital marketplace, rideshare, hostel finder, and study resources hub for CUI Islamabad students.{% endblock %}">
-    <meta property="og:image" content="https://www.cuiconnect.app/static/favicon.png">
+    <meta property="og:image" content="https://www.cuiconnect.app/static/og-image.png">
     <meta property="og:site_name" content="CampusConnect">
 
     <!-- Twitter -->
@@ -35,13 +35,14 @@
     <meta property="twitter:url" content="https://www.cuiconnect.app{{ request.path if request else '/' }}">
     <meta property="twitter:title" content="{% block twitter_title %}CampusConnect - COMSATS University Student Hub{% endblock %}">
     <meta property="twitter:description" content="{% block twitter_description %}The all-in-one digital marketplace, rideshare, hostel finder, and study resources hub for CUI Islamabad students.{% endblock %}">
-    <meta property="twitter:image" content="https://www.cuiconnect.app/static/favicon.png">
+    <meta property="twitter:image" content="https://www.cuiconnect.app/static/og-image.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.min.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     {% block extra_css %}{% endblock %}
     <style>
