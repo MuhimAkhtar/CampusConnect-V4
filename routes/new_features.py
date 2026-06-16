@@ -32,7 +32,11 @@ def past_papers():
         try: q['exam_year'] = int(exam_year)
         except: pass
 
-    total = db.past_papers.count_documents(q)
+    if not q:
+        total = db.past_papers.estimated_document_count()
+    else:
+        total = db.past_papers.count_documents(q)
+        
     total_pages = max(1, (total + per_page - 1) // per_page)
     page = max(1, min(page, total_pages))
     skip = (page - 1) * per_page
@@ -57,11 +61,25 @@ def past_papers():
             'uploaded_by': u['full_name'] if u else 'Unknown',
             'created_at':  p.get('created_at'),
         })
-    return render_template('past_papers.html', papers=papers,
-        subject=subject, course_code=course_code,
-        exam_type=exam_type, exam_year=exam_year,
-        page=page, total_pages=total_pages, total=total,
-        unread=get_unread_count())
+
+    from flask import make_response
+    resp = make_response(render_template('past_papers.html', papers=papers,
+                           subject=subject, course_code=course_code,
+                           exam_type=exam_type, exam_year=exam_year,
+                           page=page, total_pages=total_pages, total=total,
+                           unread=get_unread_count()))
+    
+    # Securely vary cache by session cookie to prevent logged-in users from seeing cached templates
+    resp.headers['Vary'] = 'Cookie'
+    
+    if not is_logged_in():
+        # Cache publicly at Vercel CDN for 60 seconds, stale-while-revalidate for 10 minutes
+        resp.headers['Cache-Control'] = 'public, max-age=10, s-maxage=60, stale-while-revalidate=600'
+    else:
+        # Logged-in users should never hit cache
+        resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        
+    return resp
 
 @new_bp.route('/past-papers/upload', methods=['GET','POST'])
 def upload_paper():
