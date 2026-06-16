@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}List a Hostel - CampusConnect{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>{% endblock %}
 {% block content %}
 <div class="page-container">
     <div class="page-header hostels-bg">
@@ -120,6 +121,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // Multi-image preview function
 function previewMultipleImages(input) {

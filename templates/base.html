@@ -37,14 +37,23 @@
     <meta property="twitter:description" content="{% block twitter_description %}The all-in-one digital marketplace, rideshare, hostel finder, and study resources hub for CUI Islamabad students.{% endblock %}">
     <meta property="twitter:image" content="https://www.cuiconnect.app/static/favicon.png">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     {% block extra_css %}{% endblock %}
-    <style>* { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; }</style>
+    <style>
+        * { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        @keyframes fadeInDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate__animated { animation-duration: 0.4s; animation-fill-mode: both; }
+        .animate__slideInRight { animation-name: slideInRight; }
+        .animate__slideOutRight { animation-name: slideOutRight; }
+        .animate__fadeInDown { animation-name: fadeInDown; }
+    </style>
 </head>
 <body>
     {% if session.user_id %}
@@ -235,8 +244,6 @@
         {% block content %}{% endblock %}
     </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
 

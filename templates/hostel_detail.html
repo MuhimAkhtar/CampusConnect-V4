@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Hostel Details - CampusConnect{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>{% endblock %}
 {% block content %}
 <div class="page-container">
     <div class="page-header hostels-bg">
@@ -303,6 +304,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const map = L.map('hostelDetailMap').setView([33.6518, 73.1565], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

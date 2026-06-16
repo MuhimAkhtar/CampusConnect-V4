@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Post a Ride - CampusConnect{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>{% endblock %}
 {% block content %}
 <div class="page-container">
     <div class="page-header rides-bg">
@@ -113,6 +114,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // Set minimum date to today
 document.getElementById('rideDate').min = new Date().toISOString().split('T')[0];

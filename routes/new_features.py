@@ -16,10 +16,14 @@ def get_user(db, uid):
 @new_bp.route('/past-papers')
 def past_papers():
     db = get_db()
+    from database import get_users_batch
     subject     = request.args.get('subject','')
     course_code = request.args.get('course_code','')
     exam_type   = request.args.get('exam_type','')
     exam_year   = request.args.get('exam_year','')
+    page        = request.args.get('page', 1, type=int)
+    per_page    = 30
+
     q = {}
     if subject:     q['subject']     = {'$regex': subject, '$options': 'i'}
     if course_code: q['course_code'] = {'$regex': course_code, '$options': 'i'}
@@ -27,10 +31,21 @@ def past_papers():
     if exam_year:
         try: q['exam_year'] = int(exam_year)
         except: pass
-    docs = list(db.past_papers.find(q).sort('created_at',-1))
+
+    total = db.past_papers.count_documents(q)
+    total_pages = max(1, (total + per_page - 1) // per_page)
+    page = max(1, min(page, total_pages))
+    skip = (page - 1) * per_page
+
+    docs = list(db.past_papers.find(q).sort('created_at', -1).skip(skip).limit(per_page))
+
+    # Batch-fetch all uploaders in ONE query instead of N+1
+    user_ids = [p['user_id'] for p in docs]
+    users_map = get_users_batch(db, user_ids)
+
     papers = []
     for p in docs:
-        u = get_user(db, p['user_id'])
+        u = users_map.get(p['user_id'])
         papers.append({
             'id':          str(p['_id']),
             'subject':     p.get('subject',''),
@@ -45,6 +60,7 @@ def past_papers():
     return render_template('past_papers.html', papers=papers,
         subject=subject, course_code=course_code,
         exam_type=exam_type, exam_year=exam_year,
+        page=page, total_pages=total_pages, total=total,
         unread=get_unread_count())
 
 @new_bp.route('/past-papers/upload', methods=['GET','POST'])

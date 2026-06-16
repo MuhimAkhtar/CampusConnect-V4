@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Rides - CampusConnect{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>{% endblock %}
 {% block content %}
 <div class="page-container">
     <!-- Page Header -->
@@ -133,6 +134,7 @@
 </div>
 {% endblock %}
 {% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // Initialize map centered on COMSATS Islamabad
 const map = L.map('ridesMap').setView([33.6518, 73.1565], 12);

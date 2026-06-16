@@ -308,6 +308,7 @@ def dashboard():
     if not is_logged_in(): return redirect(url_for('auth.login'))
     db = get_db()
     from helpers import get_unread_count
+    from database import get_users_batch
 
     def fmt_ride(r, u):
         return (str(r['_id']), r['from_location'], r['to_location'], r.get('ride_date'),
@@ -343,19 +344,20 @@ def dashboard():
     hostel_docs  = list(db.hostels.find().sort('created_at',-1).limit(3))
     item_docs    = list(db.marketplace.find({'status':'available'}).sort('created_at',-1).limit(4))
 
-    def get_user(uid):
-        try: return db.users.find_one({'_id':ObjectId(uid)})
-        except: return None
+    # Batch-fetch all users in ONE query instead of N+1 individual queries
+    all_uids = [r['user_id'] for r in ride_docs] + [h['user_id'] for h in hostel_docs] + [i['user_id'] for i in item_docs]
+    users_map = get_users_batch(db, all_uids)
 
-    rides   = [fmt_ride(r, get_user(r['user_id']))   for r in ride_docs]
-    hostels = [fmt_hostel(h, get_user(h['user_id'])) for h in hostel_docs]
-    items   = [fmt_item(i, get_user(i['user_id']))   for i in item_docs]
+    rides   = [fmt_ride(r, users_map.get(r['user_id']))   for r in ride_docs]
+    hostels = [fmt_hostel(h, users_map.get(h['user_id'])) for h in hostel_docs]
+    items   = [fmt_item(i, users_map.get(i['user_id']))   for i in item_docs]
 
     return render_template('dashboard.html',
         rides=rides, hostels=hostels, items=items,
         unread=get_unread_count(),
         total_rides   = db.rides.count_documents({'status':'active'}),
-        total_hostels = db.hostels.count_documents({}),
+        total_hostels = db.hostels.estimated_document_count(),
         total_items   = db.marketplace.count_documents({'status':'available'}),
-        total_users   = db.users.count_documents({})
+        total_users   = db.users.estimated_document_count()
     )
+
