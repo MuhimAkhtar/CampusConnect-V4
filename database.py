@@ -33,6 +33,9 @@ def get_db():
     if not _indexes_created:
         try:
             db.signup_attempts.create_index("created_at", expireAfterSeconds=900)
+            db.past_papers.create_index([("created_at", -1)])
+            db.past_papers.create_index([("subject", 1)])
+            db.past_papers.create_index([("course_code", 1)])
         except:
             pass
         _indexes_created = True
